@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { Database } from '@/lib/types/database';
 import { validate, commentModerationSchema, uuidSchema } from '@/lib/utils/validation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/authOptions';
@@ -64,7 +65,9 @@ export async function PUT(
 
     const { data: comment, error } = await supabase
       .from('comments')
-      .update(validation.data)
+      .update(
+        validation.data as Database['public']['Tables']['comments']['Update']
+      )
       .eq('id', id)
       .select()
       .single();
