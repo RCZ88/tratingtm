@@ -67,7 +67,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-key
 
 # NextAuth
 NEXTAUTH_SECRET=your-secret-key
-NEXTAUTH_URL=http://localhost:8000
+NEXTAUTH_URL=http://localhost:3000
 
 # Cron (optional)
 CRON_SECRET=your-cron-secret
