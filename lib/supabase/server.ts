@@ -1,4 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { Database } from '@/lib/types/database';
 
@@ -6,7 +7,7 @@ import { Database } from '@/lib/types/database';
  * Creates a Supabase client for server-side usage
  * This client is safe to use in Server Components, API Routes, and Server Actions
  */
-export function createClient() {
+export function createClient(): SupabaseClient<Database> {
   const cookieStore = cookies();
 
   return createServerClient<Database>(
@@ -45,7 +46,7 @@ export function createClient() {
  * WARNING: Only use this in secure server contexts (API routes, server actions)
  * Never expose this client to the browser
  */
-export function createServiceClient() {
+export function createServiceClient(): SupabaseClient<Database> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 

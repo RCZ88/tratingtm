@@ -6,8 +6,8 @@ import { cn } from '@/lib/utils/cn';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
-import { Teacher, TeacherInput } from '@/lib/types/database';
-import { validate, teacherSchema } from '@/lib/utils/validation';
+import { Teacher } from '@/lib/types/database';
+import { validate, teacherSchema, type TeacherInput } from '@/lib/utils/validation';
 
 /**
  * TeacherForm Component

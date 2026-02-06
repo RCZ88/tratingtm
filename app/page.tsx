@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import type { TeacherWithStats } from '@/lib/types/database';
 import { Button } from '@/components/ui/Button';
 import { TeacherGrid } from '@/components/public/TeacherGrid';
 import { SearchBar } from '@/components/public/SearchBar';
@@ -29,21 +30,38 @@ export default async function HomePage() {
     .eq('is_approved', true);
 
   // Fetch top-rated teachers
-  const { data: topTeachers } = await supabase
+  const { data: topStatsData } = await supabase
     .from('teacher_stats')
-    .select(`
-      *,
-      teacher:teachers(*)
-    `)
+    .select('*')
     .order('overall_rating', { ascending: false })
     .limit(6);
 
-  const featuredTeachers = topTeachers?.map((stat) => ({
-    ...stat.teacher,
-    total_ratings: stat.total_ratings,
-    average_rating: stat.overall_rating,
-    total_comments: stat.total_comments,
-  })) || [];
+  const topStats = topStatsData ?? [];
+  let featuredTeachers: TeacherWithStats[] = [];
+  const topIds = topStats.map((stat) => stat.id);
+
+  if (topIds.length > 0) {
+    const { data: topTeacherRows } = await supabase
+      .from('teachers')
+      .select('*')
+      .in('id', topIds)
+      .eq('is_active', true);
+
+    const teacherMap = new Map(topTeacherRows?.map((t) => [t.id, t]) || []);
+
+    const nextFeatured: TeacherWithStats[] = [];
+    for (const stat of topStats) {
+      const teacher = teacherMap.get(stat.id);
+      if (!teacher) continue;
+      nextFeatured.push({
+        ...teacher,
+        total_ratings: stat.total_ratings,
+        average_rating: stat.overall_rating,
+        total_comments: stat.total_comments,
+      });
+    }
+    featuredTeachers = nextFeatured;
+  }
 
   const stats = [
     { label: 'Teachers', value: teacherCount || 0, icon: Users },

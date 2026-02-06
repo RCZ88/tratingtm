@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils/cn';
-import { AnalyticsCard } from './AnalyticsCard';
+import { AnalyticsCard, type AnalyticsCardProps } from './AnalyticsCard';
 import { Users, Star, MessageSquare, TrendingUp } from 'lucide-react';
 
 /**
@@ -38,7 +38,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, isLoading = false,
     );
   }
 
-  const cards = [
+  const cards: AnalyticsCardProps[] = [
     {
       title: 'Total Teachers',
       value: stats.totalTeachers,

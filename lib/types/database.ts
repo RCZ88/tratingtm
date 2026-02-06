@@ -34,6 +34,7 @@ export interface Database {
           created_at?: string;
           last_login?: string | null;
         };
+        Relationships: [];
       };
       teachers: {
         Row: {
@@ -69,6 +70,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       ratings: {
         Row: {
@@ -92,6 +94,14 @@ export interface Database {
           anonymous_id?: string;
           created_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'ratings_teacher_id_fkey';
+            columns: ['teacher_id'];
+            referencedRelation: 'teachers';
+            referencedColumns: ['id'];
+          }
+        ];
       };
       comments: {
         Row: {
@@ -121,6 +131,14 @@ export interface Database {
           is_flagged?: boolean;
           created_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'comments_teacher_id_fkey';
+            columns: ['teacher_id'];
+            referencedRelation: 'teachers';
+            referencedColumns: ['id'];
+          }
+        ];
       };
       leaderboard_cache: {
         Row: {
@@ -156,6 +174,14 @@ export interface Database {
           rank_position?: number | null;
           created_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'leaderboard_cache_teacher_id_fkey';
+            columns: ['teacher_id'];
+            referencedRelation: 'teachers';
+            referencedColumns: ['id'];
+          }
+        ];
       };
     };
     Views: {
@@ -170,6 +196,7 @@ export interface Database {
           average_rating: number | null;
           comment_count: number;
         };
+        Relationships: [];
       };
       teacher_stats: {
         Row: {
@@ -179,6 +206,7 @@ export interface Database {
           overall_rating: number | null;
           total_comments: number;
         };
+        Relationships: [];
       };
     };
     Functions: {

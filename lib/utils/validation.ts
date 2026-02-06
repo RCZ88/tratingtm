@@ -152,7 +152,10 @@ export function validate<T>(schema: z.ZodSchema<T>, data: unknown): { success: t
 /**
  * Validates partial data (for updates)
  */
-export function validatePartial<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: Partial<T> } | { success: false; errors: string[] } {
+export function validatePartial<T extends z.ZodRawShape>(
+  schema: z.ZodObject<T>,
+  data: unknown
+): { success: true; data: Partial<z.infer<typeof schema>> } | { success: false; errors: string[] } {
   const partialSchema = schema.partial();
   return validate(partialSchema, data);
 }
