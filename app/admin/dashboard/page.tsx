@@ -28,6 +28,17 @@ interface DashboardStats {
   pendingComments: number;
   weeklyRatings: number;
   weeklyComments: number;
+  topTeachers: Array<{
+    id: string;
+    name: string;
+    overall_rating: number | null;
+  }>;
+  recentActivity: Array<{
+    id: string;
+    stars: number;
+    created_at: string;
+    teacher?: { name: string | null };
+  }>;
 }
 
 export default function AdminDashboardPage() {
@@ -88,6 +99,10 @@ export default function AdminDashboardPage() {
         totalRatings: 0,
         totalComments: 0,
         pendingComments: 0,
+        weeklyRatings: 0,
+        weeklyComments: 0,
+        topTeachers: [],
+        recentActivity: [],
       }} isLoading={isLoading} />
 
       {/* Quick Actions */}
