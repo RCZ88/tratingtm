@@ -13,7 +13,7 @@ import { MessageSquare, User } from 'lucide-react';
  */
 
 export interface CommentListProps {
-  comments: Comment[];
+  comments: Array<Pick<Comment, 'id' | 'comment_text' | 'created_at'>>;
   isLoading?: boolean;
   emptyMessage?: string;
   className?: string;
