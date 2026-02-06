@@ -66,7 +66,8 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit comment');
+        const details = Array.isArray(data.details) ? data.details.join(', ') : '';
+        throw new Error(details ? `${data.error}: ${details}` : data.error || 'Failed to submit comment');
       }
 
       setState((prev) => ({
@@ -114,6 +115,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
         maxLength={500}
         showCharacterCount
         rows={4}
+        helperText="Minimum 10 characters required."
         error={state.error || undefined}
       />
 

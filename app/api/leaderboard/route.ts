@@ -31,60 +31,73 @@ export async function GET(request: NextRequest) {
       weekEnd = getCurrentWeekEnd();
     }
 
-    // Try to get from cache first
-    const { data: cachedLeaderboard } = await supabase
-      .from('leaderboard_cache')
-      .select(`
-        *,
-        teacher:teachers(id, name, subject, department, image_url)
-      `)
-      .eq('week_start', toISODate(weekStart))
-      .order('rank_position', { ascending: true });
+    const currentWeekStart = getCurrentWeekStart();
+    const isCurrentWeek = toISODate(weekStart) === toISODate(currentWeekStart);
 
-    if (cachedLeaderboard && cachedLeaderboard.length > 0) {
-      // Format cached data
-      const formatted = cachedLeaderboard.map((entry) => ({
-        id: entry.teacher_id,
-        name: entry.teacher?.name,
-        subject: entry.teacher?.subject,
-        department: entry.teacher?.department,
-        image_url: entry.teacher?.image_url,
-        rating_count: entry.total_ratings,
-        average_rating: entry.average_rating,
-        comment_count: entry.total_comments,
-        rank_position: entry.rank_position,
-      }));
+    if (!isCurrentWeek) {
+      // For past weeks, use cached data (populated by cron)
+      const { data: cachedLeaderboard } = await supabase
+        .from('leaderboard_cache')
+        .select(`
+          *,
+          teacher:teachers(id, name, subject, department, image_url)
+        `)
+        .eq('week_start', toISODate(weekStart))
+        .order('rank_position', { ascending: true });
 
-      return NextResponse.json({
-        data: {
-          week_start: toISODate(weekStart),
-          week_end: toISODate(weekEnd),
-          top: formatted.filter((e) => e.rank_position && e.rank_position <= limit),
-          bottom: formatted
-            .filter((e) => e.rank_position && e.rank_position > formatted.length - limit)
-            .reverse(),
-          all: formatted,
-        },
-      });
+      if (cachedLeaderboard && cachedLeaderboard.length > 0) {
+        const formatted = cachedLeaderboard.map((entry) => ({
+          id: entry.teacher_id,
+          name: entry.teacher?.name,
+          subject: entry.teacher?.subject,
+          department: entry.teacher?.department,
+          image_url: entry.teacher?.image_url,
+          rating_count: entry.total_ratings,
+          average_rating: entry.average_rating,
+          comment_count: entry.total_comments,
+          rank_position: entry.rank_position,
+        }));
+
+        return NextResponse.json({
+          data: {
+            week_start: toISODate(weekStart),
+            week_end: toISODate(weekEnd),
+            top: formatted.filter((e) => e.rank_position && e.rank_position <= limit),
+            bottom: formatted
+              .filter((e) => e.rank_position && e.rank_position > formatted.length - limit)
+              .reverse(),
+            all: formatted,
+          },
+        });
+      }
     }
 
-    // If not cached, calculate from current_week_leaderboard view
-    const { data: leaderboard, error } = await supabase
-      .from('current_week_leaderboard')
-      .select('*')
-      .limit(limit * 2);
+    // Live computation for current week (fast + always fresh)
+    const [topRes, bottomRes] = await Promise.all([
+      supabase
+        .from('current_week_leaderboard')
+        .select('*')
+        .order('average_rating', { ascending: false })
+        .order('rating_count', { ascending: false })
+        .limit(limit),
+      supabase
+        .from('current_week_leaderboard')
+        .select('*')
+        .order('average_rating', { ascending: true })
+        .order('rating_count', { ascending: true })
+        .limit(limit),
+    ]);
 
-    if (error) {
-      console.error('Error fetching leaderboard:', error);
+    if (topRes.error || bottomRes.error) {
+      console.error('Error fetching leaderboard:', topRes.error || bottomRes.error);
       return NextResponse.json(
         { error: 'Failed to fetch leaderboard' },
         { status: 500 }
       );
     }
 
-    const sorted = leaderboard || [];
-    const top = sorted.slice(0, limit);
-    const bottom = sorted.slice(-limit).reverse();
+    const top = topRes.data || [];
+    const bottom = bottomRes.data || [];
 
     return NextResponse.json({
       data: {
@@ -92,7 +105,7 @@ export async function GET(request: NextRequest) {
         week_end: toISODate(weekEnd),
         top,
         bottom,
-        all: sorted,
+        all: [...top, ...bottom],
       },
     });
   } catch (error) {
