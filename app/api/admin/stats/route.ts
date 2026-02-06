@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/authOptions';
 import { getCurrentWeekStart, toISODate } from '@/lib/utils/dateHelpers';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/admin/stats
  * 

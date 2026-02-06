@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get('sort_order') || 'asc';
     const includeInactive = searchParams.get('include_inactive') === 'true';
 
-    const supabase = createClient();
+    const session = await getServerSession(authOptions);
+    const supabase = includeInactive && session ? createServiceClient() : createClient();
 
     // Build query
     let query = supabase.from('teachers').select('*', { count: 'exact' });
@@ -32,6 +33,8 @@ export async function GET(request: NextRequest) {
     // Apply filters
     if (!includeInactive) {
       query = query.eq('is_active', true);
+    } else if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     if (search) {

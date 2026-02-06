@@ -19,7 +19,8 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertTriangle,
-  Upload
+  Upload,
+  FileJson
 } from 'lucide-react';
 
 /**
@@ -108,6 +109,11 @@ export default function AdminTeachersPage() {
           <p className="text-slate-600">Manage teacher profiles</p>
         </div>
         <div className="flex flex-wrap gap-3">
+          <Link href="/admin/teachers/json">
+            <Button variant="outline" leftIcon={<FileJson className="h-4 w-4" />}>
+              Edit JSON
+            </Button>
+          </Link>
           <Link href="/admin/teachers/import">
             <Button variant="outline" leftIcon={<Upload className="h-4 w-4" />}>
               Import JSON
