@@ -30,20 +30,23 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="border-t border-slate-200 bg-slate-50">
+    <footer className="border-t border-slate-200 bg-emerald-50/50">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <GraduationCap className="h-6 w-6" />
               </div>
               <span className="text-xl font-bold text-slate-900">
-                RateMyTeacher
+                TM Ratings
               </span>
             </Link>
-            <p className="mt-4 text-sm text-slate-500">
+            <p className="mt-2 text-xs font-medium uppercase tracking-wider text-emerald-700">
+              TunasMuda School
+            </p>
+            <p className="mt-3 text-sm text-slate-500">
               Anonymous platform for students to rate and review their teachers.
               Help others find the best educators.
             </p>
@@ -59,7 +62,7 @@ const Footer: React.FC = () => {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-slate-600 hover:text-indigo-600 transition-colors"
+                    className="text-sm text-slate-600 hover:text-emerald-700 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -78,7 +81,7 @@ const Footer: React.FC = () => {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-slate-600 hover:text-indigo-600 transition-colors"
+                    className="text-sm text-slate-600 hover:text-emerald-700 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -97,7 +100,7 @@ const Footer: React.FC = () => {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-slate-600 hover:text-indigo-600 transition-colors"
+                    className="text-sm text-slate-600 hover:text-emerald-700 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -110,7 +113,7 @@ const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-8 md:flex-row">
           <p className="text-sm text-slate-500">
-            {currentYear} RateMyTeacher. All rights reserved.
+            {currentYear} TunasMuda School. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <a

@@ -90,7 +90,7 @@ export default function AdminSettingsPage() {
               </div>
               <input
                 type="checkbox"
-                className="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                 checked={settings?.comments_require_approval ?? true}
                 onChange={(e) =>
                   setSettings((prev) => ({

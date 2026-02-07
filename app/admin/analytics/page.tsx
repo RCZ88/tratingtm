@@ -128,9 +128,9 @@ export default function AnalyticsPage() {
                     className="flex items-center justify-between rounded-lg bg-slate-50 p-3"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-medium text-indigo-600">
-                        {index + 1}
-                      </span>
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-sm font-medium text-emerald-600">
+                      {index + 1}
+                    </span>
                       <div>
                         <p className="font-medium text-slate-900">{teacher.name}</p>
                         <p className="text-xs text-slate-500">

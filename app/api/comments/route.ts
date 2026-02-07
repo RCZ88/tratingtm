@@ -27,12 +27,12 @@ export async function GET(request: NextRequest) {
 
     // Filter by status
     if (status === 'pending') {
-      query = query.eq('is_approved', false);
+      query = query.eq('is_approved', false).eq('is_flagged', false);
     } else if (status === 'approved') {
-      query = query.eq('is_approved', true);
+      query = query.eq('is_approved', true).eq('is_flagged', false);
     } else {
       // Default: only show approved comments for public
-      query = query.eq('is_approved', true);
+      query = query.eq('is_approved', true).eq('is_flagged', false);
     }
 
     const { data: comments, error } = await query

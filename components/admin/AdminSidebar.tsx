@@ -33,6 +33,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ className }) => {
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/teachers', label: 'Teachers', icon: Users },
     { href: '/admin/moderation', label: 'Moderation', icon: MessageSquare },
+    { href: '/admin/comments', label: 'Comments', icon: MessageSquare },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];
@@ -71,8 +72,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ className }) => {
             className={cn(
               'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
               isActive(item.href)
-                ? 'bg-indigo-50 text-indigo-700'
-                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+                ? 'bg-emerald-50 text-emerald-700'
+                : 'text-slate-600 hover:bg-emerald-50/60 hover:text-slate-900',
               isCollapsed && 'justify-center'
             )}
             title={isCollapsed ? item.label : undefined}
@@ -87,7 +88,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ className }) => {
       {!isCollapsed && (
         <div className="border-t border-slate-200 p-4">
           <p className="text-xs text-slate-400">
-            RateMyTeacher Admin v1.0
+            TM Ratings Admin v1.0
           </p>
         </div>
       )}

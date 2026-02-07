@@ -70,7 +70,7 @@ export default function EditTeacherPage() {
       <div className="mb-8">
         <Link
           href="/admin/teachers"
-          className="mb-4 inline-flex items-center text-sm text-slate-600 hover:text-indigo-600"
+          className="mb-4 inline-flex items-center text-sm text-slate-600 hover:text-emerald-700"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Teachers

@@ -33,16 +33,16 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white transition-transform group-hover:scale-105">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-transform group-hover:scale-105">
               <GraduationCap className="h-6 w-6" />
             </div>
             <span className="hidden text-xl font-bold text-slate-900 sm:block">
-              RateMyTeacher
+              TM Ratings
             </span>
           </Link>
 
@@ -55,8 +55,8 @@ const Navbar: React.FC = () => {
                 className={cn(
                   'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors',
                   isActive(item.href)
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : 'text-slate-600 hover:bg-emerald-50/60 hover:text-slate-900'
                 )}
               >
                 {item.icon && <item.icon className="h-4 w-4" />}
@@ -99,8 +99,8 @@ const Navbar: React.FC = () => {
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors',
                   isActive(item.href)
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : 'text-slate-600 hover:bg-emerald-50/60 hover:text-slate-900'
                 )}
               >
                 {item.icon && <item.icon className="h-5 w-5" />}

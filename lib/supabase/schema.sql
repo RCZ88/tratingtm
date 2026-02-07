@@ -94,24 +94,38 @@ CREATE INDEX idx_leaderboard_rank ON leaderboard_cache(rank_position);
 
 -- Current week leaderboard view
 CREATE OR REPLACE VIEW current_week_leaderboard AS
-SELECT 
+WITH rating_agg AS (
+  SELECT
+    r.teacher_id,
+    COUNT(r.id) AS rating_count,
+    ROUND(AVG(r.stars)::numeric, 2) AS average_rating
+  FROM ratings r
+  WHERE r.created_at >= date_trunc('week', CURRENT_DATE)
+  GROUP BY r.teacher_id
+),
+comment_agg AS (
+  SELECT
+    c.teacher_id,
+    COUNT(c.id) AS comment_count
+  FROM comments c
+  WHERE c.created_at >= date_trunc('week', CURRENT_DATE)
+    AND c.is_approved = true
+  GROUP BY c.teacher_id
+)
+SELECT
   t.id,
   t.name,
   t.subject,
   t.department,
   t.image_url,
-  COUNT(r.id) as rating_count,
-  ROUND(AVG(r.stars)::numeric, 2) as average_rating,
-  COUNT(DISTINCT c.id) as comment_count
+  COALESCE(r.rating_count, 0) AS rating_count,
+  r.average_rating,
+  COALESCE(c.comment_count, 0) AS comment_count
 FROM teachers t
-LEFT JOIN ratings r ON t.id = r.teacher_id 
-  AND r.created_at >= date_trunc('week', CURRENT_DATE)
-LEFT JOIN comments c ON t.id = c.teacher_id 
-  AND c.created_at >= date_trunc('week', CURRENT_DATE)
-  AND c.is_approved = true
+LEFT JOIN rating_agg r ON t.id = r.teacher_id
+LEFT JOIN comment_agg c ON t.id = c.teacher_id
 WHERE t.is_active = true
-GROUP BY t.id, t.name, t.subject, t.department, t.image_url
-ORDER BY average_rating DESC, rating_count DESC;
+ORDER BY r.average_rating DESC NULLS LAST, r.rating_count DESC NULLS LAST;
 
 -- Teacher statistics view
 CREATE OR REPLACE VIEW teacher_stats AS
@@ -139,24 +153,40 @@ BEGIN
   DELETE FROM leaderboard_cache WHERE week_start = week_start_val;
   
   INSERT INTO leaderboard_cache (teacher_id, week_start, week_end, total_ratings, average_rating, total_comments, rank_position)
-  SELECT 
+  WITH rating_agg AS (
+    SELECT
+      r.teacher_id,
+      COUNT(r.id) AS total_ratings,
+      ROUND(AVG(r.stars)::numeric, 2) AS average_rating
+    FROM ratings r
+    WHERE r.created_at >= week_start_val
+      AND r.created_at < (week_end_val + INTERVAL '1 day')
+    GROUP BY r.teacher_id
+  ),
+  comment_agg AS (
+    SELECT
+      c.teacher_id,
+      COUNT(c.id) AS total_comments
+    FROM comments c
+    WHERE c.created_at >= week_start_val
+      AND c.created_at < (week_end_val + INTERVAL '1 day')
+      AND c.is_approved = true
+    GROUP BY c.teacher_id
+  )
+  SELECT
     t.id,
     week_start_val,
     week_end_val,
-    COUNT(r.id) as total_ratings,
-    ROUND(AVG(r.stars)::numeric, 2) as average_rating,
-    COUNT(DISTINCT c.id) as total_comments,
-    ROW_NUMBER() OVER (ORDER BY AVG(r.stars) DESC, COUNT(r.id) DESC) as rank_position
+    COALESCE(r.total_ratings, 0) AS total_ratings,
+    r.average_rating,
+    COALESCE(c.total_comments, 0) AS total_comments,
+    ROW_NUMBER() OVER (
+      ORDER BY r.average_rating DESC NULLS LAST, r.total_ratings DESC NULLS LAST
+    ) AS rank_position
   FROM teachers t
-  LEFT JOIN ratings r ON t.id = r.teacher_id 
-    AND r.created_at >= week_start_val 
-    AND r.created_at < (week_end_val + INTERVAL '1 day')
-  LEFT JOIN comments c ON t.id = c.teacher_id 
-    AND c.created_at >= week_start_val 
-    AND c.created_at < (week_end_val + INTERVAL '1 day')
-    AND c.is_approved = true
-  WHERE t.is_active = true
-  GROUP BY t.id;
+  LEFT JOIN rating_agg r ON t.id = r.teacher_id
+  LEFT JOIN comment_agg c ON t.id = c.teacher_id
+  WHERE t.is_active = true;
 END;
 $$ LANGUAGE plpgsql;
 

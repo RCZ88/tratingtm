@@ -86,8 +86,8 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
     <div className={cn('space-y-4', className)}>
       {/* Bulk Actions */}
       {selectedComments.size > 0 && (
-        <div className="flex items-center gap-3 rounded-lg bg-indigo-50 p-3">
-          <span className="text-sm font-medium text-indigo-700">
+        <div className="flex items-center gap-3 rounded-lg bg-emerald-50 p-3">
+          <span className="text-sm font-medium text-emerald-700">
             {selectedComments.size} selected
           </span>
           <div className="flex-1" />
@@ -122,7 +122,7 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
             key={comment.id}
             className={cn(
               'rounded-lg border border-slate-200 bg-white p-4 transition-shadow hover:shadow-sm',
-              selectedComments.has(comment.id) && 'border-indigo-300 bg-indigo-50/50'
+              selectedComments.has(comment.id) && 'border-emerald-300 bg-emerald-50/50'
             )}
           >
             <div className="flex items-start gap-4">
@@ -131,7 +131,7 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
                 type="checkbox"
                 checked={selectedComments.has(comment.id)}
                 onChange={() => toggleSelection(comment.id)}
-                className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
               />
 
               {/* Content */}
@@ -139,8 +139,8 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
                 {/* Header */}
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100">
-                      <User className="h-4 w-4 text-indigo-600" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
+                      <User className="h-4 w-4 text-emerald-600" />
                     </div>
                     <div>
                       {comment.teacher && (

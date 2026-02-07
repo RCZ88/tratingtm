@@ -129,13 +129,13 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                             className="object-cover"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-indigo-100">
-                            <User className="h-5 w-5 text-indigo-600" />
+                          <div className="flex h-full w-full items-center justify-center bg-emerald-100">
+                            <User className="h-5 w-5 text-emerald-600" />
                           </div>
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-slate-900 group-hover:text-indigo-600 transition-colors">
+                        <p className="font-medium text-slate-900 group-hover:text-emerald-700 transition-colors">
                           {entry.name}
                         </p>
                         {entry.subject && (

@@ -54,10 +54,10 @@ export default function AdminLoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 p-4">
       <Link href="/" className="mb-8 flex items-center gap-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Shield className="h-6 w-6" />
         </div>
-        <span className="text-xl font-bold text-slate-900">Admin Panel</span>
+        <span className="text-xl font-bold text-slate-900">TM Ratings Admin</span>
       </Link>
 
       <Card className="w-full max-w-md">
@@ -109,7 +109,7 @@ export default function AdminLoginPage() {
           <div className="mt-6 text-center">
             <Link
               href="/"
-              className="text-sm text-slate-500 hover:text-indigo-600"
+              className="text-sm text-slate-500 hover:text-emerald-700"
             >
               ← Back to website
             </Link>

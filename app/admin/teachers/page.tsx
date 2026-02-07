@@ -139,7 +139,7 @@ export default function AdminTeachersPage() {
               setSearchQuery(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-lg border border-slate-300 py-2 pl-10 pr-4 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full rounded-lg border border-slate-300 py-2 pl-10 pr-4 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
       </div>
@@ -219,7 +219,7 @@ export default function AdminTeachersPage() {
                           </button>
                           <Link href={`/admin/teachers/${teacher.id}/edit`}>
                             <button
-                              className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-indigo-600"
+                              className="rounded-lg p-2 text-slate-400 hover:bg-emerald-50 hover:text-emerald-700"
                               title="Edit"
                             >
                               <Edit2 className="h-4 w-4" />

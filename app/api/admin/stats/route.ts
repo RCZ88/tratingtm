@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
     const { data: topTeachers } = await supabase
       .from('teacher_stats')
       .select('*')
+      .gt('total_ratings', 0)
       .order('overall_rating', { ascending: false })
       .limit(5);
 

@@ -33,7 +33,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   const colors = {
-    primary: 'text-indigo-600',
+    primary: 'text-primary',
     white: 'text-white',
     slate: 'text-slate-400',
   };

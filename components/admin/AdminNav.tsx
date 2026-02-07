@@ -39,6 +39,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/teachers', label: 'Teachers', icon: Users },
     { href: '/admin/moderation', label: 'Moderation', icon: MessageSquare },
+    { href: '/admin/comments', label: 'Comments', icon: MessageSquare },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];
@@ -50,11 +51,11 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
       <div className="flex h-16 items-center justify-between px-4 lg:px-8">
         {/* Logo */}
         <Link href="/admin/dashboard" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Shield className="h-5 w-5" />
           </div>
           <span className="hidden text-lg font-bold text-slate-900 sm:block">
-            Admin Panel
+            TM Ratings Admin
           </span>
         </Link>
 
@@ -67,8 +68,8 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
               className={cn(
                 'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                 isActive(item.href)
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-emerald-50 text-emerald-700'
+                  : 'text-slate-600 hover:bg-emerald-50/60 hover:text-slate-900'
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -117,8 +118,8 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors',
                   isActive(item.href)
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-slate-600 hover:bg-slate-50'
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : 'text-slate-600 hover:bg-emerald-50/60'
                 )}
               >
                 <item.icon className="h-5 w-5" />

@@ -42,7 +42,7 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-indigo-600">
+            <div className="flex h-full w-full items-center justify-center bg-emerald-100 text-emerald-600">
               <User className="h-12 w-12" />
             </div>
           )}
@@ -50,7 +50,7 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
 
         {/* Content */}
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+          <h3 className="text-lg font-semibold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-1">
             {teacher.name}
           </h3>
 
@@ -85,7 +85,7 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
         </div>
 
         {/* Hover overlay indicator */}
-        <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+        <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-emerald-500 to-green-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
       </div>
     </Link>
   );

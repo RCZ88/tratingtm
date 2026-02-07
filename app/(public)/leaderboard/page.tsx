@@ -67,11 +67,14 @@ export default function LeaderboardPage() {
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-slate-900">Weekly Leaderboard</h1>
-          <p className="mt-2 text-slate-600">
-            See the top and bottom rated teachers this week
-          </p>
+        <div className="mb-8 text-center relative overflow-hidden rounded-2xl bg-white px-6 py-8 shadow-sm">
+          <div className="absolute inset-0 leaf-pattern opacity-40" />
+          <div className="relative">
+            <h1 className="text-3xl font-bold text-slate-900">Weekly Leaderboard</h1>
+            <p className="mt-2 text-slate-600">
+              See the top and bottom rated teachers this week
+            </p>
+          </div>
         </div>
 
         {/* Week Selector */}
@@ -106,7 +109,7 @@ export default function LeaderboardPage() {
           {/* Top 10 */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-700">
+              <CardTitle className="flex items-center gap-2 text-emerald-700">
                 <Trophy className="h-5 w-5" />
                 Top 10 Teachers
               </CardTitle>
@@ -141,8 +144,8 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Info */}
-        <div className="mt-8 rounded-lg bg-blue-50 p-4">
-          <p className="text-sm text-blue-700">
+        <div className="mt-8 rounded-lg bg-emerald-50 p-4">
+          <p className="text-sm text-emerald-800">
             <strong>Note:</strong> Rankings are based on average ratings for the current week.
             The leaderboard resets every Monday at midnight.
           </p>

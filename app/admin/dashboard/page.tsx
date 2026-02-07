@@ -180,9 +180,9 @@ export default function AdminDashboardPage() {
                     className="flex items-center justify-between rounded-lg bg-slate-50 p-3"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-600">
-                        {index + 1}
-                      </span>
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-medium text-emerald-600">
+                      {index + 1}
+                    </span>
                       <p className="font-medium text-slate-900">{teacher.name}</p>
                     </div>
                     <span className="text-sm font-medium text-amber-500">

@@ -33,6 +33,7 @@ export default async function HomePage() {
   const { data: topStatsData } = await supabase
     .from('teacher_stats')
     .select('*')
+    .gt('total_ratings', 0)
     .order('overall_rating', { ascending: false })
     .limit(6);
 
@@ -72,16 +73,16 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 py-20 lg:py-32">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.05%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-20" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-green-800 py-20 lg:py-32">
+        <div className="absolute inset-0 leaf-pattern opacity-40" />
         
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
               Rate Your Teachers
-              <span className="block text-indigo-200">Anonymously</span>
+              <span className="block text-emerald-100">Anonymously</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-indigo-100">
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-emerald-100">
               Share your experience and help other students find the best educators. 
               All ratings and comments are completely anonymous.
             </p>
@@ -100,7 +101,7 @@ export default async function HomePage() {
                   </div>
                   <div className="text-left">
                     <p className="text-2xl font-bold">{stat.value.toLocaleString()}</p>
-                    <p className="text-sm text-indigo-200">{stat.label}</p>
+                    <p className="text-sm text-emerald-100">{stat.label}</p>
                   </div>
                 </div>
               ))}
@@ -165,7 +166,7 @@ export default async function HomePage() {
               },
             ].map((item) => (
               <div key={item.step} className="relative">
-                <div className="text-6xl font-bold text-indigo-100">{item.step}</div>
+                <div className="text-6xl font-bold text-emerald-100">{item.step}</div>
                 <h3 className="mt-4 text-xl font-semibold text-slate-900">{item.title}</h3>
                 <p className="mt-2 text-slate-600">{item.description}</p>
               </div>
@@ -177,11 +178,11 @@ export default async function HomePage() {
       {/* CTA Section */}
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl bg-indigo-600 px-6 py-12 text-center lg:px-16">
+          <div className="rounded-2xl bg-emerald-600 px-6 py-12 text-center lg:px-16">
             <h2 className="text-3xl font-bold text-white">
               Ready to share your experience?
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-lg text-indigo-100">
+            <p className="mx-auto mt-4 max-w-xl text-lg text-emerald-100">
               Join thousands of students in helping others find great teachers.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">

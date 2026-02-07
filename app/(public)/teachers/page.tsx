@@ -70,11 +70,14 @@ export default function TeachersPage() {
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">Browse Teachers</h1>
-          <p className="mt-2 text-slate-600">
-            Find and rate teachers from all departments
-          </p>
+        <div className="mb-8 relative overflow-hidden rounded-2xl bg-white px-6 py-8 shadow-sm">
+          <div className="absolute inset-0 leaf-pattern opacity-40" />
+          <div className="relative">
+            <h1 className="text-3xl font-bold text-slate-900">Browse Teachers</h1>
+            <p className="mt-2 text-slate-600">
+              Find and rate teachers from all departments
+            </p>
+          </div>
         </div>
 
         {/* Filters */}
@@ -96,7 +99,7 @@ export default function TeachersPage() {
                 <select
                   value={department}
                   onChange={handleDepartmentChange}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="">All Departments</option>
                   <option value="Science">Science</option>
@@ -113,7 +116,7 @@ export default function TeachersPage() {
                 <select
                   value={sortBy}
                   onChange={handleSortChange}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="name">Name</option>
                   <option value="created_at">Newest</option>

@@ -172,7 +172,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
           id="is_active"
           checked={state.is_active}
           onChange={(e) => handleChange('is_active', e.target.checked)}
-          className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+          className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
         />
         <label htmlFor="is_active" className="text-sm text-slate-700">
           Active (visible to public)

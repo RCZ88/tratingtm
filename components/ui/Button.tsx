@@ -40,13 +40,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        'bg-indigo-600 text-white hover:bg-indigo-700 focus-visible:ring-indigo-600 active:bg-indigo-800',
+        'bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary active:bg-primary/80',
       secondary:
-        'bg-slate-100 text-slate-900 hover:bg-slate-200 focus-visible:ring-slate-500 active:bg-slate-300',
+        'bg-secondary text-secondary-foreground hover:bg-secondary/80 focus-visible:ring-primary/40 active:bg-secondary/70',
       outline:
-        'border-2 border-slate-300 bg-transparent text-slate-700 hover:bg-slate-50 focus-visible:ring-slate-500 active:bg-slate-100',
+        'border-2 border-border bg-transparent text-foreground hover:bg-accent focus-visible:ring-primary/40 active:bg-accent/70',
       ghost:
-        'bg-transparent text-slate-700 hover:bg-slate-100 focus-visible:ring-slate-500 active:bg-slate-200',
+        'bg-transparent text-foreground hover:bg-accent focus-visible:ring-primary/40 active:bg-accent/70',
       danger:
         'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600 active:bg-red-800',
     };

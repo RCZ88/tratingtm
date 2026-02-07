@@ -70,11 +70,14 @@ export default function SearchPageClient() {
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-slate-900">Search Teachers</h1>
-          <p className="mt-2 text-slate-600">
-            Find teachers by name, subject, or department
-          </p>
+        <div className="mb-8 text-center relative overflow-hidden rounded-2xl bg-white px-6 py-8 shadow-sm">
+          <div className="absolute inset-0 leaf-pattern opacity-40" />
+          <div className="relative">
+            <h1 className="text-3xl font-bold text-slate-900">Search Teachers</h1>
+            <p className="mt-2 text-slate-600">
+              Find teachers by name, subject, or department
+            </p>
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -114,8 +117,8 @@ export default function SearchPageClient() {
         {/* Initial State */}
         {!hasSearched && (
           <div className="py-16 text-center">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-indigo-100">
-              <Search className="h-10 w-10 text-indigo-600" />
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
+              <Search className="h-10 w-10 text-emerald-600" />
             </div>
             <h2 className="mt-6 text-xl font-semibold text-slate-900">
               Start Searching
@@ -135,7 +138,7 @@ export default function SearchPageClient() {
                     <button
                       key={subject}
                       onClick={() => handleSearch(subject)}
-                      className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-indigo-500 hover:text-indigo-600"
+                      className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-emerald-500 hover:text-emerald-700"
                     >
                       {subject}
                     </button>

@@ -4,24 +4,24 @@
 
 :root {
   --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --foreground: 216 28% 12%;
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 216 28% 12%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 243 75% 59%;
+  --popover-foreground: 216 28% 12%;
+  --primary: 146 56% 34%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
+  --secondary: 140 45% 96%;
+  --secondary-foreground: 145 30% 18%;
+  --muted: 150 20% 96%;
+  --muted-foreground: 152 12% 40%;
+  --accent: 140 40% 95%;
+  --accent-foreground: 145 30% 18%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 243 75% 59%;
+  --border: 150 20% 90%;
+  --input: 150 20% 90%;
+  --ring: 146 56% 34%;
   --radius: 0.5rem;
 }
 
@@ -119,4 +119,11 @@ html {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Subtle leaf motif */
+.leaf-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg%20width%3D%22140%22%20height%3D%22140%22%20viewBox%3D%220%200%20140%20140%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22%2316a34a%22%20fill-opacity%3D%220.06%22%3E%3Cpath%20d%3D%22M70%2020c-10%2017-12%2035-6%2054%206%2018%2020%2032%2036%2041-21%202-39-6-52-20-17-17-24-39-25-62%2017-5%2034-7%2047-13z%22%2F%3E%3Cpath%20d%3D%22M90%2030c18%2014%2027%2032%2027%2054%200%2022-9%2041-26%2057-5-20-14-36-28-49-14-13-31-21-52-23%2014-18%2033-29%2056-39z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  background-repeat: repeat;
+  background-size: 140px 140px;
 }

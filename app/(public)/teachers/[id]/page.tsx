@@ -110,7 +110,7 @@ export default function TeacherDetailPage() {
         {/* Back Link */}
         <Link
           href="/teachers"
-          className="mb-6 inline-flex items-center text-sm text-slate-600 hover:text-indigo-600"
+          className="mb-6 inline-flex items-center text-sm text-slate-600 hover:text-emerald-600"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Teachers
@@ -133,8 +133,8 @@ export default function TeacherDetailPage() {
                         className="object-cover"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-indigo-100">
-                        <User className="h-16 w-16 text-indigo-600" />
+                      <div className="flex h-full w-full items-center justify-center bg-emerald-100">
+                        <User className="h-16 w-16 text-emerald-600" />
                       </div>
                     )}
                   </div>

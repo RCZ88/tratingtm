@@ -133,8 +133,8 @@ const CommentList: React.FC<CommentListProps> = ({
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100">
-                <User className="h-4 w-4 text-indigo-600" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
+                <User className="h-4 w-4 text-emerald-600" />
               </div>
               <span className="text-sm font-medium text-slate-600">Anonymous</span>
             </div>
