@@ -30,4 +30,4 @@ export const SUBJECTS_BY_DEPARTMENT: Record<string, string[]> = {
   ],
 };
 
-export const LEVELS = ['SL', 'HL'];
+export const LEVELS = ['SL', 'HL'] as const;
