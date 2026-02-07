@@ -4,6 +4,7 @@ import './globals.css';
 import { Navbar } from '@/components/public/Navbar';
 import { Footer } from '@/components/public/Footer';
 import { Analytics } from '@vercel/analytics/next';
+import { SessionProvider } from '@/components/SessionProvider';
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -30,11 +31,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${manrope.className} antialiased`}>
-        <div className="flex min-h-screen flex-col">
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
+        <SessionProvider>
+          <div className="flex min-h-screen flex-col">
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </SessionProvider>
         <Analytics />
       </body>
     </html>

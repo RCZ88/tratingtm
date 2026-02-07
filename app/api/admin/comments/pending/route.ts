@@ -3,6 +3,8 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/authOptions';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/admin/comments/pending
  * 
