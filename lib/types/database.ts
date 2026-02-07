@@ -330,6 +330,44 @@ export interface Database {
         };
         Relationships: [];
       };
+      teacher_popularity: {
+        Row: {
+          id: string;
+          name: string;
+          subject: string | null;
+          department: string | null;
+          image_url: string | null;
+          total_ratings: number;
+          total_comments: number;
+          total_interactions: number;
+        };
+        Relationships: [];
+      };
+      rating_summary: {
+        Row: {
+          total_ratings: number;
+          average_rating: number | null;
+        };
+        Relationships: [];
+      };
+      comment_like_counts: {
+        Row: {
+          comment_id: string;
+          like_count: number;
+        };
+        Relationships: [];
+      };
+      top_liked_comment: {
+        Row: {
+          id: string;
+          comment_text: string;
+          teacher_id: string;
+          teacher_name: string;
+          like_count: number;
+          created_at: string;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       update_weekly_leaderboard: {
