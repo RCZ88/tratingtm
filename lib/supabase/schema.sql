@@ -68,6 +68,38 @@ CREATE TABLE comment_reactions (
 CREATE INDEX idx_comment_reactions_comment ON comment_reactions(comment_id);
 CREATE INDEX idx_comment_reactions_reaction ON comment_reactions(reaction);
 
+-- Suggestions table
+CREATE TABLE suggestions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  type VARCHAR(50) NOT NULL CHECK (type IN ('general', 'teacher_add', 'teacher_modify')),
+  title VARCHAR(255),
+  description TEXT NOT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'working', 'approved', 'declined')),
+  teacher_name VARCHAR(255),
+  department VARCHAR(255),
+  subject VARCHAR(255),
+  level VARCHAR(10),
+  year_level VARCHAR(50),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_suggestions_status ON suggestions(status);
+CREATE INDEX idx_suggestions_type ON suggestions(type);
+CREATE INDEX idx_suggestions_created_at ON suggestions(created_at);
+
+-- Suggestion votes table
+CREATE TABLE suggestion_votes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  suggestion_id UUID NOT NULL REFERENCES suggestions(id) ON DELETE CASCADE,
+  anonymous_id VARCHAR(255) NOT NULL,
+  vote VARCHAR(10) NOT NULL CHECK (vote IN ('up', 'down')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(suggestion_id, anonymous_id)
+);
+
+CREATE INDEX idx_suggestion_votes_suggestion ON suggestion_votes(suggestion_id);
+CREATE INDEX idx_suggestion_votes_vote ON suggestion_votes(vote);
+
 -- App settings (single-row)
 CREATE TABLE app_settings (
   id TEXT PRIMARY KEY DEFAULT 'global',
@@ -140,6 +172,54 @@ LEFT JOIN ratings r ON t.id = r.teacher_id
 LEFT JOIN comments c ON t.id = c.teacher_id AND c.is_approved = true
 GROUP BY t.id, t.name;
 
+-- Teacher popularity view
+CREATE OR REPLACE VIEW teacher_popularity AS
+SELECT
+  t.id,
+  t.name,
+  t.subject,
+  t.department,
+  t.image_url,
+  s.total_ratings,
+  s.total_comments,
+  (s.total_ratings + s.total_comments) AS total_interactions
+FROM teachers t
+JOIN teacher_stats s ON s.id = t.id
+WHERE t.is_active = true;
+
+-- Rating summary view
+CREATE OR REPLACE VIEW rating_summary AS
+SELECT
+  COUNT(*) AS total_ratings,
+  ROUND(AVG(stars)::numeric, 2) AS average_rating
+FROM ratings;
+
+-- Comment like counts view
+CREATE OR REPLACE VIEW comment_like_counts AS
+SELECT
+  comment_id,
+  COUNT(*) FILTER (WHERE reaction = 'like') AS like_count
+FROM comment_reactions
+GROUP BY comment_id;
+
+-- Top liked comment view
+CREATE OR REPLACE VIEW top_liked_comment AS
+SELECT
+  c.id,
+  c.comment_text,
+  c.teacher_id,
+  t.name AS teacher_name,
+  COALESCE(cl.like_count, 0) AS like_count,
+  c.created_at
+FROM comments c
+JOIN teachers t ON t.id = c.teacher_id
+LEFT JOIN comment_like_counts cl ON cl.comment_id = c.id
+WHERE c.is_approved = true
+  AND c.is_flagged = false
+  AND t.is_active = true
+ORDER BY COALESCE(cl.like_count, 0) DESC, c.created_at DESC
+LIMIT 1;
+
 -- Function to update weekly leaderboard
 CREATE OR REPLACE FUNCTION update_weekly_leaderboard()
 RETURNS void AS $$
@@ -196,6 +276,8 @@ ALTER TABLE teachers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comment_reactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE suggestions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE suggestion_votes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leaderboard_cache ENABLE ROW LEVEL SECURITY;
 
@@ -229,6 +311,29 @@ CREATE POLICY "Anyone can update comment reactions" ON comment_reactions
   FOR UPDATE USING (true) WITH CHECK (true);
 
 CREATE POLICY "Anyone can delete comment reactions" ON comment_reactions
+  FOR DELETE USING (true);
+
+-- Suggestion policies
+CREATE POLICY "Public can view suggestions" ON suggestions
+  FOR SELECT USING (true);
+
+CREATE POLICY "Anyone can submit suggestions" ON suggestions
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Admin full access on suggestions" ON suggestions
+  FOR ALL USING (auth.role() = 'service_role');
+
+-- Suggestion votes policies
+CREATE POLICY "Public can view suggestion votes" ON suggestion_votes
+  FOR SELECT USING (true);
+
+CREATE POLICY "Anyone can vote on suggestions" ON suggestion_votes
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Anyone can update suggestion votes" ON suggestion_votes
+  FOR UPDATE USING (true) WITH CHECK (true);
+
+CREATE POLICY "Anyone can delete suggestion votes" ON suggestion_votes
   FOR DELETE USING (true);
 
 -- App settings policies

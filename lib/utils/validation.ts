@@ -78,6 +78,75 @@ export const teacherUpdateSchema = teacherSchema.partial();
 
 export type TeacherUpdateInput = z.infer<typeof teacherUpdateSchema>;
 
+// Suggestion validation
+export const suggestionSchema = z.object({
+  type: z.enum(['general', 'teacher_add', 'teacher_modify']),
+  title: z
+    .string()
+    .max(255, 'Title cannot exceed 255 characters')
+    .optional()
+    .nullable()
+    .transform((val) => (val ? sanitizeHtml(val) : val)),
+  description: z
+    .string()
+    .min(10, 'Description must be at least 10 characters')
+    .max(2000, 'Description cannot exceed 2000 characters')
+    .transform((text) => sanitizeHtml(text)),
+  teacher_name: z
+    .string()
+    .max(255, 'Teacher name cannot exceed 255 characters')
+    .optional()
+    .nullable()
+    .transform((val) => (val ? sanitizeHtml(val) : val)),
+  department: z
+    .string()
+    .max(255, 'Department cannot exceed 255 characters')
+    .optional()
+    .nullable()
+    .transform((val) => (val ? sanitizeHtml(val) : val)),
+  subject: z
+    .string()
+    .max(255, 'Subject cannot exceed 255 characters')
+    .optional()
+    .nullable()
+    .transform((val) => (val ? sanitizeHtml(val) : val)),
+  level: z
+    .string()
+    .max(10, 'Level too long')
+    .optional()
+    .nullable()
+    .transform((val) => (val ? sanitizeHtml(val) : val)),
+  year_level: z
+    .string()
+    .max(50, 'Year level too long')
+    .optional()
+    .nullable()
+    .transform((val) => (val ? sanitizeHtml(val) : val)),
+}).superRefine((data, ctx) => {
+  if (data.type === 'teacher_add' || data.type === 'teacher_modify') {
+    if (!data.teacher_name) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['teacher_name'], message: 'Teacher name is required' });
+    }
+    if (!data.department) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['department'], message: 'Department is required' });
+    }
+    if (!data.subject) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['subject'], message: 'Subject is required' });
+    }
+  }
+});
+
+export type SuggestionInput = z.infer<typeof suggestionSchema>;
+
+// Suggestion vote validation
+export const suggestionVoteSchema = z.object({
+  suggestion_id: z.string().uuid('Invalid suggestion ID'),
+  anonymous_id: z.string().min(1, 'Anonymous ID is required').max(255, 'Anonymous ID too long'),
+  vote: z.enum(['up', 'down']).nullable(),
+});
+
+export type SuggestionVoteInput = z.infer<typeof suggestionVoteSchema>;
+
 // Admin login validation
 export const adminLoginSchema = z.object({
   email: z.string().email('Invalid email address'),

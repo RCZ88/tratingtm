@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { AnalyticsCard } from '@/components/admin/AnalyticsCard';
+import { GrowthChart, type GrowthPoint } from '@/components/admin/GrowthChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { 
@@ -43,6 +44,8 @@ interface AnalyticsData {
 export default function AnalyticsPage() {
   const [data, setData] = React.useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [growthData, setGrowthData] = React.useState<GrowthPoint[]>([]);
+  const [isGrowthLoading, setIsGrowthLoading] = React.useState(true);
 
   React.useEffect(() => {
     const fetchAnalytics = async () => {
@@ -62,6 +65,36 @@ export default function AnalyticsPage() {
 
     fetchAnalytics();
   }, []);
+
+  React.useEffect(() => {
+    const fetchGrowth = async () => {
+      try {
+        const response = await fetch('/api/admin/growth?days=30');
+        const result = await response.json();
+
+        if (response.ok) {
+          setGrowthData(result.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching growth data:', error);
+      } finally {
+        setIsGrowthLoading(false);
+      }
+    };
+
+    fetchGrowth();
+  }, []);
+
+  const growthTotals = React.useMemo(() => {
+    return growthData.reduce(
+      (acc, point) => {
+        acc.ratings += point.ratings;
+        acc.comments += point.comments;
+        return acc;
+      },
+      { ratings: 0, comments: 0 }
+    );
+  }, [growthData]);
 
   if (isLoading) {
     return (
@@ -196,16 +229,49 @@ export default function AnalyticsPage() {
           <CardTitle>Platform Growth</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-64 items-center justify-center rounded-lg bg-slate-50">
-            <div className="text-center">
-              <BarChart3 className="mx-auto h-12 w-12 text-slate-300" />
-              <p className="mt-2 text-slate-500">
-                Growth charts coming soon
-              </p>
-              <p className="text-sm text-slate-400">
-                Track ratings, comments, and user engagement over time
-              </p>
-            </div>
+          <div className="rounded-lg bg-slate-50 p-4">
+            {isGrowthLoading ? (
+              <div className="flex h-64 items-center justify-center">
+                <LoadingSpinner />
+              </div>
+            ) : growthData.length > 0 ? (
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-700">
+                      Last 30 days
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Ratings and comments submitted
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs font-medium text-slate-600">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                      Ratings: {growthTotals.ratings}
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-teal-500" />
+                      Comments: {growthTotals.comments}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="h-64">
+                  <GrowthChart data={growthData} />
+                </div>
+              </div>
+            ) : (
+              <div className="flex h-64 items-center justify-center text-center">
+                <div>
+                  <BarChart3 className="mx-auto h-12 w-12 text-slate-300" />
+                  <p className="mt-2 text-slate-500">No activity yet</p>
+                  <p className="text-sm text-slate-400">
+                    Growth charts will appear once ratings or comments are created
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

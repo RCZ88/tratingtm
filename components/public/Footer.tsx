@@ -18,6 +18,7 @@ const Footer: React.FC = () => {
       { label: 'Browse Teachers', href: '/teachers' },
       { label: 'Leaderboard', href: '/leaderboard' },
       { label: 'Search', href: '/search' },
+      { label: 'Suggestions', href: '/suggestions' },
     ],
     legal: [
       { label: 'Privacy Policy', href: '#' },

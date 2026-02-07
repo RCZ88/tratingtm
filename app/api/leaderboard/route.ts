@@ -59,14 +59,30 @@ export async function GET(request: NextRequest) {
           rank_position: entry.rank_position,
         }));
 
+        const byTop = [...formatted].sort((a, b) => {
+          const aAvg = a.average_rating ?? -1;
+          const bAvg = b.average_rating ?? -1;
+          if (bAvg !== aAvg) return bAvg - aAvg;
+          const aCount = a.rating_count ?? 0;
+          const bCount = b.rating_count ?? 0;
+          return bCount - aCount;
+        });
+
+        const byBottom = [...formatted].sort((a, b) => {
+          const aAvg = a.average_rating ?? -1;
+          const bAvg = b.average_rating ?? -1;
+          if (aAvg !== bAvg) return aAvg - bAvg;
+          const aCount = a.rating_count ?? 0;
+          const bCount = b.rating_count ?? 0;
+          return bCount - aCount;
+        });
+
         return NextResponse.json({
           data: {
             week_start: toISODate(weekStart),
             week_end: toISODate(weekEnd),
-            top: formatted.filter((e) => e.rank_position && e.rank_position <= limit),
-            bottom: formatted
-              .filter((e) => e.rank_position && e.rank_position > formatted.length - limit)
-              .reverse(),
+            top: byTop.slice(0, limit),
+            bottom: byBottom.slice(0, limit),
             all: formatted,
           },
         });
@@ -102,7 +118,7 @@ export async function GET(request: NextRequest) {
       if (aAvg !== bAvg) return aAvg - bAvg;
       const aCount = a.rating_count ?? 0;
       const bCount = b.rating_count ?? 0;
-      return aCount - bCount;
+      return bCount - aCount;
     });
 
     const top = byTop.slice(0, limit);

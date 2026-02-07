@@ -23,6 +23,7 @@ const Navbar: React.FC = () => {
     { href: '/teachers', label: 'Teachers', icon: Users },
     { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
     { href: '/search', label: 'Search', icon: Search },
+    { href: '/suggestions', label: 'Suggestions', icon: null },
   ];
 
   const isActive = (href: string) => {

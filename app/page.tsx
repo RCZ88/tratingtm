@@ -1,10 +1,16 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import type { TeacherWithStats } from '@/lib/types/database';
 import { Button } from '@/components/ui/Button';
-import { TeacherGrid } from '@/components/public/TeacherGrid';
 import { SearchBar } from '@/components/public/SearchBar';
-import { Star, Users, MessageSquare, TrendingUp } from 'lucide-react';
+import { 
+  Star, 
+  Users, 
+  MessageSquare, 
+  TrendingUp, 
+  Sparkles, 
+  BarChart3, 
+  ThumbsUp 
+} from 'lucide-react';
 
 /**
  * Homepage
@@ -29,40 +35,96 @@ export default async function HomePage() {
     .select('*', { count: 'exact', head: true })
     .eq('is_approved', true);
 
-  // Fetch top-rated teachers
-  const { data: topStatsData } = await supabase
-    .from('teacher_stats')
-    .select('*')
-    .gt('total_ratings', 0)
-    .order('overall_rating', { ascending: false })
-    .limit(6);
-
-  const topStats = topStatsData ?? [];
-  let featuredTeachers: TeacherWithStats[] = [];
-  const topIds = topStats.map((stat) => stat.id);
-
-  if (topIds.length > 0) {
-    const { data: topTeacherRows } = await supabase
-      .from('teachers')
+  const [
+    popularTeacherResult,
+    mostRatedResult,
+    mostCommentedResult,
+    ratingSummaryResult,
+    topLikedCommentResult,
+  ] = await Promise.all([
+    supabase
+      .from('teacher_popularity')
       .select('*')
-      .in('id', topIds)
-      .eq('is_active', true);
+      .gt('total_interactions', 0)
+      .order('total_interactions', { ascending: false })
+      .limit(1),
+    supabase
+      .from('teacher_stats')
+      .select('id, name, total_ratings')
+      .gt('total_ratings', 0)
+      .order('total_ratings', { ascending: false })
+      .limit(1),
+    supabase
+      .from('teacher_stats')
+      .select('id, name, total_comments')
+      .gt('total_comments', 0)
+      .order('total_comments', { ascending: false })
+      .limit(1),
+    supabase
+      .from('rating_summary')
+      .select('*')
+      .maybeSingle(),
+    supabase
+      .from('top_liked_comment')
+      .select('*')
+      .maybeSingle(),
+  ]);
 
-    const teacherMap = new Map(topTeacherRows?.map((t) => [t.id, t]) || []);
+  const mostPopularTeacher = popularTeacherResult.data?.[0] ?? null;
+  const mostRatedTeacher = mostRatedResult.data?.[0] ?? null;
+  const mostCommentedTeacher = mostCommentedResult.data?.[0] ?? null;
+  const ratingSummary = ratingSummaryResult.data;
+  const topLikedComment = topLikedCommentResult.data;
 
-    const nextFeatured: TeacherWithStats[] = [];
-    for (const stat of topStats) {
-      const teacher = teacherMap.get(stat.id);
-      if (!teacher) continue;
-      nextFeatured.push({
-        ...teacher,
-        total_ratings: stat.total_ratings,
-        average_rating: stat.overall_rating,
-        total_comments: stat.total_comments,
-      });
-    }
-    featuredTeachers = nextFeatured;
-  }
+  const averageRating = ratingSummary?.average_rating
+    ? Number(ratingSummary.average_rating)
+    : null;
+
+  const factCards = [
+    {
+      title: 'Most Popular Teacher',
+      value: mostPopularTeacher?.name || 'No data yet',
+      detail: mostPopularTeacher
+        ? `${mostPopularTeacher.total_interactions} interactions`
+        : 'Waiting for ratings and comments',
+      icon: Sparkles,
+      style: 'border-emerald-200 bg-emerald-50/70 text-emerald-700',
+    },
+    {
+      title: 'Most Rated Teacher',
+      value: mostRatedTeacher?.name || 'No ratings yet',
+      detail: mostRatedTeacher
+        ? `${mostRatedTeacher.total_ratings} ratings`
+        : 'No ratings submitted',
+      icon: Star,
+      style: 'border-teal-200 bg-teal-50/70 text-teal-700',
+    },
+    {
+      title: 'Most Commented Teacher',
+      value: mostCommentedTeacher?.name || 'No comments yet',
+      detail: mostCommentedTeacher
+        ? `${mostCommentedTeacher.total_comments} comments`
+        : 'No comments submitted',
+      icon: MessageSquare,
+      style: 'border-amber-200 bg-amber-50/70 text-amber-700',
+    },
+    {
+      title: 'Overall Average Rating',
+      value: averageRating ? `${averageRating.toFixed(2)} / 5` : 'N/A',
+      detail: ratingCount ? `${ratingCount.toLocaleString()} total ratings` : 'No ratings yet',
+      icon: BarChart3,
+      style: 'border-sky-200 bg-sky-50/70 text-sky-700',
+    },
+  ];
+
+  const shouldShowLikedComment =
+    topLikedComment && Number(topLikedComment.like_count || 0) > 0;
+
+  const likedCommentPreview = shouldShowLikedComment
+    ? topLikedComment.comment_text.length > 140
+      ? `${topLikedComment.comment_text.slice(0, 140)}...`
+      : topLikedComment.comment_text
+    : '';
 
   const stats = [
     { label: 'Teachers', value: teacherCount || 0, icon: Users },
@@ -110,27 +172,71 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Featured Teachers Section */}
+      {/* Interesting Facts Section */}
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-                Top Rated Teachers
+                Interesting Facts
               </h2>
               <p className="mt-2 text-slate-600">
-                Discover the highest-rated educators this week
+                Highlights from ratings and comments across the platform
               </p>
             </div>
-            <Link href="/teachers">
+            <Link href="/leaderboard">
               <Button variant="outline" rightIcon={<TrendingUp className="h-4 w-4" />}>
-                View All
+                View Leaderboard
               </Button>
             </Link>
           </div>
 
+          <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {factCards.map((card) => (
+              <div
+                key={card.title}
+                className={`rounded-2xl border p-5 shadow-sm ${card.style}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide">
+                    <card.icon className="h-4 w-4" />
+                    <span>{card.title}</span>
+                  </div>
+                </div>
+                <p className="mt-4 text-xl font-bold text-slate-900">{card.value}</p>
+                <p className="mt-1 text-sm text-slate-600">{card.detail}</p>
+              </div>
+            ))}
+          </div>
+
           <div className="mt-10">
-            <TeacherGrid teachers={featuredTeachers} columns={3} />
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                <ThumbsUp className="h-4 w-4" />
+                Top-Liked Comment
+              </div>
+
+              {shouldShowLikedComment ? (
+                <div className="mt-4 space-y-2">
+                  <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                    {likedCommentPreview}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                    <span className="font-medium text-slate-700">
+                      {topLikedComment.teacher_name}
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-emerald-700">
+                      <ThumbsUp className="h-3.5 w-3.5" />
+                      {topLikedComment.like_count}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 text-sm text-slate-500">
+                  No liked comments yet. Be the first to leave one!
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>

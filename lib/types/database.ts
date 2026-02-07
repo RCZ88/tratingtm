@@ -171,6 +171,79 @@ export interface Database {
           }
         ];
       };
+      suggestions: {
+        Row: {
+          id: string;
+          type: string;
+          title: string | null;
+          description: string;
+          status: string;
+          teacher_name: string | null;
+          department: string | null;
+          subject: string | null;
+          level: string | null;
+          year_level: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          type: string;
+          title?: string | null;
+          description: string;
+          status?: string;
+          teacher_name?: string | null;
+          department?: string | null;
+          subject?: string | null;
+          level?: string | null;
+          year_level?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          type?: string;
+          title?: string | null;
+          description?: string;
+          status?: string;
+          teacher_name?: string | null;
+          department?: string | null;
+          subject?: string | null;
+          level?: string | null;
+          year_level?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      suggestion_votes: {
+        Row: {
+          id: string;
+          suggestion_id: string;
+          anonymous_id: string;
+          vote: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          suggestion_id: string;
+          anonymous_id: string;
+          vote: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          suggestion_id?: string;
+          anonymous_id?: string;
+          vote?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'suggestion_votes_suggestion_id_fkey';
+            columns: ['suggestion_id'];
+            referencedRelation: 'suggestions';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       app_settings: {
         Row: {
           id: string;
@@ -281,6 +354,10 @@ export type RatingInsert = Database['public']['Tables']['ratings']['Insert'];
 export type Comment = Database['public']['Tables']['comments']['Row'];
 export type CommentInsert = Database['public']['Tables']['comments']['Insert'];
 export type CommentUpdate = Database['public']['Tables']['comments']['Update'];
+export type Suggestion = Database['public']['Tables']['suggestions']['Row'];
+export type SuggestionInsert = Database['public']['Tables']['suggestions']['Insert'];
+export type SuggestionUpdate = Database['public']['Tables']['suggestions']['Update'];
+export type SuggestionVote = Database['public']['Tables']['suggestion_votes']['Row'];
 
 export type LeaderboardEntry = Database['public']['Views']['current_week_leaderboard']['Row'];
 export type TeacherStats = Database['public']['Views']['teacher_stats']['Row'];

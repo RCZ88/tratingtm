@@ -11,7 +11,8 @@ import {
   BarChart3, 
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Lightbulb
 } from 'lucide-react';
 
 /**
@@ -34,6 +35,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ className }) => {
     { href: '/admin/teachers', label: 'Teachers', icon: Users },
     { href: '/admin/moderation', label: 'Moderation', icon: MessageSquare },
     { href: '/admin/comments', label: 'Comments', icon: MessageSquare },
+    { href: '/admin/suggestions', label: 'Suggestions', icon: Lightbulb },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];

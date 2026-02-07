@@ -15,7 +15,8 @@ import {
   Shield,
   Settings,
   Menu,
-  X
+  X,
+  Lightbulb
 } from 'lucide-react';
 
 /**
@@ -40,6 +41,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
     { href: '/admin/teachers', label: 'Teachers', icon: Users },
     { href: '/admin/moderation', label: 'Moderation', icon: MessageSquare },
     { href: '/admin/comments', label: 'Comments', icon: MessageSquare },
+    { href: '/admin/suggestions', label: 'Suggestions', icon: Lightbulb },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];
