@@ -73,31 +73,38 @@ export async function GET(request: NextRequest) {
     }
 
     // Live computation for current week (fast + always fresh)
-    const [topRes, bottomRes] = await Promise.all([
-      supabase
-        .from('current_week_leaderboard')
-        .select('*')
-        .order('average_rating', { ascending: false })
-        .order('rating_count', { ascending: false })
-        .limit(limit),
-      supabase
-        .from('current_week_leaderboard')
-        .select('*')
-        .order('average_rating', { ascending: true })
-        .order('rating_count', { ascending: true })
-        .limit(limit),
-    ]);
+    const { data: allRows, error: allError } = await supabase
+      .from('current_week_leaderboard')
+      .select('*');
 
-    if (topRes.error || bottomRes.error) {
-      console.error('Error fetching leaderboard:', topRes.error || bottomRes.error);
+    if (allError) {
+      console.error('Error fetching leaderboard:', allError);
       return NextResponse.json(
         { error: 'Failed to fetch leaderboard' },
         { status: 500 }
       );
     }
 
-    const top = topRes.data || [];
-    const bottom = bottomRes.data || [];
+    const safeRows = allRows || [];
+    const byTop = [...safeRows].sort((a, b) => {
+      const aAvg = a.average_rating ?? -1;
+      const bAvg = b.average_rating ?? -1;
+      if (bAvg !== aAvg) return bAvg - aAvg;
+      const aCount = a.rating_count ?? 0;
+      const bCount = b.rating_count ?? 0;
+      return bCount - aCount;
+    });
+    const byBottom = [...safeRows].sort((a, b) => {
+      const aAvg = a.average_rating ?? -1;
+      const bAvg = b.average_rating ?? -1;
+      if (aAvg !== bAvg) return aAvg - bAvg;
+      const aCount = a.rating_count ?? 0;
+      const bCount = b.rating_count ?? 0;
+      return aCount - bCount;
+    });
+
+    const top = byTop.slice(0, limit);
+    const bottom = byBottom.slice(0, limit);
 
     return NextResponse.json({
       data: {
@@ -105,7 +112,7 @@ export async function GET(request: NextRequest) {
         week_end: toISODate(weekEnd),
         top,
         bottom,
-        all: [...top, ...bottom],
+        all: safeRows,
       },
     });
   } catch (error) {

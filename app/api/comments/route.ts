@@ -100,14 +100,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Insert comment (pending approval)
+    // Check moderation setting
+    let requiresApproval = true;
+    const { data: settings } = await supabase
+      .from('app_settings')
+      .select('comments_require_approval')
+      .eq('id', 'global')
+      .maybeSingle();
+
+    if (settings && typeof settings.comments_require_approval === 'boolean') {
+      requiresApproval = settings.comments_require_approval;
+    }
+
+    // Insert comment (pending approval if enabled)
     const { data: comment, error } = await supabase
       .from('comments')
       .insert({
         teacher_id,
         comment_text,
         anonymous_id,
-        is_approved: false,
+        is_approved: !requiresApproval,
       })
       .select()
       .single();
@@ -121,7 +133,13 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { data: comment, message: 'Comment submitted for moderation' },
+      {
+        data: comment,
+        message: requiresApproval
+          ? 'Comment submitted for moderation'
+          : 'Comment posted',
+        requires_approval: requiresApproval,
+      },
       { status: 201 }
     );
   } catch (error) {

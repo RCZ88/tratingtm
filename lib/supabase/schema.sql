@@ -55,6 +55,13 @@ CREATE INDEX idx_comments_teacher ON comments(teacher_id);
 CREATE INDEX idx_comments_approved ON comments(is_approved);
 CREATE INDEX idx_comments_created_at ON comments(created_at);
 
+-- App settings (single-row)
+CREATE TABLE app_settings (
+  id TEXT PRIMARY KEY DEFAULT 'global',
+  comments_require_approval BOOLEAN DEFAULT true,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Leaderboard cache table
 CREATE TABLE leaderboard_cache (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -145,6 +152,7 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE teachers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leaderboard_cache ENABLE ROW LEVEL SECURITY;
 
 -- Public policies
@@ -165,6 +173,13 @@ CREATE POLICY "Anyone can submit comments" ON comments
 
 CREATE POLICY "Public can view leaderboard" ON leaderboard_cache
   FOR SELECT USING (true);
+
+-- App settings policies
+CREATE POLICY "Public can view app settings" ON app_settings
+  FOR SELECT USING (true);
+
+CREATE POLICY "Admin full access on app_settings" ON app_settings
+  FOR ALL USING (auth.role() = 'service_role');
 
 -- Admin policies (requires service role or authenticated admin)
 CREATE POLICY "Admin full access on teachers" ON teachers

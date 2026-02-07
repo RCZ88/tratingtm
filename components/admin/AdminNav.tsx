@@ -13,6 +13,7 @@ import {
   BarChart3, 
   LogOut,
   Shield,
+  Settings,
   Menu,
   X
 } from 'lucide-react';
@@ -39,6 +40,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
     { href: '/admin/teachers', label: 'Teachers', icon: Users },
     { href: '/admin/moderation', label: 'Moderation', icon: MessageSquare },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+    { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];
 
   const isActive = (href: string) => pathname.startsWith(href);

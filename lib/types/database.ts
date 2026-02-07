@@ -140,6 +140,24 @@ export interface Database {
           }
         ];
       };
+      app_settings: {
+        Row: {
+          id: string;
+          comments_require_approval: boolean | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          comments_require_approval?: boolean | null;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          comments_require_approval?: boolean | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       leaderboard_cache: {
         Row: {
           id: string;

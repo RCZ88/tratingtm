@@ -25,6 +25,7 @@ interface FormState {
   isSubmitting: boolean;
   error: string | null;
   success: boolean;
+  requiresApproval: boolean | null;
 }
 
 const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, className }) => {
@@ -33,6 +34,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
     isSubmitting: false,
     error: null,
     success: false,
+    requiresApproval: null,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,6 +77,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
         success: true,
         isSubmitting: false,
         comment: '',
+        requiresApproval: typeof data.requires_approval === 'boolean' ? data.requires_approval : null,
       }));
 
       onSuccess?.();
@@ -93,9 +96,13 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
         <div className="flex items-start gap-3">
           <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
           <div>
-            <p className="font-medium text-green-800">Comment Submitted!</p>
+            <p className="font-medium text-green-800">
+              {state.requiresApproval === false ? 'Comment Posted!' : 'Comment Submitted!'}
+            </p>
             <p className="text-sm text-green-700">
-              Your comment is pending moderation and will appear once approved.
+              {state.requiresApproval === false
+                ? 'Your comment is now visible.'
+                : 'Your comment is pending moderation and will appear once approved.'}
             </p>
           </div>
         </div>
