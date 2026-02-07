@@ -16,7 +16,8 @@ import {
   Settings,
   Menu,
   X,
-  Lightbulb
+  Lightbulb,
+  ArrowUpRight
 } from 'lucide-react';
 
 /**
@@ -85,6 +86,11 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
           {user?.email && (
             <span className="text-sm text-slate-500">{user.email}</span>
           )}
+          <Link href="/" className="inline-flex">
+            <Button variant="outline" size="sm" leftIcon={<ArrowUpRight className="h-4 w-4" />}>
+              View Site
+            </Button>
+          </Link>
           <Button
             variant="ghost"
             size="sm"
@@ -128,10 +134,18 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
                 {item.label}
               </Link>
             ))}
-            <div className="border-t border-slate-200 pt-4 mt-4">
+            <div className="border-t border-slate-200 pt-4 mt-4 space-y-2">
               {user?.email && (
                 <p className="px-4 py-2 text-sm text-slate-500">{user.email}</p>
               )}
+              <Link
+                href="/"
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <ArrowUpRight className="h-5 w-5" />
+                View Site
+              </Link>
               <button
                 onClick={() => signOut({ callbackUrl: '/admin/login' })}
                 className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-red-600 hover:bg-red-50"

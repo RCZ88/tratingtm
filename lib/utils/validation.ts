@@ -50,12 +50,25 @@ export const teacherSchema = z.object({
     .optional()
     .nullable()
     .transform((val) => (val ? sanitizeHtml(val) : val)),
+  subjects: z
+    .array(z.string().max(100, 'Subject cannot exceed 100 characters'))
+    .optional()
+    .nullable()
+    .transform((vals) => (vals ? vals.map((v) => sanitizeHtml(v)) : vals)),
   department: z
     .string()
     .max(100, 'Department cannot exceed 100 characters')
     .optional()
     .nullable()
     .transform((val) => (val ? sanitizeHtml(val) : val)),
+  levels: z
+    .array(z.enum(['SL', 'HL']))
+    .optional()
+    .nullable(),
+  year_levels: z
+    .array(z.number().int().min(7).max(12))
+    .optional()
+    .nullable(),
   bio: z
     .string()
     .max(1000, 'Bio cannot exceed 1000 characters')

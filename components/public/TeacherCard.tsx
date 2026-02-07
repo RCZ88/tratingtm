@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils/cn';
 import { StarRatingDisplay } from '@/components/ui/StarRating';
 import { TeacherWithStats } from '@/lib/types/database';
 import { User, BookOpen } from 'lucide-react';
+import { getAvatarStyle } from '@/lib/utils/teacherDisplay';
 
 /**
  * TeacherCard Component
@@ -42,7 +43,7 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-emerald-100 text-emerald-600">
+            <div className={`flex h-full w-full items-center justify-center ${getAvatarStyle(teacher.name)}`}>
               <User className="h-12 w-12" />
             </div>
           )}

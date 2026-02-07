@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { Teacher } from '@/lib/types/database';
 import { validate, teacherSchema, type TeacherInput } from '@/lib/utils/validation';
+import { DEPARTMENTS, LEVELS, SUBJECTS_BY_DEPARTMENT } from '@/lib/constants/suggestions';
 
 /**
  * TeacherForm Component
@@ -24,8 +25,10 @@ export interface TeacherFormProps {
 
 interface FormState {
   name: string;
-  subject: string;
+  subjects: string[];
   department: string;
+  levels: string[];
+  year_levels: number[];
   bio: string;
   image_url: string;
   is_active: boolean;
@@ -39,21 +42,36 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
 
   const [state, setState] = React.useState<FormState>({
     name: teacher?.name || '',
-    subject: teacher?.subject || '',
+    subjects: teacher?.subjects || (teacher?.subject ? [teacher.subject] : []),
     department: teacher?.department || '',
+    levels: teacher?.levels || [],
+    year_levels: teacher?.year_levels || [],
     bio: teacher?.bio || '',
     image_url: teacher?.image_url || '',
     is_active: teacher?.is_active ?? true,
     errors: {},
     isSubmitting: false,
   });
+  const [useManualInput, setUseManualInput] = React.useState(false);
 
-  const handleChange = (field: keyof FormState, value: string | boolean) => {
+  const handleChange = (field: keyof FormState, value: string | boolean | string[] | number[]) => {
     setState((prev) => ({
       ...prev,
       [field]: value,
       errors: { ...prev.errors, [field]: '' },
     }));
+  };
+
+  const toggleArrayValue = <T extends string | number>(field: keyof FormState, value: T) => {
+    setState((prev) => {
+      const current = (prev[field] as T[]) || [];
+      const exists = current.includes(value);
+      return {
+        ...prev,
+        [field]: exists ? current.filter((v) => v !== value) : [...current, value],
+        errors: { ...prev.errors, [field]: '' },
+      };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,8 +80,11 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
     // Validate form
     const formData: TeacherInput = {
       name: state.name,
-      subject: state.subject || null,
+      subject: state.subjects[0] || null,
+      subjects: state.subjects.length ? state.subjects : null,
       department: state.department || null,
+      levels: state.levels.length ? state.levels : null,
+      year_levels: state.year_levels.length ? state.year_levels : null,
       bio: state.bio || null,
       image_url: state.image_url || null,
       is_active: state.is_active,
@@ -126,22 +147,159 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
         required
       />
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Input
-          label="Subject"
-          placeholder="e.g., Mathematics"
-          value={state.subject}
-          onChange={(e) => handleChange('subject', e.target.value)}
-          error={state.errors.subject}
-        />
+      <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+        <div>
+          <p className="text-sm font-medium text-slate-900">Edit mode</p>
+          <p className="text-xs text-slate-500">
+            {useManualInput ? 'Manual inputs' : 'Dropdown selections'}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setUseManualInput((prev) => !prev)}
+          className={cn(
+            'inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
+            useManualInput
+              ? 'border-amber-200 bg-amber-100 text-amber-700'
+              : 'border-emerald-200 bg-emerald-100 text-emerald-700'
+          )}
+        >
+          {useManualInput ? 'Manual' : 'Dropdowns'}
+        </button>
+      </div>
 
-        <Input
-          label="Department"
-          placeholder="e.g., Science Department"
-          value={state.department}
-          onChange={(e) => handleChange('department', e.target.value)}
-          error={state.errors.department}
-        />
+      {useManualInput ? (
+        <div className="grid gap-6 md:grid-cols-2">
+          <Input
+            label="Department"
+            placeholder="e.g., Sciences"
+            value={state.department}
+            onChange={(e) => handleChange('department', e.target.value)}
+            error={state.errors.department}
+          />
+          <Input
+            label="Subjects (comma separated)"
+            placeholder="e.g., Physics, Chemistry"
+            value={state.subjects.join(', ')}
+            onChange={(e) =>
+              handleChange(
+                'subjects',
+                e.target.value
+                  .split(',')
+                  .map((val) => val.trim())
+                  .filter(Boolean)
+              )
+            }
+            error={state.errors.subjects}
+          />
+        </div>
+      ) : (
+        <>
+          <div className="grid gap-6 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Department
+              </label>
+              <select
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                value={state.department}
+                onChange={(e) => handleChange('department', e.target.value)}
+              >
+                <option value="">Select department</option>
+                {DEPARTMENTS.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                ))}
+              </select>
+              {state.errors.department && (
+                <p className="mt-1.5 text-sm text-red-500">{state.errors.department}</p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">
+              Subjects
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {(SUBJECTS_BY_DEPARTMENT[state.department] || []).map((subject) => (
+                <button
+                  key={subject}
+                  type="button"
+                  onClick={() => toggleArrayValue('subjects', subject)}
+                  className={cn(
+                    'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+                    state.subjects.includes(subject)
+                      ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
+                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                  )}
+                >
+                  {subject}
+                </button>
+              ))}
+              {state.department && (SUBJECTS_BY_DEPARTMENT[state.department] || []).length === 0 && (
+                <p className="text-sm text-slate-500">No subjects listed for this department.</p>
+              )}
+              {!state.department && (
+                <p className="text-sm text-slate-500">Select a department to choose subjects.</p>
+              )}
+            </div>
+            {state.errors.subjects && (
+              <p className="mt-1.5 text-sm text-red-500">{state.errors.subjects}</p>
+            )}
+          </div>
+        </>
+      )}
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Levels
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {LEVELS.map((level) => (
+              <button
+                key={level}
+                type="button"
+                onClick={() => toggleArrayValue('levels', level)}
+                className={cn(
+                  'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+                  state.levels.includes(level)
+                    ? level === 'HL'
+                      ? 'border-red-200 bg-red-100 text-red-700'
+                      : 'border-blue-200 bg-blue-100 text-blue-700'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                )}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Year Levels
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {[7, 8, 9, 10, 11, 12].map((year) => (
+              <button
+                key={year}
+                type="button"
+                onClick={() => toggleArrayValue('year_levels', year)}
+                className={cn(
+                  'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+                  state.year_levels.includes(year)
+                    ? 'border-slate-300 bg-slate-100 text-slate-700'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                )}
+              >
+                Year {year}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <Input

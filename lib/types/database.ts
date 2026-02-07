@@ -41,7 +41,10 @@ export interface Database {
           id: string;
           name: string;
           subject: string | null;
+          subjects: string[] | null;
           department: string | null;
+          levels: string[] | null;
+          year_levels: number[] | null;
           bio: string | null;
           image_url: string | null;
           is_active: boolean;
@@ -52,7 +55,10 @@ export interface Database {
           id?: string;
           name: string;
           subject?: string | null;
+          subjects?: string[] | null;
           department?: string | null;
+          levels?: string[] | null;
+          year_levels?: number[] | null;
           bio?: string | null;
           image_url?: string | null;
           is_active?: boolean;
@@ -63,7 +69,10 @@ export interface Database {
           id?: string;
           name?: string;
           subject?: string | null;
+          subjects?: string[] | null;
           department?: string | null;
+          levels?: string[] | null;
+          year_levels?: number[] | null;
           bio?: string | null;
           image_url?: string | null;
           is_active?: boolean;

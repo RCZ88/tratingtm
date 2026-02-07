@@ -93,7 +93,7 @@ export default function TeachersJsonPage() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-slate-600">
           <p>Required fields: <strong>name</strong> (min 3 chars).</p>
-          <p>Optional: subject, department, bio, image_url, is_active, id.</p>
+          <p>Optional: subject, subjects, department, levels, year_levels, bio, image_url, is_active, id.</p>
           <p>Updates are matched by <strong>id</strong>. If no id is present, a new teacher is inserted.</p>
           <p>Removing a teacher from JSON does not delete it from the database.</p>
         </CardContent>

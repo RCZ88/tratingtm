@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ArrowLeft, User, BookOpen, Building2, BarChart3 } from 'lucide-react';
+import { formatYearLevels, getAvatarStyle, getDepartmentColor } from '@/lib/utils/teacherDisplay';
 import { getAnonymousId } from '@/lib/utils/anonymousId';
 
 /**
@@ -25,7 +26,10 @@ interface TeacherData {
   id: string;
   name: string;
   subject: string | null;
+  subjects: string[] | null;
   department: string | null;
+  levels: string[] | null;
+  year_levels: number[] | null;
   bio: string | null;
   image_url: string | null;
   total_ratings: number;
@@ -103,6 +107,13 @@ export default function TeacherDetailPage() {
   }
 
   const maxDistribution = Math.max(...Object.values(teacher.rating_distribution));
+  const yearLabel = formatYearLevels(teacher.year_levels);
+  const subjectList = teacher.subjects && teacher.subjects.length > 0
+    ? teacher.subjects
+    : teacher.subject
+      ? [teacher.subject]
+      : [];
+  const levels = teacher.levels || [];
 
   return (
     <div className="min-h-screen bg-slate-50 py-12">
@@ -133,8 +144,8 @@ export default function TeacherDetailPage() {
                         className="object-cover"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-emerald-100">
-                        <User className="h-16 w-16 text-emerald-600" />
+                      <div className={`flex h-full w-full items-center justify-center ${getAvatarStyle(teacher.name)}`}>
+                        <User className="h-16 w-16" />
                       </div>
                     )}
                   </div>
@@ -145,17 +156,43 @@ export default function TeacherDetailPage() {
                       {teacher.name}
                     </h1>
 
-                    {teacher.subject && (
-                      <div className="mt-2 flex items-center justify-center gap-2 text-slate-600 sm:justify-start">
-                        <BookOpen className="h-4 w-4" />
-                        <span>{teacher.subject}</span>
+                    {(subjectList.length > 0 || teacher.department) && (
+                      <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                        {teacher.department && (
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${getDepartmentColor(teacher.department)}`}>
+                            <Building2 className="h-3.5 w-3.5" />
+                            {teacher.department}
+                          </span>
+                        )}
+                        {subjectList.map((subject) => (
+                          <span
+                            key={subject}
+                            className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700"
+                          >
+                            <BookOpen className="h-3.5 w-3.5" />
+                            {subject}
+                          </span>
+                        ))}
                       </div>
                     )}
 
-                    {teacher.department && (
-                      <div className="mt-1 flex items-center justify-center gap-2 text-slate-500 sm:justify-start">
-                        <Building2 className="h-4 w-4" />
-                        <span>{teacher.department}</span>
+                    {(levels.length > 0 || yearLabel) && (
+                      <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                        {levels.includes('SL') && (
+                          <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                            SL
+                          </span>
+                        )}
+                        {levels.includes('HL') && (
+                          <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                            HL
+                          </span>
+                        )}
+                        {yearLabel && (
+                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                            Years {yearLabel}
+                          </span>
+                        )}
                       </div>
                     )}
 

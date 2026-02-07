@@ -147,7 +147,10 @@ export async function POST(request: NextRequest) {
       .insert({
         name: validation.data.name,
         subject: validation.data.subject,
+        subjects: validation.data.subjects,
         department: validation.data.department,
+        levels: validation.data.levels,
+        year_levels: validation.data.year_levels,
         bio: validation.data.bio,
         image_url: validation.data.image_url,
         is_active: validation.data.is_active,
