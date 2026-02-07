@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Modal } from '@/components/ui/Modal';
+import { CommentsSubnav } from '@/components/admin/CommentsSubnav';
 import { CommentWithTeacher } from '@/lib/types/database';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
 import {
@@ -89,6 +90,8 @@ export default function AdminCommentsPage() {
         <h1 className="text-2xl font-bold text-slate-900">All Comments</h1>
         <p className="text-slate-600">Review, hide, or delete comments</p>
       </div>
+
+      <CommentsSubnav />
 
       <Card className="mb-6">
         <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">

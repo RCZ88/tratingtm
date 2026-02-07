@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
 import { Manrope } from 'next/font/google';
 import './globals.css';
-import { Navbar } from '@/components/public/Navbar';
-import { Footer } from '@/components/public/Footer';
 import { Analytics } from '@vercel/analytics/next';
 import { SessionProvider } from '@/components/SessionProvider';
+import { AppChrome } from '@/components/AppChrome';
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -32,11 +31,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${manrope.className} antialiased`}>
         <SessionProvider>
-          <div className="flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
+          <AppChrome>{children}</AppChrome>
         </SessionProvider>
         <Analytics />
       </body>

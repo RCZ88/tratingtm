@@ -101,7 +101,7 @@ export default function AdminTeachersPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div>
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

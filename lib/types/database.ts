@@ -81,6 +81,52 @@ export interface Database {
         };
         Relationships: [];
       };
+      departments: {
+        Row: {
+          id: string;
+          name: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      subjects: {
+        Row: {
+          id: string;
+          department_id: string;
+          name: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          department_id: string;
+          name: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          department_id?: string;
+          name?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'subjects_department_id_fkey';
+            columns: ['department_id'];
+            referencedRelation: 'departments';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       ratings: {
         Row: {
           id: string;
@@ -394,6 +440,8 @@ export interface Database {
 export type Teacher = Database['public']['Tables']['teachers']['Row'];
 export type TeacherInsert = Database['public']['Tables']['teachers']['Insert'];
 export type TeacherUpdate = Database['public']['Tables']['teachers']['Update'];
+export type Department = Database['public']['Tables']['departments']['Row'];
+export type Subject = Database['public']['Tables']['subjects']['Row'];
 
 export type Rating = Database['public']['Tables']['ratings']['Row'];
 export type RatingInsert = Database['public']['Tables']['ratings']['Insert'];

@@ -27,6 +27,27 @@ CREATE TABLE teachers (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Departments table
+CREATE TABLE departments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(255) UNIQUE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_departments_name ON departments(name);
+
+-- Subjects table
+CREATE TABLE subjects (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  department_id UUID NOT NULL REFERENCES departments(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(department_id, name)
+);
+
+CREATE INDEX idx_subjects_department ON subjects(department_id);
+CREATE INDEX idx_subjects_name ON subjects(name);
+
 CREATE INDEX idx_teachers_active ON teachers(is_active);
 CREATE INDEX idx_teachers_name ON teachers(name);
 
@@ -279,6 +300,8 @@ ALTER TABLE teachers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comment_reactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE departments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subjects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE suggestions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE suggestion_votes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
@@ -287,6 +310,20 @@ ALTER TABLE leaderboard_cache ENABLE ROW LEVEL SECURITY;
 -- Public policies
 CREATE POLICY "Public can view active teachers" ON teachers
   FOR SELECT USING (is_active = true);
+
+-- Department policies
+CREATE POLICY "Public can view departments" ON departments
+  FOR SELECT USING (true);
+
+CREATE POLICY "Admin full access on departments" ON departments
+  FOR ALL USING (auth.role() = 'service_role');
+
+-- Subject policies
+CREATE POLICY "Public can view subjects" ON subjects
+  FOR SELECT USING (true);
+
+CREATE POLICY "Admin full access on subjects" ON subjects
+  FOR ALL USING (auth.role() = 'service_role');
 
 CREATE POLICY "Public can view approved comments" ON comments
   FOR SELECT USING (is_approved = true);

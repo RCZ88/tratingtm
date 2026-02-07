@@ -27,7 +27,7 @@ interface FormState {
   name: string;
   subjects: string[];
   department: string;
-  levels: string[];
+  levels: Array<'SL' | 'HL'>;
   year_levels: number[];
   bio: string;
   image_url: string;
@@ -44,7 +44,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
     name: teacher?.name || '',
     subjects: teacher?.subjects || (teacher?.subject ? [teacher.subject] : []),
     department: teacher?.department || '',
-    levels: teacher?.levels || [],
+    levels: (teacher?.levels as Array<'SL' | 'HL'>) || [],
     year_levels: teacher?.year_levels || [],
     bio: teacher?.bio || '',
     image_url: teacher?.image_url || '',
@@ -53,6 +53,12 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
     isSubmitting: false,
   });
   const [useManualInput, setUseManualInput] = React.useState(false);
+  const [departments, setDepartments] = React.useState<string[]>(DEPARTMENTS);
+  const [subjectsByDepartment, setSubjectsByDepartment] = React.useState<Record<string, string[]>>(
+    SUBJECTS_BY_DEPARTMENT
+  );
+  const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
+  const [isLoadingSubjects, setIsLoadingSubjects] = React.useState(false);
 
   const handleChange = (field: keyof FormState, value: string | boolean | string[] | number[]) => {
     setState((prev) => ({
@@ -73,6 +79,96 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
       };
     });
   };
+
+  React.useEffect(() => {
+    let active = true;
+    const fetchDepartments = async () => {
+      setIsLoadingDepartments(true);
+      try {
+        const response = await fetch('/api/departments');
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load departments');
+        }
+        const names = (data.data || [])
+          .map((dept: { name?: string }) => dept.name)
+          .filter(Boolean) as string[];
+        if (active && names.length > 0) {
+          setDepartments(names);
+        }
+      } catch (error) {
+        // Fallback to defaults
+        if (active) {
+          setDepartments(DEPARTMENTS);
+        }
+      } finally {
+        if (active) {
+          setIsLoadingDepartments(false);
+        }
+      }
+    };
+
+    fetchDepartments();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!state.department) {
+      if (state.subjects.length > 0) {
+        setState((prev) => ({ ...prev, subjects: [] }));
+      }
+      return;
+    }
+
+    let active = true;
+    const fetchSubjects = async () => {
+      setIsLoadingSubjects(true);
+      try {
+        const params = new URLSearchParams();
+        params.set('department', state.department);
+        const response = await fetch(`/api/subjects?${params.toString()}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load subjects');
+        }
+
+        const subjectNames = (data.data || [])
+          .map((subject: { name?: string }) => subject.name)
+          .filter(Boolean) as string[];
+
+        if (active) {
+          setSubjectsByDepartment((prev) => ({
+            ...prev,
+            [state.department]: subjectNames,
+          }));
+          setState((prev) => ({
+            ...prev,
+            subjects: prev.subjects.filter((item) => subjectNames.includes(item)),
+          }));
+        }
+      } catch (error) {
+        // Fallback to defaults for this department
+        if (active) {
+          setSubjectsByDepartment((prev) => ({
+            ...prev,
+            [state.department]: SUBJECTS_BY_DEPARTMENT[state.department] || [],
+          }));
+        }
+      } finally {
+        if (active) {
+          setIsLoadingSubjects(false);
+        }
+      }
+    };
+
+    fetchSubjects();
+    return () => {
+      active = false;
+    };
+  }, [state.department]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -206,7 +302,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
                 onChange={(e) => handleChange('department', e.target.value)}
               >
                 <option value="">Select department</option>
-                {DEPARTMENTS.map((dept) => (
+                {departments.map((dept) => (
                   <option key={dept} value={dept}>
                     {dept}
                   </option>
@@ -223,7 +319,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
               Subjects
             </label>
             <div className="flex flex-wrap gap-2">
-              {(SUBJECTS_BY_DEPARTMENT[state.department] || []).map((subject) => (
+              {(subjectsByDepartment[state.department] || []).map((subject) => (
                 <button
                   key={subject}
                   type="button"
@@ -238,11 +334,19 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
                   {subject}
                 </button>
               ))}
-              {state.department && (SUBJECTS_BY_DEPARTMENT[state.department] || []).length === 0 && (
+              {state.department && isLoadingSubjects && (
+                <p className="text-sm text-slate-500">Loading subjects...</p>
+              )}
+              {state.department &&
+                !isLoadingSubjects &&
+                (subjectsByDepartment[state.department] || []).length === 0 && (
                 <p className="text-sm text-slate-500">No subjects listed for this department.</p>
               )}
-              {!state.department && (
+              {!state.department && !isLoadingDepartments && (
                 <p className="text-sm text-slate-500">Select a department to choose subjects.</p>
+              )}
+              {!state.department && isLoadingDepartments && (
+                <p className="text-sm text-slate-500">Loading departments...</p>
               )}
             </div>
             {state.errors.subjects && (

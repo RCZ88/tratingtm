@@ -4,6 +4,7 @@ import * as React from 'react';
 import { ModerationQueue } from '@/components/admin/ModerationQueue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { CommentsSubnav } from '@/components/admin/CommentsSubnav';
 import { CommentWithTeacher } from '@/lib/types/database';
 import { MessageSquare, CheckCircle } from 'lucide-react';
 
@@ -92,6 +93,8 @@ export default function ModerationPage() {
           Review and approve pending comments before they appear publicly
         </p>
       </div>
+
+      <CommentsSubnav />
 
       {/* Stats */}
       <div className="mb-8 grid gap-4 sm:grid-cols-2">

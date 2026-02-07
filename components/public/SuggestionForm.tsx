@@ -25,21 +25,102 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
   const [yearLevel, setYearLevel] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [message, setMessage] = React.useState<string | null>(null);
+  const [departments, setDepartments] = React.useState<string[]>(DEPARTMENTS);
+  const [subjectsByDepartment, setSubjectsByDepartment] = React.useState<Record<string, string[]>>(
+    SUBJECTS_BY_DEPARTMENT
+  );
+  const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
+  const [isLoadingSubjects, setIsLoadingSubjects] = React.useState(false);
 
   React.useEffect(() => {
     setMessage(null);
   }, [type]);
 
   React.useEffect(() => {
+    let active = true;
+    const fetchDepartments = async () => {
+      setIsLoadingDepartments(true);
+      try {
+        const response = await fetch('/api/departments');
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load departments');
+        }
+        const names = (data.data || [])
+          .map((dept: { name?: string }) => dept.name)
+          .filter(Boolean) as string[];
+        if (active && names.length > 0) {
+          setDepartments(names);
+        }
+      } catch (error) {
+        if (active) {
+          setDepartments(DEPARTMENTS);
+        }
+      } finally {
+        if (active) {
+          setIsLoadingDepartments(false);
+        }
+      }
+    };
+
+    fetchDepartments();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  React.useEffect(() => {
     if (!department) {
       setSubject('');
       return;
     }
-    const subjects = SUBJECTS_BY_DEPARTMENT[department] || [];
-    if (!subjects.includes(subject)) {
-      setSubject('');
-    }
-  }, [department, subject]);
+
+    let active = true;
+    const fetchSubjects = async () => {
+      setIsLoadingSubjects(true);
+      try {
+        const params = new URLSearchParams();
+        params.set('department', department);
+        const response = await fetch(`/api/subjects?${params.toString()}`);
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load subjects');
+        }
+        const subjectNames = (data.data || [])
+          .map((item: { name?: string }) => item.name)
+          .filter(Boolean) as string[];
+
+        if (active) {
+          setSubjectsByDepartment((prev) => ({
+            ...prev,
+            [department]: subjectNames,
+          }));
+          if (!subjectNames.includes(subject)) {
+            setSubject('');
+          }
+        }
+      } catch (error) {
+        if (active) {
+          setSubjectsByDepartment((prev) => ({
+            ...prev,
+            [department]: SUBJECTS_BY_DEPARTMENT[department] || [],
+          }));
+          if (!(SUBJECTS_BY_DEPARTMENT[department] || []).includes(subject)) {
+            setSubject('');
+          }
+        }
+      } finally {
+        if (active) {
+          setIsLoadingSubjects(false);
+        }
+      }
+    };
+
+    fetchSubjects();
+    return () => {
+      active = false;
+    };
+  }, [department]);
 
   const resetForm = () => {
     setTitle('');
@@ -91,7 +172,7 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
 
   const isTeacherForm = type !== 'general';
   const isModifyForm = type === 'teacher_modify';
-  const subjectOptions = department ? SUBJECTS_BY_DEPARTMENT[department] || [] : [];
+  const subjectOptions = department ? subjectsByDepartment[department] || [] : [];
 
   React.useEffect(() => {
     if (!isModifyForm) return;
@@ -190,7 +271,7 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
               required
             >
               <option value="">Select department</option>
-              {DEPARTMENTS.map((dept) => (
+              {departments.map((dept) => (
                 <option key={dept} value={dept}>
                   {dept}
                 </option>
@@ -207,10 +288,16 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
               value={subject}
               onChange={(event) => setSubject(event.target.value)}
               required
-              disabled={!department}
+              disabled={!department || isLoadingSubjects}
             >
               <option value="">
-                {department ? 'Select subject' : 'Select department first'}
+                {department
+                  ? isLoadingSubjects
+                    ? 'Loading subjects...'
+                    : 'Select subject'
+                  : isLoadingDepartments
+                  ? 'Loading departments...'
+                  : 'Select department first'}
               </option>
               {subjectOptions.map((item) => (
                 <option key={item} value={item}>

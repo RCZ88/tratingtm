@@ -22,6 +22,8 @@ export default function TeachersPage() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [department, setDepartment] = React.useState('');
   const [sortBy, setSortBy] = React.useState('name');
+  const [departments, setDepartments] = React.useState<string[]>([]);
+  const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
 
   const fetchTeachers = React.useCallback(async () => {
     setIsLoading(true);
@@ -50,6 +52,39 @@ export default function TeachersPage() {
   React.useEffect(() => {
     fetchTeachers();
   }, [fetchTeachers]);
+
+  React.useEffect(() => {
+    let active = true;
+    const fetchDepartments = async () => {
+      setIsLoadingDepartments(true);
+      try {
+        const response = await fetch('/api/departments');
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load departments');
+        }
+        const names = (data.data || [])
+          .map((dept: { name?: string }) => dept.name)
+          .filter(Boolean) as string[];
+        if (active) {
+          setDepartments(names);
+        }
+      } catch (error) {
+        if (active) {
+          setDepartments([]);
+        }
+      } finally {
+        if (active) {
+          setIsLoadingDepartments(false);
+        }
+      }
+    };
+
+    fetchDepartments();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -102,11 +137,16 @@ export default function TeachersPage() {
                   className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="">All Departments</option>
-                  <option value="Science">Science</option>
-                  <option value="Math">Mathematics</option>
-                  <option value="English">English</option>
-                  <option value="History">History</option>
-                  <option value="Arts">Arts</option>
+                  {isLoadingDepartments && (
+                    <option value="" disabled>
+                      Loading...
+                    </option>
+                  )}
+                  {departments.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="w-40">

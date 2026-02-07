@@ -17,8 +17,11 @@ import {
   Menu,
   X,
   Lightbulb,
-  ArrowUpRight
+  ArrowUpRight,
+  Eye,
+  EyeOff
 } from 'lucide-react';
+import { STORAGE_KEY } from '@/components/AppChrome';
 
 /**
  * AdminNav Component
@@ -36,11 +39,11 @@ interface AdminNavProps {
 const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [hidePublicNav, setHidePublicNav] = React.useState(false);
 
   const navItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/teachers', label: 'Teachers', icon: Users },
-    { href: '/admin/moderation', label: 'Moderation', icon: MessageSquare },
     { href: '/admin/comments', label: 'Comments', icon: MessageSquare },
     { href: '/admin/suggestions', label: 'Suggestions', icon: Lightbulb },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
@@ -48,6 +51,21 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
   ];
 
   const isActive = (href: string) => pathname.startsWith(href);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    setHidePublicNav(stored === 'true');
+  }, []);
+
+  const togglePublicNav = () => {
+    const nextValue = !hidePublicNav;
+    setHidePublicNav(nextValue);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, String(nextValue));
+      window.dispatchEvent(new Event('tm-public-nav-toggle'));
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white">
@@ -86,6 +104,14 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
           {user?.email && (
             <span className="text-sm text-slate-500">{user.email}</span>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={togglePublicNav}
+            leftIcon={hidePublicNav ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+          >
+            {hidePublicNav ? 'Show Public Nav' : 'Hide Public Nav'}
+          </Button>
           <Link href="/" className="inline-flex">
             <Button variant="outline" size="sm" leftIcon={<ArrowUpRight className="h-4 w-4" />}>
               View Site
@@ -138,6 +164,13 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
               {user?.email && (
                 <p className="px-4 py-2 text-sm text-slate-500">{user.email}</p>
               )}
+              <button
+                onClick={togglePublicNav}
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50"
+              >
+                {hidePublicNav ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+                {hidePublicNav ? 'Show Public Nav' : 'Hide Public Nav'}
+              </button>
               <Link
                 href="/"
                 className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50"
