@@ -2,9 +2,11 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { cn } from '@/lib/utils/cn';
-import { Menu, X, GraduationCap, Trophy, Search, Users } from 'lucide-react';
+import { Menu, X, GraduationCap, Trophy, Search, Users, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 /**
@@ -16,7 +18,9 @@ import { Button } from '@/components/ui/Button';
 
 const Navbar: React.FC = () => {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const isAdmin = session?.user?.role === 'admin';
 
   const navItems = [
     { href: '/', label: 'Home', icon: null },
@@ -38,13 +42,17 @@ const Navbar: React.FC = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-transform group-hover:scale-105">
-              <GraduationCap className="h-6 w-6" />
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative h-9 w-40 sm:w-48">
+              <Image
+                src="/branding/logo-text.png"
+                alt="TM Ratings"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
-            <span className="hidden text-xl font-bold text-slate-900 sm:block">
-              TM Ratings
-            </span>
+            <span className="sr-only">TM Ratings</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -68,6 +76,13 @@ const Navbar: React.FC = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex md:items-center md:gap-3">
+            {isAdmin && (
+              <Link href="/admin/dashboard">
+                <Button size="sm" variant="outline" leftIcon={<Shield className="h-4 w-4" />}>
+                  Admin
+                </Button>
+              </Link>
+            )}
             <Link href="/teachers">
               <Button size="sm">Rate a Teacher</Button>
             </Link>
@@ -108,7 +123,14 @@ const Navbar: React.FC = () => {
                 {item.label}
               </Link>
             ))}
-            <div className="pt-3">
+            <div className="pt-3 space-y-2">
+              {isAdmin && (
+                <Link href="/admin/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button fullWidth variant="outline" leftIcon={<Shield className="h-4 w-4" />}>
+                    Admin
+                  </Button>
+                </Link>
+              )}
               <Link href="/teachers" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button fullWidth>Rate a Teacher</Button>
               </Link>
