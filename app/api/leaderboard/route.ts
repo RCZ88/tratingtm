@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
           teacher:teachers(id, name, subject, department, image_url)
         `)
         .eq('week_start', toISODate(weekStart))
+        .gt('total_ratings', 0)
         .order('rank_position', { ascending: true });
 
       if (cachedLeaderboard && cachedLeaderboard.length > 0) {
@@ -75,7 +76,8 @@ export async function GET(request: NextRequest) {
     // Live computation for current week (fast + always fresh)
     const { data: allRows, error: allError } = await supabase
       .from('current_week_leaderboard')
-      .select('*');
+      .select('*')
+      .gt('rating_count', 0);
 
     if (allError) {
       console.error('Error fetching leaderboard:', allError);
