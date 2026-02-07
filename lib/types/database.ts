@@ -140,6 +140,37 @@ export interface Database {
           }
         ];
       };
+      comment_reactions: {
+        Row: {
+          id: string;
+          comment_id: string;
+          anonymous_id: string;
+          reaction: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          comment_id: string;
+          anonymous_id: string;
+          reaction: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          comment_id?: string;
+          anonymous_id?: string;
+          reaction?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'comment_reactions_comment_id_fkey';
+            columns: ['comment_id'];
+            referencedRelation: 'comments';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       app_settings: {
         Row: {
           id: string;

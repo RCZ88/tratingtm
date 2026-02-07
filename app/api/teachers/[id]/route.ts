@@ -15,6 +15,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { searchParams } = new URL(request.url);
+    const anonymousId = searchParams.get('anonymous_id');
     const { id } = params;
 
     // Validate UUID
@@ -63,11 +65,52 @@ export async function GET(
     // Fetch recent approved comments
     const { data: comments } = await supabase
       .from('comments')
-      .select('*')
+      .select('id, comment_text, created_at')
       .eq('teacher_id', id)
       .eq('is_approved', true)
       .order('created_at', { ascending: false })
       .limit(10);
+
+    const commentIds = comments?.map((c) => c.id) || [];
+    const reactionMap = new Map<
+      string,
+      { like_count: number; dislike_count: number; viewer_reaction: 'like' | 'dislike' | null }
+    >();
+
+    commentIds.forEach((commentId) => {
+      reactionMap.set(commentId, { like_count: 0, dislike_count: 0, viewer_reaction: null });
+    });
+
+    if (commentIds.length > 0) {
+      const { data: reactions } = await supabase
+        .from('comment_reactions')
+        .select('comment_id, reaction, anonymous_id')
+        .in('comment_id', commentIds);
+
+      reactions?.forEach((reaction) => {
+        const entry = reactionMap.get(reaction.comment_id);
+        if (!entry) return;
+        if (reaction.reaction === 'like') entry.like_count += 1;
+        if (reaction.reaction === 'dislike') entry.dislike_count += 1;
+        if (anonymousId && reaction.anonymous_id === anonymousId) {
+          entry.viewer_reaction = reaction.reaction as 'like' | 'dislike';
+        }
+      });
+    }
+
+    const commentsWithReactions = (comments || []).map((comment) => {
+      const counts = reactionMap.get(comment.id) || {
+        like_count: 0,
+        dislike_count: 0,
+        viewer_reaction: null,
+      };
+      return {
+        ...comment,
+        like_count: counts.like_count,
+        dislike_count: counts.dislike_count,
+        viewer_reaction: counts.viewer_reaction,
+      };
+    });
 
     return NextResponse.json({
       data: {
@@ -76,7 +119,7 @@ export async function GET(
         average_rating: stats?.overall_rating || 0,
         total_comments: stats?.total_comments || 0,
         rating_distribution: distribution,
-        comments: comments || [],
+        comments: commentsWithReactions,
       },
     });
   } catch (error) {

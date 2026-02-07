@@ -55,6 +55,19 @@ CREATE INDEX idx_comments_teacher ON comments(teacher_id);
 CREATE INDEX idx_comments_approved ON comments(is_approved);
 CREATE INDEX idx_comments_created_at ON comments(created_at);
 
+-- Comment reactions table
+CREATE TABLE comment_reactions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  comment_id UUID NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
+  anonymous_id VARCHAR(255) NOT NULL,
+  reaction VARCHAR(10) NOT NULL CHECK (reaction IN ('like', 'dislike')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(comment_id, anonymous_id)
+);
+
+CREATE INDEX idx_comment_reactions_comment ON comment_reactions(comment_id);
+CREATE INDEX idx_comment_reactions_reaction ON comment_reactions(reaction);
+
 -- App settings (single-row)
 CREATE TABLE app_settings (
   id TEXT PRIMARY KEY DEFAULT 'global',
@@ -152,6 +165,7 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE teachers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE comment_reactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leaderboard_cache ENABLE ROW LEVEL SECURITY;
 
@@ -173,6 +187,19 @@ CREATE POLICY "Anyone can submit comments" ON comments
 
 CREATE POLICY "Public can view leaderboard" ON leaderboard_cache
   FOR SELECT USING (true);
+
+-- Comment reaction policies
+CREATE POLICY "Public can view comment reactions" ON comment_reactions
+  FOR SELECT USING (true);
+
+CREATE POLICY "Anyone can react to comments" ON comment_reactions
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Anyone can update comment reactions" ON comment_reactions
+  FOR UPDATE USING (true) WITH CHECK (true);
+
+CREATE POLICY "Anyone can delete comment reactions" ON comment_reactions
+  FOR DELETE USING (true);
 
 -- App settings policies
 CREATE POLICY "Public can view app settings" ON app_settings
