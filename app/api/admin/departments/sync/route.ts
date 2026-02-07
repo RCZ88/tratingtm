@@ -31,6 +31,12 @@ export async function POST() {
     const departmentSet = new Set<string>();
     const subjectsByDepartment = new Map<string, Set<string>>();
 
+    const splitSubjects = (value: string) =>
+      value
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+
     (teachers || []).forEach((teacher) => {
       const department = (teacher.department || '').trim();
       if (!department) return;
@@ -40,16 +46,18 @@ export async function POST() {
       const subjects: string[] = [];
 
       if (Array.isArray(teacher.subjects)) {
-        subjects.push(...teacher.subjects);
+        teacher.subjects.forEach((entry) => {
+          if (!entry) return;
+          splitSubjects(entry).forEach((subject) => subjects.push(subject));
+        });
       }
       if (teacher.subject) {
-        subjects.push(teacher.subject);
+        splitSubjects(teacher.subject).forEach((subject) => subjects.push(subject));
       }
 
-      subjects
-        .map((item) => item?.toString().trim())
-        .filter(Boolean)
-        .forEach((item) => subjectSet.add(item as string));
+      subjects.forEach((item) => {
+        subjectSet.add(item);
+      });
 
       subjectsByDepartment.set(department, subjectSet);
     });

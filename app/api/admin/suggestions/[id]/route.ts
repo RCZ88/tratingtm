@@ -49,6 +49,41 @@ export async function PATCH(
       return NextResponse.json({ error: 'Failed to update suggestion' }, { status: 500 });
     }
 
+    // If approved, sync department/subject into lookup tables
+    if (
+      updated?.status === 'approved' &&
+      (updated.type === 'teacher_add' || updated.type === 'teacher_modify')
+    ) {
+      const departmentName = updated.department?.trim();
+      const subjectName = updated.subject?.trim();
+
+      if (departmentName) {
+        const { data: deptRow, error: deptError } = await supabase
+          .from('departments')
+          .upsert({ name: departmentName }, { onConflict: 'name' })
+          .select('id, name')
+          .single();
+
+        if (deptError) {
+          console.error('Error syncing department from suggestion:', deptError);
+        } else if (subjectName) {
+          const { error: subjectError } = await supabase
+            .from('subjects')
+            .upsert(
+              {
+                department_id: deptRow.id,
+                name: subjectName,
+              },
+              { onConflict: 'department_id,name' }
+            );
+
+          if (subjectError) {
+            console.error('Error syncing subject from suggestion:', subjectError);
+          }
+        }
+      }
+    }
+
     return NextResponse.json({ data: updated });
   } catch (error) {
     console.error('Error in PATCH /api/admin/suggestions/[id]:', error);
