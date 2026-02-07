@@ -54,7 +54,7 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
         }
       } catch (error) {
         if (active) {
-          setDepartments(DEPARTMENTS);
+          setDepartments((prev) => (prev.length === 0 ? DEPARTMENTS : prev));
         }
       } finally {
         if (active) {
@@ -91,19 +91,21 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
           .filter(Boolean) as string[];
 
         if (active) {
-          setSubjectsByDepartment((prev) => ({
-            ...prev,
-            [department]: subjectNames,
-          }));
-          if (!subjectNames.includes(subject)) {
-            setSubject('');
+          if (subjectNames.length > 0) {
+            setSubjectsByDepartment((prev) => ({
+              ...prev,
+              [department]: subjectNames,
+            }));
+            if (!subjectNames.includes(subject)) {
+              setSubject('');
+            }
           }
         }
       } catch (error) {
         if (active) {
           setSubjectsByDepartment((prev) => ({
             ...prev,
-            [department]: SUBJECTS_BY_DEPARTMENT[department] || [],
+            [department]: SUBJECTS_BY_DEPARTMENT[department] || prev[department] || [],
           }));
           if (!(SUBJECTS_BY_DEPARTMENT[department] || []).includes(subject)) {
             setSubject('');

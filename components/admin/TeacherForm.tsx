@@ -99,7 +99,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
       } catch (error) {
         // Fallback to defaults
         if (active) {
-          setDepartments(DEPARTMENTS);
+          setDepartments((prev) => (prev.length === 0 ? DEPARTMENTS : prev));
         }
       } finally {
         if (active) {
@@ -140,14 +140,16 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
           .filter(Boolean) as string[];
 
         if (active) {
-          setSubjectsByDepartment((prev) => ({
-            ...prev,
-            [state.department]: subjectNames,
-          }));
-          setState((prev) => ({
-            ...prev,
-            subjects: prev.subjects.filter((item) => subjectNames.includes(item)),
-          }));
+          if (subjectNames.length > 0) {
+            setSubjectsByDepartment((prev) => ({
+              ...prev,
+              [state.department]: subjectNames,
+            }));
+            setState((prev) => ({
+              ...prev,
+              subjects: prev.subjects.filter((item) => subjectNames.includes(item)),
+            }));
+          }
         }
       } catch (error) {
         // Fallback to defaults for this department

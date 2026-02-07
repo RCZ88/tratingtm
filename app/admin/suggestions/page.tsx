@@ -22,6 +22,10 @@ interface AdminSuggestion {
 }
 
 const STATUS_OPTIONS = ['new', 'working', 'approved', 'declined'];
+const STATUS_FILTER_OPTIONS = [
+  { value: '', label: 'All statuses' },
+  ...STATUS_OPTIONS.map((status) => ({ value: status, label: status })),
+];
 const TYPE_OPTIONS = [
   { value: '', label: 'All types' },
   { value: 'general', label: 'General' },
@@ -95,9 +99,9 @@ export default function AdminSuggestionsPage() {
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
               >
-                {STATUS_OPTIONS.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
+                {STATUS_FILTER_OPTIONS.map((option) => (
+                  <option key={option.value || 'all'} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>

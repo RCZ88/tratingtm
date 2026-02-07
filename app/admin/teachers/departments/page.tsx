@@ -18,11 +18,14 @@ export default function AdminDepartmentsPage() {
   const [name, setName] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [isSyncing, setIsSyncing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
 
   const fetchDepartments = React.useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    setSuccess(null);
     try {
       const response = await fetch('/api/admin/departments');
       const data = await response.json();
@@ -46,6 +49,7 @@ export default function AdminDepartmentsPage() {
     if (!trimmed) return;
     setIsSaving(true);
     setError(null);
+    setSuccess(null);
     try {
       const response = await fetch('/api/admin/departments', {
         method: 'POST',
@@ -62,6 +66,29 @@ export default function AdminDepartmentsPage() {
       setError(err instanceof Error ? err.message : 'Failed to add department');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const response = await fetch('/api/admin/departments/sync', {
+        method: 'POST',
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to sync departments');
+      }
+      setSuccess(
+        data.message || `Synced ${data?.data?.departments || 0} departments.`
+      );
+      fetchDepartments();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to sync departments');
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -92,6 +119,9 @@ export default function AdminDepartmentsPage() {
             Manage department options used across teacher forms and suggestions.
           </p>
         </div>
+        <Button variant="outline" onClick={handleSync} isLoading={isSyncing}>
+          Sync From Teachers
+        </Button>
       </div>
 
       <Card className="mb-6">
@@ -110,6 +140,11 @@ export default function AdminDepartmentsPage() {
           {error && (
             <div className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">
               {error}
+            </div>
+          )}
+          {success && (
+            <div className="rounded-lg bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+              {success}
             </div>
           )}
         </CardContent>
@@ -170,7 +205,8 @@ export default function AdminDepartmentsPage() {
         <AlertTriangle className="h-5 w-5" />
         <p>
           Deleting a department will also remove its subjects from the dropdowns.
-          It does not change existing teacher records.
+          It does not change existing teacher records. Use sync to pull departments
+          from existing teachers if the list is empty.
         </p>
       </div>
     </div>
