@@ -19,7 +19,7 @@ const LEET_MAP: Record<string, string> = {
 function normalizeChar(char: string): string {
   const lower = char.toLowerCase();
   const mapped = LEET_MAP[lower] ?? lower;
-  return mapped.normalize('NFD').replace(/\p{Diacritic}/gu, '');
+  return mapped.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
 export function normalizeForMatching(text: string) {
