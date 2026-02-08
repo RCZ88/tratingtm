@@ -11,8 +11,12 @@ export const dynamic = 'force-dynamic';
  *
  * Admin endpoint: delete a subject.
  */
-export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -22,7 +26,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
     const { error } = await supabase
       .from('subjects')
       .delete()
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
       console.error('Error deleting subject:', error);
@@ -46,8 +50,12 @@ const subjectUpdateSchema = z.object({
  *
  * Admin endpoint: update a subject name or department.
  */
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -70,7 +78,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         ...(validation.data.name ? { name: validation.data.name.trim() } : {}),
         ...(validation.data.department_id ? { department_id: validation.data.department_id } : {}),
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select('id, name, department_id, created_at')
       .single();
 

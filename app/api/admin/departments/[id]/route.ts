@@ -11,8 +11,12 @@ export const dynamic = 'force-dynamic';
  *
  * Admin endpoint: delete a department.
  */
-export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -22,7 +26,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
     const { error } = await supabase
       .from('departments')
       .delete()
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
       console.error('Error deleting department:', error);
@@ -49,8 +53,12 @@ const departmentUpdateSchema = z.object({
  *
  * Admin endpoint: update a department name or color.
  */
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -73,7 +81,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         ...(validation.data.name ? { name: validation.data.name.trim() } : {}),
         ...(validation.data.color_hex ? { color_hex: validation.data.color_hex } : {}),
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select('id, name, color_hex, created_at')
       .single();
 

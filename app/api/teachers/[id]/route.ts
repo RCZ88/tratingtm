@@ -12,12 +12,12 @@ import { authOptions } from '@/lib/auth/authOptions';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { searchParams } = new URL(request.url);
     const anonymousId = searchParams.get('anonymous_id');
-    const { id } = params;
+    const { id } = await params;
 
     // Validate UUID
     const uuidValidation = validate(uuidSchema, id);
@@ -163,7 +163,7 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -175,7 +175,7 @@ export async function PUT(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Validate UUID
     const uuidValidation = validate(uuidSchema, id);
@@ -284,7 +284,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -296,7 +296,7 @@ export async function DELETE(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Validate UUID
     const uuidValidation = validate(uuidSchema, id);
