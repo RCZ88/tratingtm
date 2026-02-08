@@ -17,9 +17,10 @@ const updateSchema = z.object({
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -35,7 +36,7 @@ export async function PATCH(
     const { data, error } = await supabase
       .from('banned_words')
       .update(validation.data)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
 
@@ -58,9 +59,10 @@ export async function PATCH(
  */
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -70,7 +72,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('banned_words')
       .delete()
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
       console.error('Error deleting banned word:', error);
