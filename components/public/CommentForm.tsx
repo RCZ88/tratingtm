@@ -164,7 +164,6 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
 
   return (
     <form onSubmit={handleSubmit} className={cn('space-y-4', className)}>
-      <Textarea
       <HighlightedTextarea
         label="Leave a comment"
         placeholder="Share your experience with this teacher..."
