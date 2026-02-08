@@ -129,7 +129,7 @@ export default function TeachersPage() {
                   Department
                 </label>
                 <select
-                  value={department}
+                  value={departmentId}
                   onChange={handleDepartmentChange}
                   className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
