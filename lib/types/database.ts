@@ -40,9 +40,7 @@ export interface Database {
         Row: {
           id: string;
           name: string;
-          subject: string | null;
-          subjects: string[] | null;
-          department: string | null;
+          department_id: string | null;
           levels: string[] | null;
           year_levels: number[] | null;
           bio: string | null;
@@ -54,9 +52,7 @@ export interface Database {
         Insert: {
           id?: string;
           name: string;
-          subject?: string | null;
-          subjects?: string[] | null;
-          department?: string | null;
+          department_id?: string | null;
           levels?: string[] | null;
           year_levels?: number[] | null;
           bio?: string | null;
@@ -68,9 +64,7 @@ export interface Database {
         Update: {
           id?: string;
           name?: string;
-          subject?: string | null;
-          subjects?: string[] | null;
-          department?: string | null;
+          department_id?: string | null;
           levels?: string[] | null;
           year_levels?: number[] | null;
           bio?: string | null;
@@ -85,16 +79,19 @@ export interface Database {
         Row: {
           id: string;
           name: string;
+          color_hex: string;
           created_at: string;
         };
         Insert: {
           id?: string;
           name: string;
+          color_hex?: string;
           created_at?: string;
         };
         Update: {
           id?: string;
           name?: string;
+          color_hex?: string;
           created_at?: string;
         };
         Relationships: [];
@@ -123,6 +120,37 @@ export interface Database {
             foreignKeyName: 'subjects_department_id_fkey';
             columns: ['department_id'];
             referencedRelation: 'departments';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      teacher_subjects: {
+        Row: {
+          teacher_id: string;
+          subject_id: string;
+          created_at: string;
+        };
+        Insert: {
+          teacher_id: string;
+          subject_id: string;
+          created_at?: string;
+        };
+        Update: {
+          teacher_id?: string;
+          subject_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'teacher_subjects_subject_id_fkey';
+            columns: ['subject_id'];
+            referencedRelation: 'subjects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'teacher_subjects_teacher_id_fkey';
+            columns: ['teacher_id'];
+            referencedRelation: 'teachers';
             referencedColumns: ['id'];
           }
         ];
@@ -225,6 +253,27 @@ export interface Database {
             referencedColumns: ['id'];
           }
         ];
+      };
+      banned_words: {
+        Row: {
+          id: string;
+          word: string;
+          enabled: boolean | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          word: string;
+          enabled?: boolean | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          word?: string;
+          enabled?: boolean | null;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       suggestions: {
         Row: {
@@ -442,6 +491,7 @@ export type TeacherInsert = Database['public']['Tables']['teachers']['Insert'];
 export type TeacherUpdate = Database['public']['Tables']['teachers']['Update'];
 export type Department = Database['public']['Tables']['departments']['Row'];
 export type Subject = Database['public']['Tables']['subjects']['Row'];
+export type TeacherSubject = Database['public']['Tables']['teacher_subjects']['Row'];
 
 export type Rating = Database['public']['Tables']['ratings']['Row'];
 export type RatingInsert = Database['public']['Tables']['ratings']['Insert'];
@@ -449,6 +499,7 @@ export type RatingInsert = Database['public']['Tables']['ratings']['Insert'];
 export type Comment = Database['public']['Tables']['comments']['Row'];
 export type CommentInsert = Database['public']['Tables']['comments']['Insert'];
 export type CommentUpdate = Database['public']['Tables']['comments']['Update'];
+export type BannedWord = Database['public']['Tables']['banned_words']['Row'];
 export type Suggestion = Database['public']['Tables']['suggestions']['Row'];
 export type SuggestionInsert = Database['public']['Tables']['suggestions']['Insert'];
 export type SuggestionUpdate = Database['public']['Tables']['suggestions']['Update'];
@@ -462,6 +513,10 @@ export interface TeacherWithStats extends Teacher {
   total_ratings?: number;
   average_rating?: number | null;
   total_comments?: number;
+  department?: Department | null;
+  subjects?: Subject[];
+  subject_ids?: string[];
+  primary_subject?: string | null;
 }
 
 export interface CommentWithTeacher extends Comment {

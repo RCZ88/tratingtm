@@ -17,105 +17,10 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = createServiceClient();
-
-    const { data: teachers, error: teacherError } = await supabase
-      .from('teachers')
-      .select('department, subject, subjects');
-
-    if (teacherError) {
-      console.error('Error fetching teachers for sync:', teacherError);
-      return NextResponse.json({ error: 'Failed to read teachers' }, { status: 500 });
-    }
-
-    const departmentSet = new Set<string>();
-    const subjectsByDepartment = new Map<string, Set<string>>();
-
-    const splitSubjects = (value: string) =>
-      value
-        .split(',')
-        .map((item) => item.trim())
-        .filter(Boolean);
-
-    (teachers || []).forEach((teacher) => {
-      const department = (teacher.department || '').trim();
-      if (!department) return;
-      departmentSet.add(department);
-
-      const subjectSet = subjectsByDepartment.get(department) || new Set<string>();
-      const subjects: string[] = [];
-
-      if (Array.isArray(teacher.subjects)) {
-        teacher.subjects.forEach((entry) => {
-          if (!entry) return;
-          splitSubjects(entry).forEach((subject) => subjects.push(subject));
-        });
-      }
-      if (teacher.subject) {
-        splitSubjects(teacher.subject).forEach((subject) => subjects.push(subject));
-      }
-
-      subjects.forEach((item) => {
-        subjectSet.add(item);
-      });
-
-      subjectsByDepartment.set(department, subjectSet);
-    });
-
-    const departments = Array.from(departmentSet).map((name) => ({ name }));
-
-    if (departments.length === 0) {
-      return NextResponse.json({
-        message: 'No departments found on teachers to sync.',
-        data: { departments: 0, subjects: 0 },
-      });
-    }
-
-    const { error: upsertDeptError } = await supabase
-      .from('departments')
-      .upsert(departments, { onConflict: 'name' });
-
-    if (upsertDeptError) {
-      console.error('Error syncing departments:', upsertDeptError);
-      return NextResponse.json({ error: 'Failed to sync departments' }, { status: 500 });
-    }
-
-    const { data: deptRows, error: deptFetchError } = await supabase
-      .from('departments')
-      .select('id, name')
-      .in('name', Array.from(departmentSet));
-
-    if (deptFetchError) {
-      console.error('Error fetching departments after sync:', deptFetchError);
-      return NextResponse.json({ error: 'Failed to finalize sync' }, { status: 500 });
-    }
-
-    const deptIdMap = new Map((deptRows || []).map((dept) => [dept.name, dept.id]));
-
-    const subjectRows: Array<{ department_id: string; name: string }> = [];
-
-    subjectsByDepartment.forEach((subjects, deptName) => {
-      const departmentId = deptIdMap.get(deptName);
-      if (!departmentId) return;
-      subjects.forEach((subject) => {
-        subjectRows.push({ department_id: departmentId, name: subject });
-      });
-    });
-
-    if (subjectRows.length > 0) {
-      const { error: upsertSubjectError } = await supabase
-        .from('subjects')
-        .upsert(subjectRows, { onConflict: 'department_id,name' });
-
-      if (upsertSubjectError) {
-        console.error('Error syncing subjects:', upsertSubjectError);
-        return NextResponse.json({ error: 'Failed to sync subjects' }, { status: 500 });
-      }
-    }
-
+    createServiceClient();
     return NextResponse.json({
-      message: 'Sync completed',
-      data: { departments: departments.length, subjects: subjectRows.length },
+      message: 'Department sync is no longer required. Use the Departments/Subjects admin pages instead.',
+      data: { departments: 0, subjects: 0 },
     });
   } catch (error) {
     console.error('Error in POST /api/admin/departments/sync:', error);

@@ -24,6 +24,11 @@ export interface TeacherCardProps {
 const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
   const averageRating = teacher.average_rating || 0;
   const totalRatings = teacher.total_ratings || 0;
+  const primarySubject =
+    teacher.primary_subject ||
+    teacher.subjects?.[0]?.name ||
+    null;
+  const departmentName = teacher.department?.name || null;
 
   return (
     <Link href={`/teachers/${teacher.id}`}>
@@ -55,16 +60,16 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
             {teacher.name}
           </h3>
 
-          {teacher.subject && (
+          {primarySubject && (
             <div className="mt-1 flex items-center justify-center gap-1.5 text-sm text-slate-500">
               <BookOpen className="h-3.5 w-3.5" />
-              <span className="line-clamp-1">{teacher.subject}</span>
+              <span className="line-clamp-1">{primarySubject}</span>
             </div>
           )}
 
-          {teacher.department && (
+          {departmentName && (
             <p className="mt-0.5 text-xs text-slate-400 line-clamp-1">
-              {teacher.department}
+              {departmentName}
             </p>
           )}
 

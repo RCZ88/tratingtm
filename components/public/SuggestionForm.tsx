@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { DEPARTMENTS, LEVELS, SUBJECTS_BY_DEPARTMENT } from '@/lib/constants/suggestions';
+import type { Department, Subject } from '@/lib/types/database';
 
 export type SuggestionType = 'general' | 'teacher_add' | 'teacher_modify';
 
@@ -19,15 +20,22 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
   const [teacherName, setTeacherName] = React.useState('');
   const [teacherOptions, setTeacherOptions] = React.useState<string[]>([]);
   const [isLoadingTeachers, setIsLoadingTeachers] = React.useState(false);
-  const [department, setDepartment] = React.useState('');
-  const [subject, setSubject] = React.useState('');
+  const [departmentId, setDepartmentId] = React.useState('');
+  const [subjectId, setSubjectId] = React.useState('');
   const [level, setLevel] = React.useState('');
   const [yearLevel, setYearLevel] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [message, setMessage] = React.useState<string | null>(null);
-  const [departments, setDepartments] = React.useState<string[]>(DEPARTMENTS);
-  const [subjectsByDepartment, setSubjectsByDepartment] = React.useState<Record<string, string[]>>(
-    SUBJECTS_BY_DEPARTMENT
+  const [departments, setDepartments] = React.useState<Department[]>(
+    DEPARTMENTS.map((name) => ({ id: name, name }))
+  );
+  const [subjectsByDepartment, setSubjectsByDepartment] = React.useState<Record<string, Subject[]>>(
+    Object.fromEntries(
+      Object.entries(SUBJECTS_BY_DEPARTMENT).map(([dept, subjects]) => [
+        dept,
+        subjects.map((name) => ({ id: name, name, department_id: dept } as Subject)),
+      ])
+    )
   );
   const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
   const [isLoadingSubjects, setIsLoadingSubjects] = React.useState(false);
@@ -46,15 +54,14 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
         if (!response.ok) {
           throw new Error(data.error || 'Failed to load departments');
         }
-        const names = (data.data || [])
-          .map((dept: { name?: string }) => dept.name)
-          .filter(Boolean) as string[];
-        if (active && names.length > 0) {
-          setDepartments(names);
+        if (active && (data.data || []).length > 0) {
+          setDepartments(data.data || []);
         }
       } catch (error) {
         if (active) {
-          setDepartments((prev) => (prev.length === 0 ? DEPARTMENTS : prev));
+          setDepartments((prev) =>
+            prev.length === 0 ? DEPARTMENTS.map((name) => ({ id: name, name })) : prev
+          );
         }
       } finally {
         if (active) {
@@ -70,8 +77,8 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
   }, []);
 
   React.useEffect(() => {
-    if (!department) {
-      setSubject('');
+    if (!departmentId) {
+      setSubjectId('');
       return;
     }
 
@@ -80,35 +87,41 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
       setIsLoadingSubjects(true);
       try {
         const params = new URLSearchParams();
-        params.set('department', department);
+        params.set('department_id', departmentId);
         const response = await fetch(`/api/subjects?${params.toString()}`);
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.error || 'Failed to load subjects');
         }
-        const subjectNames = (data.data || [])
-          .map((item: { name?: string }) => item.name)
-          .filter(Boolean) as string[];
+        const subjectRows = (data.data || []) as Subject[];
 
-        if (active) {
-          if (subjectNames.length > 0) {
-            setSubjectsByDepartment((prev) => ({
-              ...prev,
-              [department]: subjectNames,
-            }));
-            if (!subjectNames.includes(subject)) {
-              setSubject('');
-            }
+        if (active && subjectRows.length > 0) {
+          setSubjectsByDepartment((prev) => ({
+            ...prev,
+            [departmentId]: subjectRows,
+          }));
+          const validIds = new Set(subjectRows.map((item) => item.id));
+          if (!validIds.has(subjectId)) {
+            setSubjectId('');
           }
         }
       } catch (error) {
         if (active) {
           setSubjectsByDepartment((prev) => ({
             ...prev,
-            [department]: SUBJECTS_BY_DEPARTMENT[department] || prev[department] || [],
+            [departmentId]:
+              prev[departmentId] ||
+              (SUBJECTS_BY_DEPARTMENT[departmentId] || []).map((name) => ({
+                id: name,
+                name,
+                department_id: departmentId,
+              })),
           }));
-          if (!(SUBJECTS_BY_DEPARTMENT[department] || []).includes(subject)) {
-            setSubject('');
+          const fallbackIds = new Set(
+            (SUBJECTS_BY_DEPARTMENT[departmentId] || []).map((name) => name)
+          );
+          if (!fallbackIds.has(subjectId)) {
+            setSubjectId('');
           }
         }
       } finally {
@@ -122,14 +135,14 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
     return () => {
       active = false;
     };
-  }, [department]);
+  }, [departmentId]);
 
   const resetForm = () => {
     setTitle('');
     setDescription('');
     setTeacherName('');
-    setDepartment('');
-    setSubject('');
+    setDepartmentId('');
+    setSubjectId('');
     setLevel('');
     setYearLevel('');
   };
@@ -139,13 +152,17 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
     setIsSubmitting(true);
     setMessage(null);
 
+    const selectedDepartment = departments.find((dept) => dept.id === departmentId);
+    const subjectOptions = departmentId ? subjectsByDepartment[departmentId] || [] : [];
+    const selectedSubject = subjectOptions.find((item) => item.id === subjectId);
+
     const payload = {
       type,
       title: title.trim() || null,
       description,
       teacher_name: teacherName.trim() || null,
-      department: department || null,
-      subject: subject || null,
+      department: selectedDepartment?.name || null,
+      subject: selectedSubject?.name || null,
       level: level || null,
       year_level: yearLevel.trim() || null,
     };
@@ -174,7 +191,7 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
 
   const isTeacherForm = type !== 'general';
   const isModifyForm = type === 'teacher_modify';
-  const subjectOptions = department ? subjectsByDepartment[department] || [] : [];
+  const subjectOptions = departmentId ? subjectsByDepartment[departmentId] || [] : [];
 
   React.useEffect(() => {
     if (!isModifyForm) return;
@@ -268,14 +285,14 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
             </label>
             <select
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              value={department}
-              onChange={(event) => setDepartment(event.target.value)}
+              value={departmentId}
+              onChange={(event) => setDepartmentId(event.target.value)}
               required
             >
               <option value="">Select department</option>
               {departments.map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
                 </option>
               ))}
             </select>
@@ -287,13 +304,13 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
             </label>
             <select
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              value={subject}
-              onChange={(event) => setSubject(event.target.value)}
+              value={subjectId}
+              onChange={(event) => setSubjectId(event.target.value)}
               required
-              disabled={!department || isLoadingSubjects}
+              disabled={!departmentId || isLoadingSubjects}
             >
               <option value="">
-                {department
+                {departmentId
                   ? isLoadingSubjects
                     ? 'Loading subjects...'
                     : 'Select subject'
@@ -302,8 +319,8 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
                   : 'Select department first'}
               </option>
               {subjectOptions.map((item) => (
-                <option key={item} value={item}>
-                  {item}
+                <option key={item.id} value={item.id}>
+                  {item.name}
                 </option>
               ))}
             </select>

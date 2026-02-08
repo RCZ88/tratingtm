@@ -11,26 +11,11 @@ CREATE TABLE users (
   last_login TIMESTAMP WITH TIME ZONE
 );
 
--- Teachers table
-CREATE TABLE teachers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(255) NOT NULL,
-  subject VARCHAR(255),
-  subjects TEXT[] DEFAULT '{}',
-  department VARCHAR(255),
-  levels TEXT[] DEFAULT '{}',
-  year_levels INT[] DEFAULT '{}',
-  bio TEXT,
-  image_url VARCHAR(500),
-  is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
 -- Departments table
 CREATE TABLE departments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name VARCHAR(255) UNIQUE NOT NULL,
+  color_hex VARCHAR(16) NOT NULL DEFAULT '#16a34a',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -48,8 +33,34 @@ CREATE TABLE subjects (
 CREATE INDEX idx_subjects_department ON subjects(department_id);
 CREATE INDEX idx_subjects_name ON subjects(name);
 
+-- Teachers table
+CREATE TABLE teachers (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(255) NOT NULL,
+  department_id UUID REFERENCES departments(id) ON DELETE SET NULL,
+  levels TEXT[] DEFAULT '{}',
+  year_levels INT[] DEFAULT '{}',
+  bio TEXT,
+  image_url VARCHAR(500),
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 CREATE INDEX idx_teachers_active ON teachers(is_active);
 CREATE INDEX idx_teachers_name ON teachers(name);
+CREATE INDEX idx_teachers_department ON teachers(department_id);
+
+-- Teacher subjects join table
+CREATE TABLE teacher_subjects (
+  teacher_id UUID NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
+  subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  PRIMARY KEY (teacher_id, subject_id)
+);
+
+CREATE INDEX idx_teacher_subjects_teacher ON teacher_subjects(teacher_id);
+CREATE INDEX idx_teacher_subjects_subject ON teacher_subjects(subject_id);
 
 -- Ratings table
 CREATE TABLE ratings (
@@ -91,6 +102,17 @@ CREATE TABLE comment_reactions (
 
 CREATE INDEX idx_comment_reactions_comment ON comment_reactions(comment_id);
 CREATE INDEX idx_comment_reactions_reaction ON comment_reactions(reaction);
+
+-- Banned words table
+CREATE TABLE banned_words (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  word TEXT NOT NULL,
+  enabled BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX idx_banned_words_word ON banned_words((lower(word)));
+CREATE INDEX idx_banned_words_enabled ON banned_words(enabled);
 
 -- Suggestions table
 CREATE TABLE suggestions (
@@ -171,13 +193,22 @@ comment_agg AS (
 SELECT
   t.id,
   t.name,
-  t.subject,
-  t.department,
+  subj.subject_name AS subject,
+  d.name AS department,
   t.image_url,
   COALESCE(r.rating_count, 0) AS rating_count,
   r.average_rating,
   COALESCE(c.comment_count, 0) AS comment_count
 FROM teachers t
+LEFT JOIN departments d ON d.id = t.department_id
+LEFT JOIN LATERAL (
+  SELECT s.name AS subject_name
+  FROM teacher_subjects ts
+  JOIN subjects s ON s.id = ts.subject_id
+  WHERE ts.teacher_id = t.id
+  ORDER BY s.name
+  LIMIT 1
+) subj ON true
 LEFT JOIN rating_agg r ON t.id = r.teacher_id
 LEFT JOIN comment_agg c ON t.id = c.teacher_id
 WHERE t.is_active = true
@@ -201,13 +232,22 @@ CREATE OR REPLACE VIEW teacher_popularity AS
 SELECT
   t.id,
   t.name,
-  t.subject,
-  t.department,
+  subj.subject_name AS subject,
+  d.name AS department,
   t.image_url,
   s.total_ratings,
   s.total_comments,
   (s.total_ratings + s.total_comments) AS total_interactions
 FROM teachers t
+LEFT JOIN departments d ON d.id = t.department_id
+LEFT JOIN LATERAL (
+  SELECT s.name AS subject_name
+  FROM teacher_subjects ts
+  JOIN subjects s ON s.id = ts.subject_id
+  WHERE ts.teacher_id = t.id
+  ORDER BY s.name
+  LIMIT 1
+) subj ON true
 JOIN teacher_stats s ON s.id = t.id
 WHERE t.is_active = true;
 
@@ -300,8 +340,10 @@ ALTER TABLE teachers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comment_reactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE banned_words ENABLE ROW LEVEL SECURITY;
 ALTER TABLE departments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subjects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE teacher_subjects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE suggestions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE suggestion_votes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
@@ -323,6 +365,13 @@ CREATE POLICY "Public can view subjects" ON subjects
   FOR SELECT USING (true);
 
 CREATE POLICY "Admin full access on subjects" ON subjects
+  FOR ALL USING (auth.role() = 'service_role');
+
+-- Teacher subject policies
+CREATE POLICY "Public can view teacher subjects" ON teacher_subjects
+  FOR SELECT USING (true);
+
+CREATE POLICY "Admin full access on teacher subjects" ON teacher_subjects
   FOR ALL USING (auth.role() = 'service_role');
 
 CREATE POLICY "Public can view approved comments" ON comments
@@ -352,6 +401,13 @@ CREATE POLICY "Anyone can update comment reactions" ON comment_reactions
 
 CREATE POLICY "Anyone can delete comment reactions" ON comment_reactions
   FOR DELETE USING (true);
+
+-- Banned words policies
+CREATE POLICY "Public can view banned words" ON banned_words
+  FOR SELECT USING (enabled = true);
+
+CREATE POLICY "Admin full access on banned words" ON banned_words
+  FOR ALL USING (auth.role() = 'service_role');
 
 -- Suggestion policies
 CREATE POLICY "Public can view suggestions" ON suggestions

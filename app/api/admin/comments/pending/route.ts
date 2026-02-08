@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       .from('comments')
       .select(`
         *,
-        teacher:teachers(id, name, subject, image_url)
+        teacher:teachers(id, name, image_url)
       `)
       .eq('is_approved', false)
       .eq('is_flagged', false)

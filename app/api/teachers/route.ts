@@ -18,14 +18,56 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const search = searchParams.get('search') || '';
-    const department = searchParams.get('department') || '';
-    const subject = searchParams.get('subject') || '';
+    const departmentParam = searchParams.get('department') || '';
+    const departmentIdParam = searchParams.get('department_id') || '';
+    const subjectParam = searchParams.get('subject') || '';
+    const subjectIdParam = searchParams.get('subject_id') || '';
     const sortBy = searchParams.get('sort_by') || 'name';
     const sortOrder = searchParams.get('sort_order') || 'asc';
     const includeInactive = searchParams.get('include_inactive') === 'true';
 
     const session = await getServerSession(authOptions);
     const supabase = includeInactive && session ? createServiceClient() : createClient();
+
+    // Resolve department ID if a name is provided
+    let departmentId = departmentIdParam || '';
+    if (!departmentId && departmentParam) {
+      const { data: deptMatch } = await supabase
+        .from('departments')
+        .select('id')
+        .eq('name', departmentParam)
+        .maybeSingle();
+      departmentId = deptMatch?.id || '';
+      if (!departmentId) {
+        return NextResponse.json({
+          data: [],
+          total: 0,
+          page,
+          limit,
+          totalPages: 0,
+        });
+      }
+    }
+
+    // Resolve subject ID if a name is provided
+    let subjectId = subjectIdParam || '';
+    if (!subjectId && subjectParam) {
+      let subjectQuery = supabase.from('subjects').select('id').eq('name', subjectParam);
+      if (departmentId) {
+        subjectQuery = subjectQuery.eq('department_id', departmentId);
+      }
+      const { data: subjectMatch } = await subjectQuery.limit(1).maybeSingle();
+      subjectId = subjectMatch?.id || '';
+      if (!subjectId) {
+        return NextResponse.json({
+          data: [],
+          total: 0,
+          page,
+          limit,
+          totalPages: 0,
+        });
+      }
+    }
 
     // Build query
     let query = supabase.from('teachers').select('*', { count: 'exact' });
@@ -41,16 +83,37 @@ export async function GET(request: NextRequest) {
       query = query.ilike('name', `%${search}%`);
     }
 
-    if (department) {
-      query = query.ilike('department', `%${department}%`);
+    if (departmentId) {
+      query = query.eq('department_id', departmentId);
     }
 
-    if (subject) {
-      query = query.ilike('subject', `%${subject}%`);
+    if (subjectId) {
+      const { data: subjectMatches, error: subjectMatchError } = await supabase
+        .from('teacher_subjects')
+        .select('teacher_id')
+        .eq('subject_id', subjectId);
+
+      if (subjectMatchError) {
+        console.error('Error fetching teacher subjects:', subjectMatchError);
+        return NextResponse.json({ error: 'Failed to fetch teachers' }, { status: 500 });
+      }
+
+      const teacherIdsForSubject = (subjectMatches || []).map((row) => row.teacher_id);
+      if (teacherIdsForSubject.length === 0) {
+        return NextResponse.json({
+          data: [],
+          total: 0,
+          page,
+          limit,
+          totalPages: 0,
+        });
+      }
+
+      query = query.in('id', teacherIdsForSubject);
     }
 
     // Apply sorting
-    const validSortColumns = ['name', 'created_at', 'subject', 'department'];
+    const validSortColumns = ['name', 'created_at'];
     const orderColumn = validSortColumns.includes(sortBy) ? sortBy : 'name';
     query = query.order(orderColumn, { ascending: sortOrder === 'asc' });
 
@@ -71,21 +134,55 @@ export async function GET(request: NextRequest) {
 
     // Fetch stats for each teacher
     const teacherIds = teachers?.map((t) => t.id) || [];
-    
     if (teacherIds.length > 0) {
-      const { data: stats } = await supabase
-        .from('teacher_stats')
-        .select('*')
-        .in('id', teacherIds);
+      const departmentIds = Array.from(
+        new Set((teachers || []).map((t) => t.department_id).filter(Boolean))
+      ) as string[];
 
-      const statsMap = new Map(stats?.map((s) => [s.id, s]) || []);
+      const [statsResult, deptResult, subjectResult] = await Promise.all([
+        supabase.from('teacher_stats').select('*').in('id', teacherIds),
+        departmentIds.length > 0
+          ? supabase
+              .from('departments')
+              .select('id, name, color_hex')
+              .in('id', departmentIds)
+          : Promise.resolve({ data: [] }),
+        supabase
+          .from('teacher_subjects')
+          .select('teacher_id, subject:subjects(id, name)')
+          .in('teacher_id', teacherIds),
+      ]);
 
-      const teachersWithStats = teachers?.map((teacher) => ({
-        ...teacher,
-        total_ratings: statsMap.get(teacher.id)?.total_ratings || 0,
-        average_rating: statsMap.get(teacher.id)?.overall_rating || 0,
-        total_comments: statsMap.get(teacher.id)?.total_comments || 0,
-      }));
+      const statsMap = new Map(statsResult.data?.map((s) => [s.id, s]) || []);
+      const deptMap = new Map(deptResult.data?.map((d) => [d.id, d]) || []);
+
+      const subjectMap = new Map<
+        string,
+        Array<{ id: string; name: string }>
+      >();
+      (subjectResult.data || []).forEach((row: any) => {
+        const subject = row.subject;
+        if (!subject) return;
+        const list = subjectMap.get(row.teacher_id) || [];
+        list.push(subject);
+        subjectMap.set(row.teacher_id, list);
+      });
+
+      const teachersWithStats = teachers?.map((teacher) => {
+        const subjects = (subjectMap.get(teacher.id) || []).sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+        return {
+          ...teacher,
+          department: teacher.department_id ? deptMap.get(teacher.department_id) || null : null,
+          subjects,
+          subject_ids: subjects.map((s) => s.id),
+          primary_subject: subjects[0]?.name || null,
+          total_ratings: statsMap.get(teacher.id)?.total_ratings || 0,
+          average_rating: statsMap.get(teacher.id)?.overall_rating || 0,
+          total_comments: statsMap.get(teacher.id)?.total_comments || 0,
+        };
+      });
 
       return NextResponse.json({
         data: teachersWithStats,
@@ -146,9 +243,7 @@ export async function POST(request: NextRequest) {
       .from('teachers')
       .insert({
         name: validation.data.name,
-        subject: validation.data.subject,
-        subjects: validation.data.subjects,
-        department: validation.data.department,
+        department_id: validation.data.department_id,
         levels: validation.data.levels,
         year_levels: validation.data.year_levels,
         bio: validation.data.bio,
@@ -164,6 +259,25 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to create teacher' },
         { status: 500 }
       );
+    }
+
+    if (teacher && validation.data.subject_ids && validation.data.subject_ids.length > 0) {
+      const subjectRows = validation.data.subject_ids.map((subjectId) => ({
+        teacher_id: teacher.id,
+        subject_id: subjectId,
+      }));
+
+      const { error: subjectError } = await supabase
+        .from('teacher_subjects')
+        .insert(subjectRows);
+
+      if (subjectError) {
+        console.error('Error assigning teacher subjects:', subjectError);
+        return NextResponse.json(
+          { error: 'Failed to assign teacher subjects' },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json(

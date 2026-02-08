@@ -51,6 +51,26 @@ export async function GET(
       .eq('id', id)
       .single();
 
+    // Fetch department
+    const { data: department } = teacher.department_id
+      ? await supabase
+          .from('departments')
+          .select('id, name, color_hex')
+          .eq('id', teacher.department_id)
+          .maybeSingle()
+      : { data: null };
+
+    // Fetch subjects
+    const { data: subjectRows } = await supabase
+      .from('teacher_subjects')
+      .select('subject:subjects(id, name)')
+      .eq('teacher_id', id);
+
+    const subjects = (subjectRows || [])
+      .map((row: any) => row.subject)
+      .filter(Boolean)
+      .sort((a: any, b: any) => a.name.localeCompare(b.name));
+
     // Fetch rating distribution
     const { data: ratings } = await supabase
       .from('ratings')
@@ -115,6 +135,10 @@ export async function GET(
     return NextResponse.json({
       data: {
         ...teacher,
+        department: department || null,
+        subjects,
+        subject_ids: subjects.map((s: any) => s.id),
+        primary_subject: subjects[0]?.name || null,
         total_ratings: stats?.total_ratings || 0,
         average_rating: stats?.overall_rating || 0,
         total_comments: stats?.total_comments || 0,
@@ -189,10 +213,15 @@ export async function PUT(
       );
     }
 
+    const { subject_ids, ...teacherData } = validation.data as {
+      subject_ids?: string[] | null;
+      [key: string]: any;
+    };
+
     const { data: teacher, error } = await supabase
       .from('teachers')
       .update({
-        ...validation.data,
+        ...teacherData,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -205,6 +234,33 @@ export async function PUT(
         { error: 'Failed to update teacher' },
         { status: 500 }
       );
+    }
+
+    if (subject_ids !== undefined) {
+      const { error: deleteError } = await supabase
+        .from('teacher_subjects')
+        .delete()
+        .eq('teacher_id', id);
+
+      if (deleteError) {
+        console.error('Error clearing teacher subjects:', deleteError);
+        return NextResponse.json({ error: 'Failed to update teacher subjects' }, { status: 500 });
+      }
+
+      if (subject_ids && subject_ids.length > 0) {
+        const rows = subject_ids.map((subjectId) => ({
+          teacher_id: id,
+          subject_id: subjectId,
+        }));
+        const { error: insertError } = await supabase
+          .from('teacher_subjects')
+          .insert(rows);
+
+        if (insertError) {
+          console.error('Error updating teacher subjects:', insertError);
+          return NextResponse.json({ error: 'Failed to update teacher subjects' }, { status: 500 });
+        }
+      }
     }
 
     return NextResponse.json({

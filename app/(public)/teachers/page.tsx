@@ -5,7 +5,7 @@ import { TeacherGrid } from '@/components/public/TeacherGrid';
 import { SearchBar } from '@/components/public/SearchBar';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { TeacherWithStats } from '@/lib/types/database';
+import { TeacherWithStats, Department } from '@/lib/types/database';
 import { Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
@@ -20,9 +20,9 @@ export default function TeachersPage() {
   const [page, setPage] = React.useState(1);
   const [totalPages, setTotalPages] = React.useState(1);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [department, setDepartment] = React.useState('');
+  const [departmentId, setDepartmentId] = React.useState('');
   const [sortBy, setSortBy] = React.useState('name');
-  const [departments, setDepartments] = React.useState<string[]>([]);
+  const [departments, setDepartments] = React.useState<Department[]>([]);
   const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
 
   const fetchTeachers = React.useCallback(async () => {
@@ -33,7 +33,7 @@ export default function TeachersPage() {
       params.set('limit', '20');
       params.set('sort_by', sortBy);
       if (searchQuery) params.set('search', searchQuery);
-      if (department) params.set('department', department);
+      if (departmentId) params.set('department_id', departmentId);
 
       const response = await fetch(`/api/teachers?${params.toString()}`);
       const data = await response.json();
@@ -47,7 +47,7 @@ export default function TeachersPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [page, searchQuery, department, sortBy]);
+  }, [page, searchQuery, departmentId, sortBy]);
 
   React.useEffect(() => {
     fetchTeachers();
@@ -63,11 +63,8 @@ export default function TeachersPage() {
         if (!response.ok) {
           throw new Error(data.error || 'Failed to load departments');
         }
-        const names = (data.data || [])
-          .map((dept: { name?: string }) => dept.name)
-          .filter(Boolean) as string[];
         if (active) {
-          setDepartments(names);
+          setDepartments(data.data || []);
         }
       } catch (error) {
         if (active) {
@@ -92,7 +89,7 @@ export default function TeachersPage() {
   };
 
   const handleDepartmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setDepartment(e.target.value);
+    setDepartmentId(e.target.value);
     setPage(1);
   };
 
@@ -143,8 +140,8 @@ export default function TeachersPage() {
                     </option>
                   )}
                   {departments.map((dept) => (
-                    <option key={dept} value={dept}>
-                      {dept}
+                    <option key={dept.id} value={dept.id}>
+                      {dept.name}
                     </option>
                   ))}
                 </select>

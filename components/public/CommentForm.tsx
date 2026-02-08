@@ -2,10 +2,12 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils/cn';
-import { Textarea } from '@/components/ui/Textarea';
+import { HighlightedTextarea } from '@/components/ui/HighlightedTextarea';
 import { Button } from '@/components/ui/Button';
 import { getAnonymousId } from '@/lib/utils/anonymousId';
 import { CheckCircle, Info } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
+import { findProfanityMatches, type ProfanityMatch } from '@/lib/utils/profanity';
 
 /**
  * CommentForm Component
@@ -36,9 +38,54 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
     success: false,
     requiresApproval: null,
   });
+  const [bannedWords, setBannedWords] = React.useState<string[]>([]);
+  const [matches, setMatches] = React.useState<ProfanityMatch[]>([]);
+  const [flaggedWords, setFlaggedWords] = React.useState<string[]>([]);
+  const [showModal, setShowModal] = React.useState(false);
+
+  React.useEffect(() => {
+    let active = true;
+    const fetchBannedWords = async () => {
+      try {
+        const response = await fetch('/api/banned-words');
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load banned words');
+        }
+        if (active) {
+          setBannedWords(Array.isArray(data.data) ? data.data : []);
+        }
+      } catch (error) {
+        if (active) {
+          setBannedWords([]);
+        }
+      }
+    };
+
+    fetchBannedWords();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!state.comment.trim() || bannedWords.length === 0) {
+      setMatches([]);
+      setFlaggedWords([]);
+      return;
+    }
+    const result = findProfanityMatches(state.comment, bannedWords);
+    setMatches(result.matches);
+    setFlaggedWords(result.flaggedWords);
+  }, [state.comment, bannedWords]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (flaggedWords.length > 0) {
+      setShowModal(true);
+      return;
+    }
 
     if (state.comment.trim().length < 10) {
       setState((prev) => ({
@@ -69,6 +116,11 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
 
       if (!response.ok) {
         const details = Array.isArray(data.details) ? data.details.join(', ') : '';
+        if (data?.flaggedWords?.length) {
+          setFlaggedWords(data.flaggedWords);
+          setShowModal(true);
+          throw new Error('Inappropriate language detected');
+        }
         throw new Error(details ? `${data.error}: ${details}` : data.error || 'Failed to submit comment');
       }
 
@@ -113,6 +165,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
   return (
     <form onSubmit={handleSubmit} className={cn('space-y-4', className)}>
       <Textarea
+      <HighlightedTextarea
         label="Leave a comment"
         placeholder="Share your experience with this teacher..."
         value={state.comment}
@@ -124,7 +177,14 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
         rows={4}
         helperText="Minimum 10 characters required."
         error={state.error || undefined}
+        highlightRanges={matches}
       />
+
+      {flaggedWords.length > 0 && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          Please remove inappropriate words before submitting.
+        </div>
+      )}
 
       <div className="flex items-start gap-2 rounded-lg bg-blue-50 p-3">
         <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -136,12 +196,36 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
       <Button
         type="submit"
         isLoading={state.isSubmitting}
-        disabled={state.comment.trim().length < 10}
+        disabled={state.comment.trim().length < 10 || flaggedWords.length > 0}
         fullWidth
         variant="secondary"
       >
         Submit Comment
       </Button>
+
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="Inappropriate language detected"
+        description="Please remove the highlighted words before submitting."
+        size="sm"
+      >
+        <div className="space-y-4 text-sm text-slate-600">
+          <div className="flex flex-wrap gap-2">
+            {flaggedWords.map((word) => (
+              <span
+                key={word}
+                className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700"
+              >
+                {word}
+              </span>
+            ))}
+          </div>
+          <Button fullWidth onClick={() => setShowModal(false)}>
+            OK
+          </Button>
+        </div>
+      </Modal>
     </form>
   );
 };

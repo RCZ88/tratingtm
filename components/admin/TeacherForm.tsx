@@ -6,9 +6,10 @@ import { cn } from '@/lib/utils/cn';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
-import { Teacher } from '@/lib/types/database';
+import type { TeacherWithStats, Department, Subject } from '@/lib/types/database';
 import { validate, teacherSchema, type TeacherInput } from '@/lib/utils/validation';
-import { DEPARTMENTS, LEVELS, SUBJECTS_BY_DEPARTMENT } from '@/lib/constants/suggestions';
+import { LEVELS } from '@/lib/constants/suggestions';
+import { splitSubjectList, normalizeSubjectName } from '@/lib/utils/subjectParsing';
 
 /**
  * TeacherForm Component
@@ -18,20 +19,21 @@ import { DEPARTMENTS, LEVELS, SUBJECTS_BY_DEPARTMENT } from '@/lib/constants/sug
  */
 
 export interface TeacherFormProps {
-  teacher?: Teacher;
+  teacher?: TeacherWithStats;
   onSuccess?: () => void;
   className?: string;
 }
 
 interface FormState {
   name: string;
-  subjects: string[];
-  department: string;
+  subject_ids: string[];
+  department_id: string;
   levels: Array<'SL' | 'HL'>;
   year_levels: number[];
   bio: string;
   image_url: string;
   is_active: boolean;
+  manual_subjects: string;
   errors: Record<string, string>;
   isSubmitting: boolean;
 }
@@ -42,21 +44,22 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
 
   const [state, setState] = React.useState<FormState>({
     name: teacher?.name || '',
-    subjects: teacher?.subjects || (teacher?.subject ? [teacher.subject] : []),
-    department: teacher?.department || '',
+    subject_ids:
+      teacher?.subject_ids ||
+      (teacher?.subjects ? teacher.subjects.map((subject) => subject.id) : []),
+    department_id: teacher?.department_id || teacher?.department?.id || '',
     levels: (teacher?.levels as Array<'SL' | 'HL'>) || [],
     year_levels: teacher?.year_levels || [],
     bio: teacher?.bio || '',
     image_url: teacher?.image_url || '',
     is_active: teacher?.is_active ?? true,
+    manual_subjects: teacher?.subjects ? teacher.subjects.map((s) => s.name).join(', ') : '',
     errors: {},
     isSubmitting: false,
   });
   const [useManualInput, setUseManualInput] = React.useState(false);
-  const [departments, setDepartments] = React.useState<string[]>(DEPARTMENTS);
-  const [subjectsByDepartment, setSubjectsByDepartment] = React.useState<Record<string, string[]>>(
-    SUBJECTS_BY_DEPARTMENT
-  );
+  const [departments, setDepartments] = React.useState<Department[]>([]);
+  const [subjectsByDepartment, setSubjectsByDepartment] = React.useState<Record<string, Subject[]>>({});
   const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
   const [isLoadingSubjects, setIsLoadingSubjects] = React.useState(false);
 
@@ -90,16 +93,12 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
         if (!response.ok) {
           throw new Error(data.error || 'Failed to load departments');
         }
-        const names = (data.data || [])
-          .map((dept: { name?: string }) => dept.name)
-          .filter(Boolean) as string[];
-        if (active && names.length > 0) {
-          setDepartments(names);
+        if (active) {
+          setDepartments(data.data || []);
         }
       } catch (error) {
-        // Fallback to defaults
         if (active) {
-          setDepartments((prev) => (prev.length === 0 ? DEPARTMENTS : prev));
+          setDepartments([]);
         }
       } finally {
         if (active) {
@@ -115,9 +114,9 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
   }, []);
 
   React.useEffect(() => {
-    if (!state.department) {
-      if (state.subjects.length > 0) {
-        setState((prev) => ({ ...prev, subjects: [] }));
+    if (!state.department_id) {
+      if (state.subject_ids.length > 0) {
+        setState((prev) => ({ ...prev, subject_ids: [] }));
       }
       return;
     }
@@ -127,7 +126,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
       setIsLoadingSubjects(true);
       try {
         const params = new URLSearchParams();
-        params.set('department', state.department);
+        params.set('department_id', state.department_id);
         const response = await fetch(`/api/subjects?${params.toString()}`);
         const data = await response.json();
 
@@ -135,28 +134,24 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
           throw new Error(data.error || 'Failed to load subjects');
         }
 
-        const subjectNames = (data.data || [])
-          .map((subject: { name?: string }) => subject.name)
-          .filter(Boolean) as string[];
+        const subjectRows = (data.data || []) as Subject[];
 
-        if (active) {
-          if (subjectNames.length > 0) {
-            setSubjectsByDepartment((prev) => ({
-              ...prev,
-              [state.department]: subjectNames,
-            }));
-            setState((prev) => ({
-              ...prev,
-              subjects: prev.subjects.filter((item) => subjectNames.includes(item)),
-            }));
-          }
-        }
-      } catch (error) {
-        // Fallback to defaults for this department
         if (active) {
           setSubjectsByDepartment((prev) => ({
             ...prev,
-            [state.department]: SUBJECTS_BY_DEPARTMENT[state.department] || [],
+            [state.department_id]: subjectRows,
+          }));
+          const validIds = new Set(subjectRows.map((subject) => subject.id));
+          setState((prev) => ({
+            ...prev,
+            subject_ids: prev.subject_ids.filter((id) => validIds.has(id)),
+          }));
+        }
+      } catch (error) {
+        if (active) {
+          setSubjectsByDepartment((prev) => ({
+            ...prev,
+            [state.department_id]: prev[state.department_id] || [],
           }));
         }
       } finally {
@@ -170,17 +165,69 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
     return () => {
       active = false;
     };
-  }, [state.department]);
+  }, [state.department_id]);
+
+  const resolveManualSubjectIds = async (): Promise<string[]> => {
+    const departmentId = state.department_id;
+    if (!departmentId) return [];
+
+    const subjectNames = splitSubjectList(state.manual_subjects).map(normalizeSubjectName);
+    if (subjectNames.length === 0) return [];
+
+    const existing = subjectsByDepartment[departmentId] || [];
+    const existingMap = new Map(existing.map((subject) => [subject.name.toLowerCase(), subject.id]));
+
+    const ids: string[] = [];
+    const missing: string[] = [];
+
+    subjectNames.forEach((name) => {
+      const id = existingMap.get(name.toLowerCase());
+      if (id) {
+        ids.push(id);
+      } else {
+        missing.push(name);
+      }
+    });
+
+    if (missing.length > 0) {
+      const created = await Promise.all(
+        missing.map(async (name) => {
+          const response = await fetch('/api/admin/subjects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, department_id: departmentId }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || 'Failed to create subject');
+          }
+          return data.data as Subject;
+        })
+      );
+
+      created.forEach((subject) => {
+        ids.push(subject.id);
+      });
+
+      setSubjectsByDepartment((prev) => ({
+        ...prev,
+        [departmentId]: [...existing, ...created],
+      }));
+    }
+
+    return Array.from(new Set(ids));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validate form
+    const subjectIds = useManualInput ? await resolveManualSubjectIds() : state.subject_ids;
+
     const formData: TeacherInput = {
       name: state.name,
-      subject: state.subjects[0] || null,
-      subjects: state.subjects.length ? state.subjects : null,
-      department: state.department || null,
+      department_id: state.department_id || null,
+      subject_ids: subjectIds.length ? subjectIds : null,
       levels: state.levels.length ? state.levels : null,
       year_levels: state.year_levels.length ? state.year_levels : null,
       bio: state.bio || null,
@@ -268,27 +315,32 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
 
       {useManualInput ? (
         <div className="grid gap-6 md:grid-cols-2">
-          <Input
-            label="Department"
-            placeholder="e.g., Sciences"
-            value={state.department}
-            onChange={(e) => handleChange('department', e.target.value)}
-            error={state.errors.department}
-          />
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">
+              Department
+            </label>
+            <select
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              value={state.department_id}
+              onChange={(e) => handleChange('department_id', e.target.value)}
+            >
+              <option value="">Select department</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
+                </option>
+              ))}
+            </select>
+            {state.errors.department_id && (
+              <p className="mt-1.5 text-sm text-red-500">{state.errors.department_id}</p>
+            )}
+          </div>
           <Input
             label="Subjects (comma separated)"
             placeholder="e.g., Physics, Chemistry"
-            value={state.subjects.join(', ')}
-            onChange={(e) =>
-              handleChange(
-                'subjects',
-                e.target.value
-                  .split(',')
-                  .map((val) => val.trim())
-                  .filter(Boolean)
-              )
-            }
-            error={state.errors.subjects}
+            value={state.manual_subjects}
+            onChange={(e) => handleChange('manual_subjects', e.target.value)}
+            error={state.errors.subject_ids}
           />
         </div>
       ) : (
@@ -300,18 +352,18 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
               </label>
               <select
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                value={state.department}
-                onChange={(e) => handleChange('department', e.target.value)}
+                value={state.department_id}
+                onChange={(e) => handleChange('department_id', e.target.value)}
               >
                 <option value="">Select department</option>
                 {departments.map((dept) => (
-                  <option key={dept} value={dept}>
-                    {dept}
+                  <option key={dept.id} value={dept.id}>
+                    {dept.name}
                   </option>
                 ))}
               </select>
-              {state.errors.department && (
-                <p className="mt-1.5 text-sm text-red-500">{state.errors.department}</p>
+              {state.errors.department_id && (
+                <p className="mt-1.5 text-sm text-red-500">{state.errors.department_id}</p>
               )}
             </div>
           </div>
@@ -321,38 +373,38 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
               Subjects
             </label>
             <div className="flex flex-wrap gap-2">
-              {(subjectsByDepartment[state.department] || []).map((subject) => (
+              {(subjectsByDepartment[state.department_id] || []).map((subject) => (
                 <button
-                  key={subject}
+                  key={subject.id}
                   type="button"
-                  onClick={() => toggleArrayValue('subjects', subject)}
+                  onClick={() => toggleArrayValue('subject_ids', subject.id)}
                   className={cn(
                     'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
-                    state.subjects.includes(subject)
+                    state.subject_ids.includes(subject.id)
                       ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
                       : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                   )}
                 >
-                  {subject}
+                  {subject.name}
                 </button>
               ))}
-              {state.department && isLoadingSubjects && (
+              {state.department_id && isLoadingSubjects && (
                 <p className="text-sm text-slate-500">Loading subjects...</p>
               )}
-              {state.department &&
+              {state.department_id &&
                 !isLoadingSubjects &&
-                (subjectsByDepartment[state.department] || []).length === 0 && (
+                (subjectsByDepartment[state.department_id] || []).length === 0 && (
                 <p className="text-sm text-slate-500">No subjects listed for this department.</p>
               )}
-              {!state.department && !isLoadingDepartments && (
+              {!state.department_id && !isLoadingDepartments && (
                 <p className="text-sm text-slate-500">Select a department to choose subjects.</p>
               )}
-              {!state.department && isLoadingDepartments && (
+              {!state.department_id && isLoadingDepartments && (
                 <p className="text-sm text-slate-500">Loading departments...</p>
               )}
             </div>
-            {state.errors.subjects && (
-              <p className="mt-1.5 text-sm text-red-500">{state.errors.subjects}</p>
+            {state.errors.subject_ids && (
+              <p className="mt-1.5 text-sm text-red-500">{state.errors.subject_ids}</p>
             )}
           </div>
         </>

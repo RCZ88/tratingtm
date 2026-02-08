@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { Card, CardContent } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Modal } from '@/components/ui/Modal';
-import { Teacher } from '@/lib/types/database';
+import { TeacherWithStats } from '@/lib/types/database';
 import { 
   Plus, 
   Search, 
@@ -31,13 +31,13 @@ import {
 
 export default function AdminTeachersPage() {
   const router = useRouter();
-  const [teachers, setTeachers] = React.useState<Teacher[]>([]);
+  const [teachers, setTeachers] = React.useState<TeacherWithStats[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [page, setPage] = React.useState(1);
   const [totalPages, setTotalPages] = React.useState(1);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
-  const [teacherToDelete, setTeacherToDelete] = React.useState<Teacher | null>(null);
+  const [teacherToDelete, setTeacherToDelete] = React.useState<TeacherWithStats | null>(null);
 
   const fetchTeachers = React.useCallback(async () => {
     setIsLoading(true);
@@ -84,7 +84,7 @@ export default function AdminTeachersPage() {
     }
   };
 
-  const toggleActive = async (teacher: Teacher) => {
+  const toggleActive = async (teacher: TeacherWithStats) => {
     try {
       const response = await fetch(`/api/teachers/${teacher.id}`, {
         method: 'PUT',
@@ -188,10 +188,10 @@ export default function AdminTeachersPage() {
                         <p className="font-medium text-slate-900">{teacher.name}</p>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-600">
-                        {teacher.subject || '-'}
+                        {teacher.primary_subject || teacher.subjects?.[0]?.name || '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-600">
-                        {teacher.department || '-'}
+                        {teacher.department?.name || '-'}
                       </td>
                       <td className="px-4 py-3">
                         <span

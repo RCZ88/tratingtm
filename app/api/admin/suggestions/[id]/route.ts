@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/authOptions';
 import { validatePartial } from '@/lib/utils/validation';
 import { z } from 'zod';
+import { splitSubjectList, normalizeSubjectName } from '@/lib/utils/subjectParsing';
 
 const adminSuggestionUpdateSchema = z.object({
   status: z.enum(['new', 'working', 'approved', 'declined']).optional(),
@@ -67,18 +68,22 @@ export async function PATCH(
         if (deptError) {
           console.error('Error syncing department from suggestion:', deptError);
         } else if (subjectName) {
-          const { error: subjectError } = await supabase
-            .from('subjects')
-            .upsert(
-              {
-                department_id: deptRow.id,
-                name: subjectName,
-              },
-              { onConflict: 'department_id,name' }
-            );
+          const subjectNames = splitSubjectList(subjectName).map(normalizeSubjectName);
+          for (const name of subjectNames) {
+            if (!name) continue;
+            const { error: subjectError } = await supabase
+              .from('subjects')
+              .upsert(
+                {
+                  department_id: deptRow.id,
+                  name,
+                },
+                { onConflict: 'department_id,name' }
+              );
 
-          if (subjectError) {
-            console.error('Error syncing subject from suggestion:', subjectError);
+            if (subjectError) {
+              console.error('Error syncing subject from suggestion:', subjectError);
+            }
           }
         }
       }

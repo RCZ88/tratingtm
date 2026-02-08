@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { ArrowLeft, Upload } from 'lucide-react';
 
 const SAMPLE_JSON = `[
-  { "name": "Ada Lovelace", "subject": "Mathematics", "subjects": ["Math"], "department": "Mathematics", "levels": ["SL"], "year_levels": [10, 11] },
+  { "name": "Ada Lovelace", "department": "Mathematics", "subjects": ["Math"], "levels": ["SL"], "year_levels": [10, 11] },
   { "name": "Alan Turing", "department": "Sciences", "subjects": ["Computer Science"], "levels": ["HL"], "year_levels": [11, 12] },
   "Grace Hopper"
 ]`;
@@ -94,7 +94,8 @@ export default function ImportTeachersPage() {
         <CardContent>
           <p className="mb-3 text-sm text-slate-600">
             You can send either an array of teacher objects, or an array of strings
-            (names only). Optional fields: subject, subjects, department, levels, year_levels, bio, image_url, is_active.
+            (names only). Optional fields: department, subjects, department_id, subject_ids,
+            levels, year_levels, bio, image_url, is_active.
           </p>
           <pre className="rounded-lg bg-slate-900 p-4 text-xs text-slate-100">
 {SAMPLE_JSON}

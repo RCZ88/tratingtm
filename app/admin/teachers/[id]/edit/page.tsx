@@ -7,7 +7,7 @@ import { TeacherForm } from '@/components/admin/TeacherForm';
 import { Card, CardContent } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/Button';
-import { Teacher } from '@/lib/types/database';
+import { TeacherWithStats } from '@/lib/types/database';
 import { ArrowLeft } from 'lucide-react';
 
 /**
@@ -20,7 +20,7 @@ export default function EditTeacherPage() {
   const params = useParams();
   const teacherId = params.id as string;
 
-  const [teacher, setTeacher] = React.useState<Teacher | null>(null);
+  const [teacher, setTeacher] = React.useState<TeacherWithStats | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {

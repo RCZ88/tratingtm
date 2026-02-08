@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     let dbQuery = supabase
       .from('comments')
-      .select('*, teacher:teachers(id, name, subject, image_url)')
+      .select('*, teacher:teachers(id, name, image_url)')
       .order('created_at', { ascending: false });
 
     if (teacherId) {

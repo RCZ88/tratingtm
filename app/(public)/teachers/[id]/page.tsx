@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ArrowLeft, User, BookOpen, Building2, BarChart3 } from 'lucide-react';
-import { formatYearLevels, getAvatarStyle, getDepartmentColor } from '@/lib/utils/teacherDisplay';
+import { formatYearLevels, getAvatarStyle, getDepartmentBadgeStyle } from '@/lib/utils/teacherDisplay';
 import { getAnonymousId } from '@/lib/utils/anonymousId';
 
 /**
@@ -25,9 +25,11 @@ import { getAnonymousId } from '@/lib/utils/anonymousId';
 interface TeacherData {
   id: string;
   name: string;
-  subject: string | null;
-  subjects: string[] | null;
-  department: string | null;
+  department: { id: string; name: string; color_hex?: string } | null;
+  subjects: Array<{ id: string; name: string }>;
+  subject_ids?: string[];
+  primary_subject?: string | null;
+  department_id?: string | null;
   levels: string[] | null;
   year_levels: number[] | null;
   bio: string | null;
@@ -108,12 +110,9 @@ export default function TeacherDetailPage() {
 
   const maxDistribution = Math.max(...Object.values(teacher.rating_distribution));
   const yearLabel = formatYearLevels(teacher.year_levels);
-  const subjectList = teacher.subjects && teacher.subjects.length > 0
-    ? teacher.subjects
-    : teacher.subject
-      ? [teacher.subject]
-      : [];
+  const subjectList = teacher.subjects?.map((subject) => subject.name) || [];
   const levels = teacher.levels || [];
+  const departmentStyle = getDepartmentBadgeStyle(teacher.department?.color_hex || null);
 
   return (
     <div className="min-h-screen bg-slate-50 py-12">
@@ -159,9 +158,12 @@ export default function TeacherDetailPage() {
                     {(subjectList.length > 0 || teacher.department) && (
                       <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                         {teacher.department && (
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${getDepartmentColor(teacher.department)}`}>
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${departmentStyle.className}`}
+                            style={departmentStyle.style}
+                          >
                             <Building2 className="h-3.5 w-3.5" />
-                            {teacher.department}
+                            {teacher.department.name}
                           </span>
                         )}
                         {subjectList.map((subject) => (

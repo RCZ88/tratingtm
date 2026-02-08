@@ -1,12 +1,3 @@
-export const DEPARTMENT_COLORS: Record<string, string> = {
-  Mathematics: 'bg-indigo-100 text-indigo-700',
-  Sciences: 'bg-emerald-100 text-emerald-700',
-  Homeroom: 'bg-amber-100 text-amber-700',
-  Electives: 'bg-pink-100 text-pink-700',
-  Humanities: 'bg-purple-100 text-purple-700',
-  Languages: 'bg-sky-100 text-sky-700',
-};
-
 export function formatYearLevels(levels?: number[] | null): string | null {
   if (!levels || levels.length === 0) return null;
   const sorted = Array.from(new Set(levels)).sort((a, b) => a - b);
@@ -37,7 +28,38 @@ export function getAvatarStyle(name?: string | null): string {
   return 'bg-emerald-100 text-emerald-700';
 }
 
-export function getDepartmentColor(department?: string | null): string {
-  if (!department) return 'bg-slate-100 text-slate-600';
-  return DEPARTMENT_COLORS[department] || 'bg-slate-100 text-slate-600';
+function normalizeHex(hex?: string | null): string | null {
+  if (!hex) return null;
+  const trimmed = hex.trim();
+  if (!/^#?[0-9a-fA-F]{6}$/.test(trimmed)) return null;
+  return trimmed.startsWith('#') ? trimmed : `#${trimmed}`;
 }
+
+function hexToRgb(hex: string) {
+  const normalized = hex.replace('#', '');
+  const r = parseInt(normalized.slice(0, 2), 16);
+  const g = parseInt(normalized.slice(2, 4), 16);
+  const b = parseInt(normalized.slice(4, 6), 16);
+  return { r, g, b };
+}
+
+export function getDepartmentBadgeStyle(colorHex?: string | null) {
+  const normalized = normalizeHex(colorHex);
+  if (!normalized) {
+    return {
+      className: 'border border-slate-200 bg-slate-100 text-slate-600',
+      style: undefined as CSSProperties | undefined,
+    };
+  }
+
+  const { r, g, b } = hexToRgb(normalized);
+  return {
+    className: 'border',
+    style: {
+      backgroundColor: `rgba(${r}, ${g}, ${b}, 0.12)`,
+      borderColor: `rgba(${r}, ${g}, ${b}, 0.3)`,
+      color: normalized,
+    } as CSSProperties,
+  };
+}
+import type { CSSProperties } from 'react';

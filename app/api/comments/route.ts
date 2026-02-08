@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { validate, commentSchema } from '@/lib/utils/validation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/authOptions';
+import { scanForProfanity } from '@/lib/utils/profanityServer';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/comments
@@ -78,6 +79,26 @@ export async function POST(request: NextRequest) {
     const { teacher_id, comment_text, anonymous_id } = validation.data;
 
     const supabase = createClient();
+
+    // Profanity check (block submission)
+    const { data: bannedRows, error: bannedError } = await supabase
+      .from('banned_words')
+      .select('word')
+      .eq('enabled', true);
+    if (bannedError) {
+      console.error('Error loading banned words:', bannedError);
+    }
+    const bannedWords = (bannedRows || [])
+      .map((row) => row.word)
+      .filter(Boolean);
+    const profanityResult = scanForProfanity(comment_text, bannedWords);
+
+    if (profanityResult.flaggedWords.length > 0) {
+      return NextResponse.json(
+        { error: 'Inappropriate language detected', flaggedWords: profanityResult.flaggedWords },
+        { status: 400 }
+      );
+    }
 
     // Verify teacher exists and is active
     const { data: teacher } = await supabase

@@ -40,24 +40,67 @@ export async function GET(request: NextRequest) {
         .from('leaderboard_cache')
         .select(`
           *,
-          teacher:teachers(id, name, subject, department, image_url)
+          teacher:teachers(id, name, department_id, image_url)
         `)
         .eq('week_start', toISODate(weekStart))
         .gt('total_ratings', 0)
         .order('rank_position', { ascending: true });
 
       if (cachedLeaderboard && cachedLeaderboard.length > 0) {
-        const formatted = cachedLeaderboard.map((entry) => ({
-          id: entry.teacher_id,
-          name: entry.teacher?.name,
-          subject: entry.teacher?.subject,
-          department: entry.teacher?.department,
-          image_url: entry.teacher?.image_url,
-          rating_count: entry.total_ratings,
-          average_rating: entry.average_rating,
-          comment_count: entry.total_comments,
-          rank_position: entry.rank_position,
-        }));
+        const teacherIds = cachedLeaderboard.map((entry) => entry.teacher_id);
+        const departmentIds = Array.from(
+          new Set(
+            cachedLeaderboard
+              .map((entry) => entry.teacher?.department_id)
+              .filter(Boolean)
+          )
+        ) as string[];
+
+        const [deptResult, subjectResult] = await Promise.all([
+          departmentIds.length > 0
+            ? supabase
+                .from('departments')
+                .select('id, name, color_hex')
+                .in('id', departmentIds)
+            : Promise.resolve({ data: [] }),
+          teacherIds.length > 0
+            ? supabase
+                .from('teacher_subjects')
+                .select('teacher_id, subject:subjects(id, name)')
+                .in('teacher_id', teacherIds)
+            : Promise.resolve({ data: [] }),
+        ]);
+
+        const deptMap = new Map((deptResult.data || []).map((dept) => [dept.id, dept]));
+        const subjectMap = new Map<string, Array<{ id: string; name: string }>>();
+        (subjectResult.data || []).forEach((row: any) => {
+          const subject = row.subject;
+          if (!subject) return;
+          const list = subjectMap.get(row.teacher_id) || [];
+          list.push(subject);
+          subjectMap.set(row.teacher_id, list);
+        });
+
+        const formatted = cachedLeaderboard.map((entry) => {
+          const subjects = (subjectMap.get(entry.teacher_id) || []).sort((a, b) =>
+            a.name.localeCompare(b.name)
+          );
+          const department = entry.teacher?.department_id
+            ? deptMap.get(entry.teacher.department_id) || null
+            : null;
+
+          return {
+            id: entry.teacher_id,
+            name: entry.teacher?.name,
+            subject: subjects[0]?.name || null,
+            department: department?.name || null,
+            image_url: entry.teacher?.image_url,
+            rating_count: entry.total_ratings,
+            average_rating: entry.average_rating,
+            comment_count: entry.total_comments,
+            rank_position: entry.rank_position,
+          };
+        });
 
         const byTop = [...formatted].sort((a, b) => {
           const aAvg = a.average_rating ?? -1;

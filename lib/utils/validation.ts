@@ -44,23 +44,15 @@ export const teacherSchema = z.object({
     .min(3, 'Name must be at least 3 characters')
     .max(100, 'Name cannot exceed 100 characters')
     .transform((name) => sanitizeHtml(name)),
-  subject: z
+  department_id: z
     .string()
-    .max(100, 'Subject cannot exceed 100 characters')
+    .uuid('Invalid department ID')
     .optional()
-    .nullable()
-    .transform((val) => (val ? sanitizeHtml(val) : val)),
-  subjects: z
-    .array(z.string().max(100, 'Subject cannot exceed 100 characters'))
+    .nullable(),
+  subject_ids: z
+    .array(z.string().uuid('Invalid subject ID'))
     .optional()
-    .nullable()
-    .transform((vals) => (vals ? vals.map((v) => sanitizeHtml(v)) : vals)),
-  department: z
-    .string()
-    .max(100, 'Department cannot exceed 100 characters')
-    .optional()
-    .nullable()
-    .transform((val) => (val ? sanitizeHtml(val) : val)),
+    .nullable(),
   levels: z
     .array(z.enum(['SL', 'HL']))
     .optional()

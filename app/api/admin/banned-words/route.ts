@@ -6,18 +6,15 @@ import { createServiceClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-const departmentSchema = z.object({
-  name: z.string().min(2).max(100),
-  color_hex: z
-    .string()
-    .regex(/^#([0-9a-fA-F]{6})$/, 'Invalid hex color')
-    .optional(),
+const bannedWordSchema = z.object({
+  word: z.string().min(2).max(100),
+  enabled: z.boolean().optional(),
 });
 
 /**
- * GET /api/admin/departments
+ * GET /api/admin/banned-words
  *
- * Admin endpoint: list departments.
+ * Admin endpoint: list banned words.
  */
 export async function GET() {
   try {
@@ -28,26 +25,26 @@ export async function GET() {
 
     const supabase = createServiceClient();
     const { data, error } = await supabase
-      .from('departments')
-      .select('id, name, color_hex, created_at')
-      .order('name', { ascending: true });
+      .from('banned_words')
+      .select('id, word, enabled, created_at')
+      .order('word', { ascending: true });
 
     if (error) {
-      console.error('Error fetching departments:', error);
-      return NextResponse.json({ error: 'Failed to fetch departments' }, { status: 500 });
+      console.error('Error fetching banned words:', error);
+      return NextResponse.json({ error: 'Failed to fetch banned words' }, { status: 500 });
     }
 
     return NextResponse.json({ data: data ?? [] });
   } catch (error) {
-    console.error('Error in GET /api/admin/departments:', error);
+    console.error('Error in GET /api/admin/banned-words:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 /**
- * POST /api/admin/departments
+ * POST /api/admin/banned-words
  *
- * Admin endpoint: create a department.
+ * Admin endpoint: add banned word.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -57,29 +54,29 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const validation = departmentSchema.safeParse(body);
+    const validation = bannedWordSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json({ error: 'Validation failed' }, { status: 400 });
     }
 
     const supabase = createServiceClient();
     const { data, error } = await supabase
-      .from('departments')
+      .from('banned_words')
       .insert({
-        name: validation.data.name.trim(),
-        color_hex: validation.data.color_hex || undefined,
+        word: validation.data.word.trim().toLowerCase(),
+        enabled: validation.data.enabled ?? true,
       })
       .select()
       .single();
 
     if (error) {
-      console.error('Error creating department:', error);
-      return NextResponse.json({ error: 'Failed to create department' }, { status: 500 });
+      console.error('Error creating banned word:', error);
+      return NextResponse.json({ error: 'Failed to create banned word' }, { status: 500 });
     }
 
     return NextResponse.json({ data }, { status: 201 });
   } catch (error) {
-    console.error('Error in POST /api/admin/departments:', error);
+    console.error('Error in POST /api/admin/banned-words:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
