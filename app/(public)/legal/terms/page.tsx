@@ -2,7 +2,6 @@
 import Link from 'next/link';
 
 const UPDATED_AT = '2026-02-08';
-const CONTACT_EMAIL = 'firstname.lastname@tunasmuda.sch.id';
 
 export const metadata: Metadata = {
   title: 'Terms of Service | TM Ratings',
@@ -88,16 +87,6 @@ export default function TermsOfServicePage() {
             <h2 className="text-lg font-semibold text-slate-900">Governing Law</h2>
             <p className="mt-2 text-sm text-slate-600">
               These terms are governed by the laws of Indonesia.
-            </p>
-          </section>
-
-          <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-emerald-900">Contact</h2>
-            <p className="mt-2 text-sm text-emerald-900">
-              Questions about these terms? Email{' '}
-              <a className="font-semibold underline" href={`mailto:${CONTACT_EMAIL}`}>
-                {CONTACT_EMAIL}
-              </a>.
             </p>
           </section>
 

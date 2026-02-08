@@ -94,6 +94,7 @@ export async function GET(request: NextRequest) {
             name: entry.teacher?.name,
             subject: subjects[0]?.name || null,
             department: department?.name || null,
+            department_color_hex: department?.color_hex || null,
             image_url: entry.teacher?.image_url,
             rating_count: entry.total_ratings,
             average_rating: entry.average_rating,
@@ -147,7 +148,40 @@ export async function GET(request: NextRequest) {
     }
 
     const safeRows = allRows || [];
-    const byTop = [...safeRows].sort((a, b) => {
+    let rowsWithColor = safeRows;
+
+    if (safeRows.length > 0) {
+      const teacherIds = safeRows.map((row) => row.id);
+      const { data: teacherRows } = await supabase
+        .from('teachers')
+        .select('id, department_id')
+        .in('id', teacherIds);
+
+      const departmentIds = Array.from(
+        new Set((teacherRows || []).map((row) => row.department_id).filter(Boolean))
+      ) as string[];
+
+      const { data: deptRows } =
+        departmentIds.length > 0
+          ? await supabase
+              .from('departments')
+              .select('id, color_hex')
+              .in('id', departmentIds)
+          : { data: [] as Array<{ id: string; color_hex: string }> };
+
+      const deptMap = new Map((deptRows || []).map((dept) => [dept.id, dept]));
+      const deptIdByTeacher = new Map(
+        (teacherRows || []).map((row) => [row.id, row.department_id])
+      );
+
+      rowsWithColor = safeRows.map((row) => {
+        const deptId = deptIdByTeacher.get(row.id);
+        const colorHex = deptId ? deptMap.get(deptId)?.color_hex || null : null;
+        return { ...row, department_color_hex: colorHex };
+      });
+    }
+
+    const byTop = [...rowsWithColor].sort((a, b) => {
       const aAvg = a.average_rating ?? -1;
       const bAvg = b.average_rating ?? -1;
       if (bAvg !== aAvg) return bAvg - aAvg;
@@ -155,7 +189,7 @@ export async function GET(request: NextRequest) {
       const bCount = b.rating_count ?? 0;
       return bCount - aCount;
     });
-    const byBottom = [...safeRows].sort((a, b) => {
+    const byBottom = [...rowsWithColor].sort((a, b) => {
       const aAvg = a.average_rating ?? -1;
       const bAvg = b.average_rating ?? -1;
       if (aAvg !== bAvg) return aAvg - bAvg;
@@ -173,7 +207,7 @@ export async function GET(request: NextRequest) {
         week_end: toISODate(weekEnd),
         top,
         bottom,
-        all: safeRows,
+        all: rowsWithColor,
       },
     });
   } catch (error) {

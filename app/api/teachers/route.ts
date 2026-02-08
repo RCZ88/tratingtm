@@ -4,6 +4,13 @@ import { validate, teacherSchema, paginationSchema } from '@/lib/utils/validatio
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/authOptions';
 
+const HONORIFIC_PREFIX = /^(mr|ms|mrs|miss)\.?\s+/i;
+
+function normalizeTeacherNameForSort(name?: string | null) {
+  if (!name) return '';
+  return name.replace(HONORIFIC_PREFIX, '').trim().toLowerCase();
+}
+
 /**
  * GET /api/teachers
  * 
@@ -112,24 +119,55 @@ export async function GET(request: NextRequest) {
       query = query.in('id', teacherIdsForSubject);
     }
 
-    // Apply sorting
-    const validSortColumns = ['name', 'created_at'];
-    const orderColumn = validSortColumns.includes(sortBy) ? sortBy : 'name';
-    query = query.order(orderColumn, { ascending: sortOrder === 'asc' });
-
-    // Apply pagination
     const from = (page - 1) * limit;
     const to = from + limit - 1;
-    query = query.range(from, to);
 
-    const { data: teachers, error, count } = await query;
+    let teachers: any[] | null = null;
+    let count: number | null = null;
 
-    if (error) {
-      console.error('Error fetching teachers:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch teachers' },
-        { status: 500 }
-      );
+    if (sortBy === 'name') {
+      const { data: allTeachers, error, count: totalCount } = await query;
+      if (error) {
+        console.error('Error fetching teachers:', error);
+        return NextResponse.json(
+          { error: 'Failed to fetch teachers' },
+          { status: 500 }
+        );
+      }
+
+      const sorted = (allTeachers || []).sort((a, b) => {
+        const aKey = normalizeTeacherNameForSort(a.name);
+        const bKey = normalizeTeacherNameForSort(b.name);
+        const cmp = aKey.localeCompare(bKey, 'en', { sensitivity: 'base' });
+        if (cmp !== 0) {
+          return sortOrder === 'desc' ? -cmp : cmp;
+        }
+        const fallback = (a.name || '').localeCompare(b.name || '', 'en', { sensitivity: 'base' });
+        return sortOrder === 'desc' ? -fallback : fallback;
+      });
+
+      teachers = sorted.slice(from, to + 1);
+      count = totalCount ?? sorted.length;
+    } else {
+      // Apply sorting
+      const validSortColumns = ['name', 'created_at'];
+      const orderColumn = validSortColumns.includes(sortBy) ? sortBy : 'name';
+      query = query.order(orderColumn, { ascending: sortOrder === 'asc' });
+
+      // Apply pagination
+      query = query.range(from, to);
+
+      const result = await query;
+      teachers = result.data;
+      count = result.count ?? null;
+
+      if (result.error) {
+        console.error('Error fetching teachers:', result.error);
+        return NextResponse.json(
+          { error: 'Failed to fetch teachers' },
+          { status: 500 }
+        );
+      }
     }
 
     // Fetch stats for each teacher

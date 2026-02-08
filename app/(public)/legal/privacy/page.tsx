@@ -2,7 +2,6 @@
 import Link from 'next/link';
 
 const UPDATED_AT = '2026-02-08';
-const CONTACT_EMAIL = 'firstname.lastname@tunasmuda.sch.id';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | TM Ratings',
@@ -79,31 +78,10 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Access & Requests</h2>
-            <p className="mt-2 text-sm text-slate-600">
-              If you believe content should be removed or corrected, please contact us at{' '}
-              <a className="font-medium text-emerald-700 hover:text-emerald-800" href={`mailto:${CONTACT_EMAIL}`}>
-                {CONTACT_EMAIL}
-              </a>.
-            </p>
-          </section>
-
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">Security</h2>
             <p className="mt-2 text-sm text-slate-600">
               We use reasonable safeguards to protect data, but no system can guarantee
               absolute security. Please report any concerns promptly.
-            </p>
-          </section>
-
-          <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-emerald-900">Need help?</h2>
-            <p className="mt-2 text-sm text-emerald-900">
-              Email us at{' '}
-              <a className="font-semibold underline" href={`mailto:${CONTACT_EMAIL}`}>
-                {CONTACT_EMAIL}
-              </a>{' '}
-              for privacy questions or removal requests.
             </p>
           </section>
 

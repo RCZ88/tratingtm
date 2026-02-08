@@ -84,6 +84,7 @@ export default async function HomePage() {
     {
       title: 'Most Popular Teacher',
       value: mostPopularTeacher?.name || 'No data yet',
+      teacherId: mostPopularTeacher?.id || null,
       detail: mostPopularTeacher
         ? `${mostPopularTeacher.total_interactions} interactions`
         : 'Waiting for ratings and comments',
@@ -93,6 +94,7 @@ export default async function HomePage() {
     {
       title: 'Most Rated Teacher',
       value: mostRatedTeacher?.name || 'No ratings yet',
+      teacherId: mostRatedTeacher?.id || null,
       detail: mostRatedTeacher
         ? `${mostRatedTeacher.total_ratings} ratings`
         : 'No ratings submitted',
@@ -102,6 +104,7 @@ export default async function HomePage() {
     {
       title: 'Most Commented Teacher',
       value: mostCommentedTeacher?.name || 'No comments yet',
+      teacherId: mostCommentedTeacher?.id || null,
       detail: mostCommentedTeacher
         ? `${mostCommentedTeacher.total_comments} comments`
         : 'No comments submitted',
@@ -111,6 +114,7 @@ export default async function HomePage() {
     {
       title: 'Overall Average Rating',
       value: averageRating ? `${averageRating.toFixed(2)} / 5` : 'N/A',
+      teacherId: null,
       detail: ratingCount ? `${ratingCount.toLocaleString()} total ratings` : 'No ratings yet',
       icon: BarChart3,
       style: 'border-sky-200 bg-sky-50/70 text-sky-700',
@@ -203,7 +207,16 @@ export default async function HomePage() {
                     <span>{card.title}</span>
                   </div>
                 </div>
-                <p className="mt-4 text-xl font-bold text-slate-900">{card.value}</p>
+                {card.teacherId ? (
+                  <Link
+                    href={`/teachers/${card.teacherId}`}
+                    className="mt-4 inline-flex text-xl font-bold text-slate-900 hover:text-emerald-700"
+                  >
+                    {card.value}
+                  </Link>
+                ) : (
+                  <p className="mt-4 text-xl font-bold text-slate-900">{card.value}</p>
+                )}
                 <p className="mt-1 text-sm text-slate-600">{card.detail}</p>
               </div>
             ))}

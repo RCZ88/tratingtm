@@ -18,6 +18,7 @@ interface LeaderboardEntry {
   name: string;
   subject: string | null;
   department: string | null;
+  department_color_hex?: string | null;
   image_url: string | null;
   rating_count: number;
   average_rating: number | null;

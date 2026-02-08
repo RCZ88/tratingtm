@@ -2,7 +2,6 @@
 import Link from 'next/link';
 
 const UPDATED_AT = '2026-02-08';
-const CONTACT_EMAIL = 'firstname.lastname@tunasmuda.sch.id';
 
 export const metadata: Metadata = {
   title: 'Community Guidelines | TM Ratings',
@@ -72,17 +71,6 @@ export default function GuidelinesPage() {
             <p className="mt-2 text-sm text-slate-600">
               Moderators may remove content that violates these guidelines. Repeated violations
               can lead to restrictions.
-            </p>
-          </section>
-
-          <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-emerald-900">Need to report something?</h2>
-            <p className="mt-2 text-sm text-emerald-900">
-              Email us at{' '}
-              <a className="font-semibold underline" href={`mailto:${CONTACT_EMAIL}`}>
-                {CONTACT_EMAIL}
-              </a>{' '}
-              with a link or screenshot of the content.
             </p>
           </section>
 

@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils/cn';
 import { StarRatingDisplay } from '@/components/ui/StarRating';
 import { TeacherWithStats } from '@/lib/types/database';
 import { User, BookOpen } from 'lucide-react';
-import { getAvatarStyle } from '@/lib/utils/teacherDisplay';
+import { getAvatarStyle, getDepartmentBadgeStyle } from '@/lib/utils/teacherDisplay';
 
 /**
  * TeacherCard Component
@@ -29,6 +29,7 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
     teacher.subjects?.[0]?.name ||
     null;
   const departmentName = teacher.department?.name || null;
+  const departmentStyle = getDepartmentBadgeStyle(teacher.department?.color_hex || null);
 
   return (
     <Link href={`/teachers/${teacher.id}`}>
@@ -68,9 +69,14 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
           )}
 
           {departmentName && (
-            <p className="mt-0.5 text-xs text-slate-400 line-clamp-1">
-              {departmentName}
-            </p>
+            <div className="mt-2 flex justify-center">
+              <span
+                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${departmentStyle.className}`}
+                style={departmentStyle.style}
+              >
+                {departmentName}
+              </span>
+            </div>
           )}
 
           {/* Rating */}

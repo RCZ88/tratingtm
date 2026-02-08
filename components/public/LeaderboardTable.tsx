@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils/cn';
 import { StarRatingDisplay } from '@/components/ui/StarRating';
 import { LeaderboardEntry } from '@/lib/types/database';
 import { Trophy, Medal, Award, User, TrendingUp, TrendingDown } from 'lucide-react';
+import { getDepartmentBadgeStyle } from '@/lib/utils/teacherDisplay';
 
 /**
  * LeaderboardTable Component
@@ -15,8 +16,12 @@ import { Trophy, Medal, Award, User, TrendingUp, TrendingDown } from 'lucide-rea
  * Includes ranking indicators and trend icons.
  */
 
+type LeaderboardEntryWithDeptColor = LeaderboardEntry & {
+  department_color_hex?: string | null;
+};
+
 export interface LeaderboardTableProps {
-  entries: LeaderboardEntry[];
+  entries: LeaderboardEntryWithDeptColor[];
   isLoading?: boolean;
   showRank?: boolean;
   limit?: number;
@@ -102,6 +107,7 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
               const rank = index + 1;
               const averageRating = entry.average_rating || 0;
               const ratingCount = entry.rating_count || 0;
+              const deptStyle = getDepartmentBadgeStyle(entry.department_color_hex || null);
 
               return (
                 <tr
@@ -140,6 +146,14 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                         </p>
                         {entry.subject && (
                           <p className="text-xs text-slate-500">{entry.subject}</p>
+                        )}
+                        {entry.department && (
+                          <span
+                            className={`mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${deptStyle.className}`}
+                            style={deptStyle.style}
+                          >
+                            {entry.department}
+                          </span>
                         )}
                       </div>
                     </Link>
