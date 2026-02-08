@@ -21,9 +21,9 @@ const Footer: React.FC = () => {
       { label: 'Suggestions', href: '/suggestions' },
     ],
     legal: [
-      { label: 'Privacy Policy', href: '#' },
-      { label: 'Terms of Service', href: '#' },
-      { label: 'Guidelines', href: '#' },
+      { label: 'Privacy Policy', href: '/legal/privacy' },
+      { label: 'Terms of Service', href: '/legal/terms' },
+      { label: 'Guidelines', href: '/legal/guidelines' },
     ],
     admin: [
       { label: 'Admin Login', href: '/admin/login' },
