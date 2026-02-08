@@ -15,6 +15,16 @@ interface SuggestionFormProps {
 }
 
 const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) => {
+  const fallbackDepartments = React.useMemo(
+    () =>
+      DEPARTMENTS.map((name) => ({
+        id: name,
+        name,
+        color_hex: '#16a34a',
+        created_at: '1970-01-01T00:00:00.000Z',
+      })),
+    []
+  );
   const [title, setTitle] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [teacherName, setTeacherName] = React.useState('');
@@ -26,9 +36,7 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
   const [yearLevel, setYearLevel] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [message, setMessage] = React.useState<string | null>(null);
-  const [departments, setDepartments] = React.useState<Department[]>(
-    DEPARTMENTS.map((name) => ({ id: name, name }))
-  );
+  const [departments, setDepartments] = React.useState<Department[]>(fallbackDepartments);
   const [subjectsByDepartment, setSubjectsByDepartment] = React.useState<Record<string, Subject[]>>(
     Object.fromEntries(
       Object.entries(SUBJECTS_BY_DEPARTMENT).map(([dept, subjects]) => [
@@ -60,7 +68,7 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
       } catch (error) {
         if (active) {
           setDepartments((prev) =>
-            prev.length === 0 ? DEPARTMENTS.map((name) => ({ id: name, name })) : prev
+            prev.length === 0 ? fallbackDepartments : prev
           );
         }
       } finally {
