@@ -19,9 +19,14 @@ import { getAvatarStyle, getDepartmentBadgeStyle } from '@/lib/utils/teacherDisp
 export interface TeacherCardProps {
   teacher: TeacherWithStats;
   className?: string;
+  ratingMode?: 'weekly' | 'all_time';
 }
 
-const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
+const TeacherCard: React.FC<TeacherCardProps> = ({
+  teacher,
+  className,
+  ratingMode = 'weekly',
+}) => {
   const averageRating = teacher.average_rating || 0;
   const totalRatings = teacher.total_ratings || 0;
   const weeklyRating = teacher.weekly_average_rating ?? null;
@@ -32,6 +37,10 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
     null;
   const departmentName = teacher.department?.name || null;
   const departmentStyle = getDepartmentBadgeStyle(teacher.department?.color_hex || null);
+  const isWeekly = ratingMode === 'weekly';
+  const ratingLabel = isWeekly ? 'Weekly (Unique)' : 'All-Time (Total)';
+  const displayRating = isWeekly ? weeklyRating : averageRating;
+  const displayCount = isWeekly ? weeklyCount : totalRatings;
 
   return (
     <Link href={`/teachers/${teacher.id}`}>
@@ -84,17 +93,17 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
           {/* Ratings */}
           <div className="mt-3 space-y-2">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-              Weekly (Unique)
+              {ratingLabel}
             </div>
-            {weeklyRating !== null ? (
-              <StarRatingDisplay rating={weeklyRating} count={weeklyCount} size="sm" />
-            ) : (
+            {isWeekly && displayRating === null ? (
               <p className="text-xs text-slate-500">Not enough data</p>
+            ) : (
+              <StarRatingDisplay
+                rating={displayRating ?? 0}
+                count={displayCount}
+                size="sm"
+              />
             )}
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-              All-Time (Total)
-            </div>
-            <StarRatingDisplay rating={averageRating} count={totalRatings} size="sm" />
           </div>
 
           {/* Comment count */}

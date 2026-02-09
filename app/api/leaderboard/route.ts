@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
 
     const supabase = createClient();
+    let weekStart: Date;
+    let weekEnd: Date;
 
     if (period === 'all_time') {
       const { data: statsRows, error: statsError } = await supabase
@@ -227,16 +229,16 @@ export async function GET(request: NextRequest) {
       const activeTeachers = (teacherRows || []).filter((row) => row.is_active);
       const activeTeacherIds = activeTeachers.map((row) => row.id);
 
+      const departmentIds = Array.from(
+        new Set(activeTeachers.map((row) => row.department_id).filter(Boolean))
+      ) as string[];
+
+
       const [deptResult, subjectResult, statsResult] = await Promise.all([
         supabase
           .from('departments')
           .select('id, name, color_hex')
-          .in(
-            'id',
-            Array.from(
-              new Set(activeTeachers.map((row) => row.department_id).filter(Boolean))
-            )
-          ),
+          .in('id', departmentIds),
         supabase
           .from('teacher_subjects')
           .select('teacher_id, subject:subjects(id, name)')
@@ -319,9 +321,6 @@ export async function GET(request: NextRequest) {
         },
       });
     }
-
-    let weekStart: Date;
-    let weekEnd: Date;
 
     if (weekStartParam) {
       const parsed = parseISO(weekStartParam);
@@ -666,3 +665,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+

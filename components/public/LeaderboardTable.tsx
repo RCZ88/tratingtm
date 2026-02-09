@@ -29,6 +29,7 @@ export interface LeaderboardTableProps {
   limit?: number;
   type?: 'top' | 'bottom';
   className?: string;
+  ratingMode?: 'weekly' | 'all_time';
 }
 
 const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
@@ -38,8 +39,12 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
   limit = 10,
   type = 'top',
   className,
+  ratingMode = 'weekly',
 }) => {
   const displayEntries = entries.slice(0, limit);
+  const isWeekly = ratingMode === 'weekly';
+  const ratingHeader = isWeekly ? 'Weekly Rating' : 'All-Time Rating';
+  const countHeader = isWeekly ? 'Weekly Votes' : 'All-Time Votes';
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -97,10 +102,10 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                 Teacher
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Rating
+                {ratingHeader}
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Ratings
+                {countHeader}
               </th>
             </tr>
           </thead>
@@ -111,6 +116,8 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
               const ratingCount = entry.rating_count || 0;
               const weeklyRating = entry.weekly_average_rating ?? null;
               const weeklyCount = entry.weekly_rating_count || 0;
+              const displayRating = isWeekly ? weeklyRating : averageRating;
+              const displayCount = isWeekly ? weeklyCount : ratingCount;
               const deptStyle = getDepartmentBadgeStyle(entry.department_color_hex || null);
 
               return (
@@ -163,43 +170,19 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                     </Link>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="space-y-2">
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                          Weekly
-                        </p>
-                        {weeklyRating !== null ? (
-                          <StarRatingDisplay
-                            rating={weeklyRating}
-                            size="sm"
-                            showCount={false}
-                          />
-                        ) : (
-                          <p className="text-xs text-slate-500">Not enough data</p>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                          All-Time
-                        </p>
-                        <StarRatingDisplay
-                          rating={averageRating}
-                          size="sm"
-                          showCount={false}
-                        />
-                      </div>
-                    </div>
+                    {isWeekly && displayRating === null ? (
+                      <p className="text-xs text-slate-500">Not enough data</p>
+                    ) : (
+                      <StarRatingDisplay
+                        rating={displayRating ?? 0}
+                        size="sm"
+                        showCount={false}
+                      />
+                    )}
                   </td>
                   <td className="px-4 py-4">
-                    <div className="space-y-1 text-xs text-slate-600">
-                      {weeklyCount > 0 && (
-                        <div>
-                          Weekly: {weeklyCount} rating{weeklyCount !== 1 ? 's' : ''}
-                        </div>
-                      )}
-                      <div>
-                        All-time: {ratingCount} rating{ratingCount !== 1 ? 's' : ''}
-                      </div>
+                    <div className="text-xs text-slate-600">
+                      {displayCount} rating{displayCount !== 1 ? 's' : ''}
                     </div>
                   </td>
                 </tr>

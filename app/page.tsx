@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/Button';
@@ -7,6 +9,7 @@ import {
   Users, 
   MessageSquare, 
   TrendingUp, 
+  Calendar,
   Sparkles, 
   BarChart3, 
   ThumbsUp 
@@ -251,6 +254,18 @@ export default async function HomePage() {
               )}
             </div>
           </div>
+
+          <div className="mt-8">
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                <Calendar className="h-4 w-4" />
+                Weekly Reset
+              </div>
+              <p className="mt-3 text-sm text-emerald-800">
+                You can rate each teacher once per week. Your weekly vote resets every Monday.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -326,3 +341,4 @@ export default async function HomePage() {
     </div>
   );
 }
+

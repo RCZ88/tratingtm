@@ -57,6 +57,7 @@ export default function TeacherDetailPage() {
   const [teacher, setTeacher] = React.useState<TeacherData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [refreshKey, setRefreshKey] = React.useState(0);
+  const [ratingMode, setRatingMode] = React.useState<'weekly' | 'all_time'>('weekly');
 
   const fetchTeacher = React.useCallback(async () => {
     try {
@@ -203,31 +204,65 @@ export default function TeacherDetailPage() {
                     <div className="mt-4 grid gap-3 sm:max-w-md">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                          Weekly (Unique)
+                          Rating View
                         </p>
-                        {teacher.weekly_average_rating !== null &&
-                        teacher.weekly_average_rating !== undefined ? (
+                        <div className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-sm">
+                          <button
+                            type="button"
+                            onClick={() => setRatingMode('weekly')}
+                            className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                              ratingMode === 'weekly'
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : 'text-slate-600 hover:bg-white'
+                            }`}
+                          >
+                            Weekly
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setRatingMode('all_time')}
+                            className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                              ratingMode === 'all_time'
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : 'text-slate-600 hover:bg-white'
+                            }`}
+                          >
+                            All-Time
+                          </button>
+                        </div>
+                      </div>
+                      {ratingMode === 'weekly' ? (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            Weekly (Unique)
+                          </p>
+                          {teacher.weekly_average_rating !== null &&
+                          teacher.weekly_average_rating !== undefined ? (
+                            <StarRatingDisplay
+                              rating={teacher.weekly_average_rating}
+                              count={teacher.weekly_rating_count || 0}
+                              size="md"
+                            />
+                          ) : (
+                            <p className="text-sm text-slate-500">Not enough data yet</p>
+                          )}
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            All-Time (Total)
+                          </p>
                           <StarRatingDisplay
-                            rating={teacher.weekly_average_rating}
-                            count={teacher.weekly_rating_count || 0}
+                            rating={teacher.average_rating}
+                            count={teacher.total_ratings}
                             size="md"
                           />
-                        ) : (
-                          <p className="text-sm text-slate-500">Not enough data yet</p>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                          All-Time (Total)
-                        </p>
-                        <StarRatingDisplay
-                          rating={teacher.average_rating}
-                          count={teacher.total_ratings}
-                          size="md"
-                        />
-                      </div>
+                        </div>
+                      )}
                       <p className="text-xs text-slate-500">
-                        Weekly ratings reset every Monday and use one rating per user.
+                        {ratingMode === 'weekly'
+                          ? 'You can rate each teacher once per week. Weekly ratings reset every Monday.'
+                          : 'All-time ratings reflect every rating submitted.'}
                       </p>
                     </div>
                   </div>

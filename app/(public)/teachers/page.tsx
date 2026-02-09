@@ -24,6 +24,7 @@ export default function TeachersPage() {
   const [sortBy, setSortBy] = React.useState('name');
   const [departments, setDepartments] = React.useState<Department[]>([]);
   const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
+  const [ratingMode, setRatingMode] = React.useState<'weekly' | 'all_time'>('weekly');
 
   const fetchTeachers = React.useCallback(async () => {
     setIsLoading(true);
@@ -114,7 +115,7 @@ export default function TeachersPage() {
 
         {/* Filters */}
         <div className="mb-8 rounded-xl bg-white p-4 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="flex-1">
               <SearchBar
                 initialValue={searchQuery}
@@ -123,7 +124,7 @@ export default function TeachersPage() {
                 showButton={false}
               />
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
               <div className="w-40">
                 <label className="mb-1 block text-sm font-medium text-slate-700">
                   Department
@@ -159,6 +160,35 @@ export default function TeachersPage() {
                   <option value="created_at">Newest</option>
                 </select>
               </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Rating View
+                </label>
+                <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-sm">
+                  <button
+                    type="button"
+                    onClick={() => setRatingMode('weekly')}
+                    className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                      ratingMode === 'weekly'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'text-slate-600 hover:bg-white'
+                    }`}
+                  >
+                    Weekly
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRatingMode('all_time')}
+                    className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                      ratingMode === 'all_time'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'text-slate-600 hover:bg-white'
+                    }`}
+                  >
+                    All-Time
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -168,6 +198,7 @@ export default function TeachersPage() {
           teachers={teachers}
           isLoading={isLoading}
           emptyMessage="No teachers found matching your criteria"
+          ratingMode={ratingMode}
         />
 
         {/* Pagination */}

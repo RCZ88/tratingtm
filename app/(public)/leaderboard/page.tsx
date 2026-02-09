@@ -44,6 +44,7 @@ export default function LeaderboardPage() {
   const [selectedWeek, setSelectedWeek] = React.useState<string>(
     () => toISODate(recentWeeks[0].start)
   );
+  const ratingMode = period === 'weekly_unique' ? 'weekly' : 'all_time';
 
   const fetchLeaderboard = React.useCallback(async () => {
     setIsLoading(true);
@@ -101,7 +102,7 @@ export default function LeaderboardPage() {
                 : 'bg-white text-slate-600 hover:bg-slate-100'
             }`}
           >
-            Weekly
+            Weekly (Unique)
           </button>
           <button
             type="button"
@@ -161,6 +162,7 @@ export default function LeaderboardPage() {
                 isLoading={isLoading}
                 type="top"
                 limit={10}
+                ratingMode={ratingMode}
               />
             </CardContent>
           </Card>
@@ -179,6 +181,7 @@ export default function LeaderboardPage() {
                 isLoading={isLoading}
                 type="bottom"
                 limit={10}
+                ratingMode={ratingMode}
               />
             </CardContent>
           </Card>

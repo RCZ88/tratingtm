@@ -19,6 +19,7 @@ export interface TeacherGridProps {
   emptyMessage?: string;
   className?: string;
   columns?: 2 | 3 | 4;
+  ratingMode?: 'weekly' | 'all_time';
 }
 
 const TeacherGrid: React.FC<TeacherGridProps> = ({
@@ -27,6 +28,7 @@ const TeacherGrid: React.FC<TeacherGridProps> = ({
   emptyMessage = 'No teachers found',
   className,
   columns = 3,
+  ratingMode = 'weekly',
 }) => {
   const gridCols = {
     2: 'grid-cols-1 sm:grid-cols-2',
@@ -73,7 +75,7 @@ const TeacherGrid: React.FC<TeacherGridProps> = ({
   return (
     <div className={cn('grid gap-6', gridCols[columns], className)}>
       {teachers.map((teacher) => (
-        <TeacherCard key={teacher.id} teacher={teacher} />
+        <TeacherCard key={teacher.id} teacher={teacher} ratingMode={ratingMode} />
       ))}
     </div>
   );
