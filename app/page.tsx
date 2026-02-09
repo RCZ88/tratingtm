@@ -255,15 +255,30 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="mt-8">
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
-              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-emerald-700">
-                <Calendar className="h-4 w-4" />
-                Weekly Reset
+          <div className="mt-10">
+            <div className="relative overflow-hidden rounded-3xl border border-emerald-300 bg-gradient-to-r from-emerald-500 via-emerald-600 to-green-600 p-8 shadow-lg">
+              <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
+              <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
+              <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-widest text-emerald-50">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20">
+                      <Calendar className="h-5 w-5" />
+                    </span>
+                    Weekly Reset Reminder
+                  </div>
+                  <h3 className="mt-3 text-2xl font-bold text-white sm:text-3xl">
+                    Vote once per week, every Monday
+                  </h3>
+                  <p className="mt-2 text-base text-emerald-50/90 sm:text-lg">
+                    Your weekly vote refreshes at the start of each week, so you can keep sharing new feedback.
+                  </p>
+                </div>
+                <div className="shrink-0 rounded-2xl bg-white/15 px-4 py-3 text-center text-sm font-semibold text-white">
+                  Weekly votes reset
+                  <span className="block text-lg font-bold">Every Monday</span>
+                </div>
               </div>
-              <p className="mt-3 text-sm text-emerald-800">
-                You can rate each teacher once per week. Your weekly vote resets every Monday.
-              </p>
             </div>
           </div>
         </div>
@@ -341,4 +356,5 @@ export default async function HomePage() {
     </div>
   );
 }
+
 

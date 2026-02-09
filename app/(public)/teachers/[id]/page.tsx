@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ArrowLeft, User, BookOpen, Building2, BarChart3 } from 'lucide-react';
+import { RatingExplainer } from '@/components/public/RatingExplainer';
 import { formatYearLevels, getAvatarStyle, getDepartmentBadgeStyle } from '@/lib/utils/teacherDisplay';
 import { getAnonymousId } from '@/lib/utils/anonymousId';
 
@@ -231,6 +232,7 @@ export default function TeacherDetailPage() {
                           </button>
                         </div>
                       </div>
+                      <RatingExplainer className="mt-3" />
                       {ratingMode === 'weekly' ? (
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">

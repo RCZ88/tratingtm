@@ -5,6 +5,7 @@ import { LeaderboardTable } from '@/components/public/LeaderboardTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Trophy, TrendingDown, Calendar } from 'lucide-react';
+import { RatingExplainer } from '@/components/public/RatingExplainer';
 import { formatWeekRange, getRecentWeeks, toISODate } from '@/lib/utils/dateHelpers';
 
 /**
@@ -115,6 +116,9 @@ export default function LeaderboardPage() {
           >
             All-Time
           </button>
+        </div>
+        <div className="mb-8">
+          <RatingExplainer className="mx-auto max-w-3xl" />
         </div>
 
         {/* Week Selector */}

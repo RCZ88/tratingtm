@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { TeacherWithStats, Department } from '@/lib/types/database';
 import { Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RatingExplainer } from '@/components/public/RatingExplainer';
 
 /**
  * Teachers List Page
@@ -192,6 +193,9 @@ export default function TeachersPage() {
             </div>
           </div>
         </div>
+        <div className="mt-4">
+          <RatingExplainer />
+        </div>
 
         {/* Results */}
         <TeacherGrid
@@ -231,3 +235,4 @@ export default function TeachersPage() {
     </div>
   );
 }
+
