@@ -22,7 +22,7 @@ interface AdminSuggestion {
   downvotes: number;
 }
 
-const STATUS_OPTIONS = ['new', 'working', 'approved', 'declined', 'completed'];
+const STATUS_OPTIONS = ['new', 'working', 'approved', 'declined'];
 const STATUS_FILTER_OPTIONS = [
   { value: '', label: 'All statuses' },
   ...STATUS_OPTIONS.map((status) => ({ value: status, label: status })),
@@ -114,7 +114,7 @@ export default function AdminSuggestionsPage() {
                   </option>
                 ))}
               </select>
-            </div>
+</div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700">Type</label>
               <select
@@ -128,7 +128,7 @@ export default function AdminSuggestionsPage() {
                   </option>
                 ))}
               </select>
-            </div>
+</div>
             <div className="flex items-end">
               <Button variant="outline" onClick={fetchSuggestions}>
                 Refresh
@@ -192,6 +192,16 @@ export default function AdminSuggestionsPage() {
                       </option>
                     ))}
                   </select>
+
+                  {item.status !== 'completed' && (
+                    <Button
+                      size="sm"
+                      className="rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                      onClick={() => updateStatus(item.id, 'completed')}
+                    >
+                      Mark completed
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -201,3 +211,8 @@ export default function AdminSuggestionsPage() {
     </div>
   );
 }
+
+
+
+
+
