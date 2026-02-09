@@ -232,7 +232,7 @@ export default function TeacherDetailPage() {
                           </button>
                         </div>
                       </div>
-                      <RatingExplainer className="mt-3" />
+
                       {ratingMode === 'weekly' ? (
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">

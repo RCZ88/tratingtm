@@ -98,11 +98,13 @@ const TeacherCard: React.FC<TeacherCardProps> = ({
             {isWeekly && displayRating === null ? (
               <p className="text-xs text-slate-500">Not enough data</p>
             ) : (
-              <StarRatingDisplay
-                rating={displayRating ?? 0}
-                count={displayCount}
-                size="sm"
-              />
+              <div className="flex justify-center">
+                <StarRatingDisplay
+                  rating={displayRating ?? 0}
+                  count={displayCount}
+                  size="sm"
+                />
+              </div>
             )}
           </div>
 

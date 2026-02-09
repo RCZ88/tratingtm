@@ -20,7 +20,7 @@ export default function SearchPageClient() {
   const [query, setQuery] = React.useState(initialQuery);
   const [teachers, setTeachers] = React.useState<TeacherWithStats[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [hasSearched, setHasSearched] = React.useState(false);
+  const [hasSearched, setHasSearched] = React.useState(false);\n  const [departments, setDepartments] = React.useState<Department[]>([]);\n  const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
 
   const performSearch = React.useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) {
@@ -133,17 +133,21 @@ export default function SearchPageClient() {
                 Or browse by category:
               </p>
               <div className="flex flex-wrap justify-center gap-3">
-                {['Mathematics', 'Science', 'English', 'History', 'Arts'].map(
-                  (subject) => (
-                    <button
-                      key={subject}
-                      onClick={() => handleSearch(subject)}
-                      className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-emerald-500 hover:text-emerald-700"
-                    >
-                      {subject}
-                    </button>
-                  )
+                {isLoadingDepartments && (
+                  <span className="text-sm text-slate-400">Loading categories...</span>
                 )}
+                {!isLoadingDepartments && departments.length === 0 && (
+                  <span className="text-sm text-slate-400">No categories available yet.</span>
+                )}
+                {departments.map((dept) => (
+                  <button
+                    key={dept.id}
+                    onClick={() => handleSearch(dept.name)}
+                    className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-emerald-500 hover:text-emerald-700"
+                  >
+                    {dept.name}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
