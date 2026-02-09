@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useSearchParams } from 'next/navigation';
 import { TeacherGrid } from '@/components/public/TeacherGrid';
 import { SearchBar } from '@/components/public/SearchBar';
-import { TeacherWithStats } from '@/lib/types/database';
+import { TeacherWithStats, Department } from '@/lib/types/database';
 import { Search } from 'lucide-react';
 
 /**
@@ -20,7 +20,9 @@ export default function SearchPageClient() {
   const [query, setQuery] = React.useState(initialQuery);
   const [teachers, setTeachers] = React.useState<TeacherWithStats[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [hasSearched, setHasSearched] = React.useState(false);\n  const [departments, setDepartments] = React.useState<Department[]>([]);\n  const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
+  const [hasSearched, setHasSearched] = React.useState(false);
+  const [departments, setDepartments] = React.useState<Department[]>([]);
+  const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
 
   const performSearch = React.useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) {

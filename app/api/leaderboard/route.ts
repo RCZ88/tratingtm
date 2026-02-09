@@ -19,6 +19,12 @@ export async function GET(request: NextRequest) {
     const periodParam = searchParams.get('period') || 'weekly';
     const period = periodParam === 'weekly' ? 'weekly_unique' : periodParam;
     const limit = parseInt(searchParams.get('limit') || '10');
+    const type = (searchParams.get('type') || 'overall') as 'overall' | 'department' | 'year_level';
+    const sortParam = searchParams.get('sort') || 'desc';
+    const sortDirection = sortParam === 'asc' ? 'asc' : 'desc';
+    const departmentId = searchParams.get('department_id');
+    const yearLevelParam = searchParams.get('year_level');
+    const yearLevel = yearLevelParam ? parseInt(yearLevelParam, 10) : null;
 
     const supabase = createClient();
     let weekStart: Date;
@@ -44,18 +50,57 @@ export async function GET(request: NextRequest) {
         teacherIds.length > 0
           ? await supabase
               .from('teachers')
-              .select('id, department_id, image_url, is_active')
+              .select('id, department_id, year_levels, image_url, is_active')
               .in('id', teacherIds)
-          : { data: [] as Array<{ id: string; department_id: string | null; image_url: string | null; is_active: boolean }> };
+          : {
+              data: [] as Array<{
+                id: string;
+                department_id: string | null;
+                year_levels: number[] | null;
+                image_url: string | null;
+                is_active: boolean;
+              }>,
+            };
 
-      const activeTeacherIds = new Set(
-        (teacherRows || []).filter((row) => row.is_active).map((row) => row.id)
-      );
+      const activeTeachers = (teacherRows || []).filter((row) => row.is_active);
+      let scopedTeachers = activeTeachers;
 
-      const activeStats = (statsRows || []).filter((row) => activeTeacherIds.has(row.id));
+      if (type === 'department') {
+        if (!departmentId) {
+          return NextResponse.json({
+            data: {
+              period: 'all_time',
+              type,
+              week_start: null,
+              week_end: null,
+              items: [],
+            },
+          });
+        }
+        scopedTeachers = activeTeachers.filter((row) => row.department_id === departmentId);
+      }
+
+      if (type === 'year_level') {
+        if (!yearLevel) {
+          return NextResponse.json({
+            data: {
+              period: 'all_time',
+              type,
+              week_start: null,
+              week_end: null,
+              items: [],
+            },
+          });
+        }
+        scopedTeachers = activeTeachers.filter((row) => (row.year_levels || []).includes(yearLevel));
+      }
+
+      const scopedTeacherIds = new Set(scopedTeachers.map((row) => row.id));
+      const scopedTeacherIdList = Array.from(scopedTeacherIds);
+      const activeStats = (statsRows || []).filter((row) => scopedTeacherIds.has(row.id));
 
       const departmentIds = Array.from(
-        new Set((teacherRows || []).map((row) => row.department_id).filter(Boolean))
+        new Set(scopedTeachers.map((row) => row.department_id).filter(Boolean))
       ) as string[];
 
       const [deptResult, subjectResult, weeklyResult] = await Promise.all([
@@ -90,9 +135,7 @@ export async function GET(request: NextRequest) {
         subjectMap.set(row.teacher_id, list);
       });
 
-      const teacherMap = new Map(
-        (teacherRows || []).map((row) => [row.id, row])
-      );
+      const teacherMap = new Map((teacherRows || []).map((row) => [row.id, row]));
 
       const weeklyMap = new Map<string, { count: number; sum: number }>();
       (weeklyResult.data || []).forEach((row: any) => {
@@ -129,35 +172,27 @@ export async function GET(request: NextRequest) {
         };
       });
 
-      const byTop = [...formatted].sort((a, b) => {
+      const sorted = [...formatted].sort((a, b) => {
         const aAvg = a.average_rating ?? -1;
         const bAvg = b.average_rating ?? -1;
-        if (bAvg !== aAvg) return bAvg - aAvg;
+        if (aAvg !== bAvg) {
+          return sortDirection === 'asc' ? aAvg - bAvg : bAvg - aAvg;
+        }
         const aCount = a.rating_count ?? 0;
         const bCount = b.rating_count ?? 0;
-        return bCount - aCount;
-      });
-      const byBottom = [...formatted].sort((a, b) => {
-        const aAvg = a.average_rating ?? -1;
-        const bAvg = b.average_rating ?? -1;
-        if (aAvg !== bAvg) return aAvg - bAvg;
-        const aCount = a.rating_count ?? 0;
-        const bCount = b.rating_count ?? 0;
-        return bCount - aCount;
+        return sortDirection === 'asc' ? aCount - bCount : bCount - aCount;
       });
 
       return NextResponse.json({
         data: {
           period: 'all_time',
+          type,
           week_start: null,
           week_end: null,
-          top: byTop.slice(0, limit),
-          bottom: byBottom.slice(0, limit),
-          all: formatted,
+          items: sorted,
         },
       });
     }
-
     if (period === 'weekly_unique') {
       const range = weekStartParam
         ? getWeekRange(parseISO(weekStartParam))
@@ -223,7 +258,7 @@ export async function GET(request: NextRequest) {
 
       const { data: teacherRows } = await supabase
         .from('teachers')
-        .select('id, name, department_id, image_url, is_active')
+        .select('id, name, department_id, year_levels, image_url, is_active')
         .in('id', teacherIds);
 
       const activeTeachers = (teacherRows || []).filter((row) => row.is_active);
@@ -491,7 +526,7 @@ export async function GET(request: NextRequest) {
 
       const { data: teacherRows } = await supabase
         .from('teachers')
-        .select('id, name, department_id, image_url, is_active')
+        .select('id, name, department_id, year_levels, image_url, is_active')
         .in('id', teacherIds);
 
       const activeTeachers = (teacherRows || []).filter((row) => row.is_active);
