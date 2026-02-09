@@ -22,12 +22,7 @@ export interface SuggestionItem {
   viewer_vote: 'up' | 'down' | null;
 }
 
-interface SuggestionListProps {
-  type?: string;
-  status?: string;
-  emptyMessage?: string;
-  className?: string;
-}
+interface SuggestionListProps {\n  type?: string;\n  status?: string;\n  emptyMessage?: string;\n  className?: string;\n  showVoting?: boolean;\n}
 
 const statusStyles: Record<string, { label: string; icon: React.ReactNode; className: string }> = {
   new: {
@@ -57,12 +52,7 @@ const statusStyles: Record<string, { label: string; icon: React.ReactNode; class
   },
 };
 
-const SuggestionList: React.FC<SuggestionListProps> = ({
-  type,
-  status,
-  emptyMessage,
-  className,
-}) => {
+const SuggestionList: React.FC<SuggestionListProps> = ({\n  type,\n  status,\n  emptyMessage,\n  className,\n  showVoting = true,\n}) => {
   const [items, setItems] = React.useState<SuggestionItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -178,35 +168,36 @@ const SuggestionList: React.FC<SuggestionListProps> = ({
                 {statusMeta.label}
               </span>
             </div>
-
-            <div className="mt-4 flex items-center gap-3 text-xs text-slate-500">
-              <button
-                type="button"
-                onClick={() => handleVote(item.id, 'up')}
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-full px-2 py-1 transition-colors',
-                  item.viewer_vote === 'up'
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                )}
-              >
-                <ThumbsUp className="h-3.5 w-3.5" />
-                {item.upvotes}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleVote(item.id, 'down')}
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-full px-2 py-1 transition-colors',
-                  item.viewer_vote === 'down'
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                )}
-              >
-                <ThumbsDown className="h-3.5 w-3.5" />
-                {item.downvotes}
-              </button>
-            </div>
+            {showVoting && (
+              <div className="mt-4 flex items-center gap-3 text-xs text-slate-500">
+                <button
+                  type="button"
+                  onClick={() => handleVote(item.id, 'up')}
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded-full px-2 py-1 transition-colors',
+                    item.viewer_vote === 'up'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  )}
+                >
+                  <ThumbsUp className="h-3.5 w-3.5" />
+                  {item.upvotes}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleVote(item.id, 'down')}
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded-full px-2 py-1 transition-colors',
+                    item.viewer_vote === 'down'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  )}
+                >
+                  <ThumbsDown className="h-3.5 w-3.5" />
+                  {item.downvotes}
+                </button>
+              </div>
+            )}
           </div>
         );
       })}
@@ -215,3 +206,4 @@ const SuggestionList: React.FC<SuggestionListProps> = ({
 };
 
 export { SuggestionList };
+

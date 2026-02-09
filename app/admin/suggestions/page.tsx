@@ -22,7 +22,7 @@ interface AdminSuggestion {
   downvotes: number;
 }
 
-const STATUS_OPTIONS = ['new', 'working', 'approved', 'declined'];
+const STATUS_OPTIONS = ['new', 'working', 'approved'];
 const STATUS_FILTER_OPTIONS = [
   { value: '', label: 'All statuses' },
   ...STATUS_OPTIONS.map((status) => ({ value: status, label: status })),
@@ -70,9 +70,7 @@ export default function AdminSuggestionsPage() {
         body: JSON.stringify({ status }),
       });
 
-      if (response.ok) {
-        setItems((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)));
-      }
+      if (response.ok) {\r\n        if (status === 'completed' || status === 'declined') {\r\n          setItems((prev) => prev.filter((item) => item.id !== id));\r\n        } else {\r\n          setItems((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)));\r\n        }\r\n      }
     } catch (error) {
       console.error('Error updating suggestion:', error);
     }
@@ -88,10 +86,10 @@ export default function AdminSuggestionsPage() {
           </p>
         </div>
         <Link
-          href="/admin/suggestions/completed"
+          href="/admin/suggestions/past"
           className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm hover:border-emerald-300"
         >
-          View completed
+          Past suggestions
         </Link>
       </div>
 
@@ -114,28 +112,23 @@ export default function AdminSuggestionsPage() {
                   </option>
                 ))}
               </select>
-</div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Type</label>
-              <select
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                value={typeFilter}
-                onChange={(event) => setTypeFilter(event.target.value)}
-              >
-                {TYPE_OPTIONS.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-</div>
-            <div className="flex items-end">
-              <Button variant="outline" onClick={fetchSuggestions}>
-                Refresh
-              </Button>
-            </div>
-          </div>
-        </CardContent>
+
+                  <Button
+                    size="sm"
+                    className="rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                    onClick={() => updateStatus(item.id, 'completed')}
+                  >
+                    Mark completed
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200"
+                    onClick={() => updateStatus(item.id, 'declined')}
+                  >
+                    Mark declined
+                  </Button>
+                </div>
+              </CardContent>
       </Card>
 
       {isLoading ? (
@@ -193,15 +186,20 @@ export default function AdminSuggestionsPage() {
                     ))}
                   </select>
 
-                  {item.status !== 'completed' && (
-                    <Button
-                      size="sm"
-                      className="rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
-                      onClick={() => updateStatus(item.id, 'completed')}
-                    >
-                      Mark completed
-                    </Button>
-                  )}
+                  <Button
+                    size="sm"
+                    className="rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                    onClick={() => updateStatus(item.id, 'completed')}
+                  >
+                    Mark completed
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200"
+                    onClick={() => updateStatus(item.id, 'declined')}
+                  >
+                    Mark declined
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -211,6 +209,10 @@ export default function AdminSuggestionsPage() {
     </div>
   );
 }
+
+
+
+
 
 
 

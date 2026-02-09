@@ -180,7 +180,7 @@ export async function GET(request: NextRequest) {
         }
         const aCount = a.rating_count ?? 0;
         const bCount = b.rating_count ?? 0;
-        return sortDirection === 'asc' ? aCount - bCount : bCount - aCount;
+        return sortDirection === 'asc' ? bCount - aCount : bCount - aCount;
       });
 
       return NextResponse.json({
@@ -381,7 +381,7 @@ export async function GET(request: NextRequest) {
 
         const aCount = a.weekly_rating_count ?? 0;
         const bCount = b.weekly_rating_count ?? 0;
-        return sortDirection === 'asc' ? aCount - bCount : bCount - aCount;
+        return sortDirection === 'asc' ? bCount - aCount : bCount - aCount;
       });
 
       return NextResponse.json({
@@ -737,6 +737,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
 
 
 

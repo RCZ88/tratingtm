@@ -65,7 +65,7 @@ export default function SuggestionsPage() {
               <p className="text-sm text-slate-600">
                 {tabs.find((tab) => tab.id === activeTab)?.description}
               </p>
-            </div>\r\n\r\n            {activeTab === 'teacher_add' && (
+            </div>            {activeTab === 'teacher_add' && (
               <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                 <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Before you submit</p>
                 <ul className="mt-2 list-disc pl-5 text-sm text-amber-900">
@@ -90,10 +90,10 @@ export default function SuggestionsPage() {
                 Recent Suggestions
               </h2>
               <Link
-                href="/suggestions/completed"
+                href="/suggestions/past"
                 className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
               >
-                View completed
+                Past suggestions
               </Link>
             </div>
             <p className="mt-1 text-sm text-slate-500">
@@ -108,5 +108,8 @@ export default function SuggestionsPage() {
     </div>
   );
 }
+
+
+
 
 
