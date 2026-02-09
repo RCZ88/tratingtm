@@ -186,6 +186,40 @@ export interface Database {
           }
         ];
       };
+      weekly_ratings: {
+        Row: {
+          id: string;
+          teacher_id: string;
+          anonymous_id: string;
+          stars: number;
+          week_start: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          teacher_id: string;
+          anonymous_id: string;
+          stars: number;
+          week_start: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          teacher_id?: string;
+          anonymous_id?: string;
+          stars?: number;
+          week_start?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'weekly_ratings_teacher_id_fkey';
+            columns: ['teacher_id'];
+            referencedRelation: 'teachers';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       comments: {
         Row: {
           id: string;
@@ -495,6 +529,7 @@ export type TeacherSubject = Database['public']['Tables']['teacher_subjects']['R
 
 export type Rating = Database['public']['Tables']['ratings']['Row'];
 export type RatingInsert = Database['public']['Tables']['ratings']['Insert'];
+export type WeeklyRating = Database['public']['Tables']['weekly_ratings']['Row'];
 
 export type Comment = Database['public']['Tables']['comments']['Row'];
 export type CommentInsert = Database['public']['Tables']['comments']['Insert'];
@@ -513,6 +548,8 @@ export interface TeacherWithStats extends Teacher {
   total_ratings?: number;
   average_rating?: number | null;
   total_comments?: number;
+  weekly_rating_count?: number;
+  weekly_average_rating?: number | null;
   department?: Department | null;
   subjects?: Subject[];
   subject_ids?: string[];

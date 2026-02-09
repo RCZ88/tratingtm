@@ -25,7 +25,8 @@ interface FormState {
   isSubmitting: boolean;
   error: string | null;
   success: boolean;
-  hasAlreadyRated: boolean;
+  hasRatedThisWeek: boolean;
+  updatedWeekly: boolean;
 }
 
 const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className }) => {
@@ -34,7 +35,8 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
     isSubmitting: false,
     error: null,
     success: false,
-    hasAlreadyRated: false,
+    hasRatedThisWeek: false,
+    updatedWeekly: false,
   });
 
   // Check if user has already rated this teacher
@@ -49,7 +51,7 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
         if (response.ok) {
           const data = await response.json();
           if (data.hasRated) {
-            setState((prev) => ({ ...prev, hasAlreadyRated: true }));
+            setState((prev) => ({ ...prev, hasRatedThisWeek: true }));
           }
         }
       } catch (error) {
@@ -92,20 +94,13 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
       const data = await response.json();
 
       if (!response.ok) {
-        if (response.status === 409) {
-          setState((prev) => ({
-            ...prev,
-            hasAlreadyRated: true,
-            isSubmitting: false,
-          }));
-          return;
-        }
         throw new Error(data.error || 'Failed to submit rating');
       }
 
       setState((prev) => ({
         ...prev,
         success: true,
+        updatedWeekly: !!data.weeklyUpdated,
         isSubmitting: false,
       }));
 
@@ -119,22 +114,6 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
     }
   };
 
-  if (state.hasAlreadyRated) {
-    return (
-      <div className={cn('rounded-lg bg-amber-50 p-4', className)}>
-        <div className="flex items-center gap-3">
-          <AlertCircle className="h-5 w-5 text-amber-600" />
-          <div>
-            <p className="font-medium text-amber-800">Already Rated</p>
-            <p className="text-sm text-amber-700">
-              You have already rated this teacher. You can only rate each teacher once.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (state.success) {
     return (
       <div className={cn('rounded-lg bg-green-50 p-4', className)}>
@@ -143,7 +122,9 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
           <div>
             <p className="font-medium text-green-800">Thank You!</p>
             <p className="text-sm text-green-700">
-              Your rating has been submitted successfully.
+              {state.updatedWeekly
+                ? 'Your weekly rating has been updated.'
+                : 'Your rating has been submitted successfully.'}
             </p>
           </div>
         </div>
@@ -170,6 +151,13 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
         </div>
       )}
 
+      {state.hasRatedThisWeek && (
+        <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-700">
+          You have already rated this teacher this week. Submitting again will update
+          your weekly rating.
+        </div>
+      )}
+
       <Button
         type="submit"
         isLoading={state.isSubmitting}
@@ -180,7 +168,7 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
       </Button>
 
       <p className="text-xs text-center text-slate-500">
-        Your rating is anonymous. You can only rate each teacher once.
+        Your rating is anonymous. You can update your weekly rating once per week.
       </p>
     </form>
   );

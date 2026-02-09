@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { validate, ratingSchema } from '@/lib/utils/validation';
+import { getCurrentWeekStart, toISODate } from '@/lib/utils/dateHelpers';
 
 /**
  * GET /api/ratings
@@ -23,13 +24,16 @@ export async function GET(request: NextRequest) {
 
     const supabase = createClient();
 
-    // If anonymous_id provided, check if user has rated
+    const weekStart = toISODate(getCurrentWeekStart());
+
+    // If anonymous_id provided, check if user has rated this week
     if (anonymousId) {
       const { data: existingRating } = await supabase
-        .from('ratings')
+        .from('weekly_ratings')
         .select('id')
         .eq('teacher_id', teacherId)
         .eq('anonymous_id', anonymousId)
+        .eq('week_start', weekStart)
         .maybeSingle();
 
       return NextResponse.json({
@@ -66,7 +70,7 @@ export async function GET(request: NextRequest) {
  * POST /api/ratings
  * 
  * Submit a new rating for a teacher.
- * Anonymous users can submit one rating per teacher.
+ * Anonymous users can submit one rating per teacher per week.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -106,42 +110,68 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check for duplicate rating
-    const { data: existingRating } = await supabase
-      .from('ratings')
+    const weekStart = toISODate(getCurrentWeekStart());
+
+    // Check for weekly rating
+    const { data: existingWeekly } = await supabase
+      .from('weekly_ratings')
       .select('id')
       .eq('teacher_id', teacher_id)
       .eq('anonymous_id', anonymous_id)
+      .eq('week_start', weekStart)
       .maybeSingle();
 
-    if (existingRating) {
-      return NextResponse.json(
-        { error: 'You have already rated this teacher' },
-        { status: 409 }
+    // Upsert weekly rating
+    const { error: weeklyError } = await supabase
+      .from('weekly_ratings')
+      .upsert(
+        {
+          teacher_id,
+          stars,
+          anonymous_id,
+          week_start: weekStart,
+        },
+        { onConflict: 'teacher_id,anonymous_id,week_start' }
       );
-    }
 
-    // Insert rating
-    const { data: rating, error } = await supabase
-      .from('ratings')
-      .insert({
-        teacher_id,
-        stars,
-        anonymous_id,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error creating rating:', error);
+    if (weeklyError) {
+      console.error('Error creating weekly rating:', weeklyError);
       return NextResponse.json(
-        { error: 'Failed to submit rating' },
+        { error: 'Failed to submit weekly rating' },
         { status: 500 }
       );
     }
 
+    let rating = null;
+    if (!existingWeekly) {
+      const result = await supabase
+        .from('ratings')
+        .insert({
+          teacher_id,
+          stars,
+          anonymous_id,
+        })
+        .select()
+        .single();
+
+      if (result.error) {
+        console.error('Error creating rating:', result.error);
+        return NextResponse.json(
+          { error: 'Failed to submit rating' },
+          { status: 500 }
+        );
+      }
+      rating = result.data;
+    }
+
     return NextResponse.json(
-      { data: rating, message: 'Rating submitted successfully' },
+      {
+        data: rating,
+        weeklyUpdated: !!existingWeekly,
+        message: existingWeekly
+          ? 'Weekly rating updated successfully'
+          : 'Rating submitted successfully',
+      },
       { status: 201 }
     );
   } catch (error) {

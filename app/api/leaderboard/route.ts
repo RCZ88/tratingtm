@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentWeekStart, getCurrentWeekEnd, toISODate } from '@/lib/utils/dateHelpers';
+import { getCurrentWeekStart, getCurrentWeekEnd, getWeekRange, toISODate } from '@/lib/utils/dateHelpers';
+import { parseISO } from 'date-fns';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const weekStartParam = searchParams.get('week_start');
-    const period = searchParams.get('period') || 'weekly';
+    const periodParam = searchParams.get('period') || 'weekly';
+    const period = periodParam === 'weekly' ? 'weekly_unique' : periodParam;
     const limit = parseInt(searchParams.get('limit') || '10');
 
     const supabase = createClient();
@@ -35,6 +37,7 @@ export async function GET(request: NextRequest) {
       }
 
       const teacherIds = (statsRows || []).map((row) => row.id);
+      const currentWeekStart = toISODate(getCurrentWeekStart());
       const { data: teacherRows } =
         teacherIds.length > 0
           ? await supabase
@@ -53,7 +56,7 @@ export async function GET(request: NextRequest) {
         new Set((teacherRows || []).map((row) => row.department_id).filter(Boolean))
       ) as string[];
 
-      const [deptResult, subjectResult] = await Promise.all([
+      const [deptResult, subjectResult, weeklyResult] = await Promise.all([
         departmentIds.length > 0
           ? supabase
               .from('departments')
@@ -65,6 +68,13 @@ export async function GET(request: NextRequest) {
               .from('teacher_subjects')
               .select('teacher_id, subject:subjects(id, name)')
               .in('teacher_id', teacherIds)
+          : Promise.resolve({ data: [] }),
+        teacherIds.length > 0
+          ? supabase
+              .from('weekly_ratings')
+              .select('teacher_id, stars')
+              .in('teacher_id', teacherIds)
+              .eq('week_start', currentWeekStart)
           : Promise.resolve({ data: [] }),
       ]);
 
@@ -82,6 +92,14 @@ export async function GET(request: NextRequest) {
         (teacherRows || []).map((row) => [row.id, row])
       );
 
+      const weeklyMap = new Map<string, { count: number; sum: number }>();
+      (weeklyResult.data || []).forEach((row: any) => {
+        const entry = weeklyMap.get(row.teacher_id) || { count: 0, sum: 0 };
+        entry.count += 1;
+        entry.sum += row.stars;
+        weeklyMap.set(row.teacher_id, entry);
+      });
+
       const formatted = activeStats.map((row) => {
         const teacher = teacherMap.get(row.id);
         const subjects = (subjectMap.get(row.id) || []).sort((a, b) =>
@@ -90,6 +108,9 @@ export async function GET(request: NextRequest) {
         const department = teacher?.department_id
           ? deptMap.get(teacher.department_id) || null
           : null;
+        const weekly = weeklyMap.get(row.id) || { count: 0, sum: 0 };
+        const weeklyAverage =
+          weekly.count >= 3 ? Number((weekly.sum / weekly.count).toFixed(2)) : null;
 
         return {
           id: row.id,
@@ -101,6 +122,8 @@ export async function GET(request: NextRequest) {
           rating_count: row.total_ratings || 0,
           average_rating: row.overall_rating,
           comment_count: row.total_comments || 0,
+          weekly_rating_count: weekly.count,
+          weekly_average_rating: weeklyAverage,
         };
       });
 
@@ -133,13 +156,178 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    if (period === 'weekly_unique') {
+      const range = weekStartParam
+        ? getWeekRange(parseISO(weekStartParam))
+        : { start: getCurrentWeekStart(), end: getCurrentWeekEnd() };
+      weekStart = range.start;
+      weekEnd = range.end;
+
+      const weekStartIso = toISODate(weekStart);
+      const weekEndExclusive = new Date(weekEnd);
+      weekEndExclusive.setDate(weekEndExclusive.getDate() + 1);
+      const weekEndIso = weekEndExclusive.toISOString();
+
+      const [weeklyResult, commentResult] = await Promise.all([
+        supabase
+          .from('weekly_ratings')
+          .select('teacher_id, stars')
+          .eq('week_start', weekStartIso),
+        supabase
+          .from('comments')
+          .select('teacher_id')
+          .eq('is_approved', true)
+          .gte('created_at', weekStartIso)
+          .lt('created_at', weekEndIso),
+      ]);
+
+      if (weeklyResult.error || commentResult.error) {
+        console.error(
+          'Error fetching weekly leaderboard:',
+          weeklyResult.error || commentResult.error
+        );
+        return NextResponse.json(
+          { error: 'Failed to fetch leaderboard' },
+          { status: 500 }
+        );
+      }
+
+      const weeklyMap = new Map<string, { count: number; sum: number }>();
+      (weeklyResult.data || []).forEach((row: any) => {
+        const entry = weeklyMap.get(row.teacher_id) || { count: 0, sum: 0 };
+        entry.count += 1;
+        entry.sum += row.stars;
+        weeklyMap.set(row.teacher_id, entry);
+      });
+
+      const commentMap = new Map<string, number>();
+      (commentResult.data || []).forEach((row: any) => {
+        commentMap.set(row.teacher_id, (commentMap.get(row.teacher_id) || 0) + 1);
+      });
+
+      const teacherIds = Array.from(weeklyMap.keys());
+      if (teacherIds.length === 0) {
+        return NextResponse.json({
+          data: {
+            period: 'weekly_unique',
+            week_start: toISODate(weekStart),
+            week_end: toISODate(weekEnd),
+            top: [],
+            bottom: [],
+            all: [],
+          },
+        });
+      }
+
+      const { data: teacherRows } = await supabase
+        .from('teachers')
+        .select('id, name, department_id, image_url, is_active')
+        .in('id', teacherIds);
+
+      const activeTeachers = (teacherRows || []).filter((row) => row.is_active);
+      const activeTeacherIds = activeTeachers.map((row) => row.id);
+
+      const [deptResult, subjectResult, statsResult] = await Promise.all([
+        supabase
+          .from('departments')
+          .select('id, name, color_hex')
+          .in(
+            'id',
+            Array.from(
+              new Set(activeTeachers.map((row) => row.department_id).filter(Boolean))
+            )
+          ),
+        supabase
+          .from('teacher_subjects')
+          .select('teacher_id, subject:subjects(id, name)')
+          .in('teacher_id', activeTeacherIds),
+        supabase
+          .from('teacher_stats')
+          .select('id, total_ratings, overall_rating, total_comments')
+          .in('id', activeTeacherIds),
+      ]);
+
+      const deptMap = new Map((deptResult.data || []).map((dept) => [dept.id, dept]));
+      const subjectMap = new Map<string, Array<{ id: string; name: string }>>();
+      (subjectResult.data || []).forEach((row: any) => {
+        const subject = row.subject;
+        if (!subject) return;
+        const list = subjectMap.get(row.teacher_id) || [];
+        list.push(subject);
+        subjectMap.set(row.teacher_id, list);
+      });
+
+      const statsMap = new Map(
+        (statsResult.data || []).map((row: any) => [row.id, row])
+      );
+
+      const formatted = activeTeachers.map((teacher) => {
+        const weekly = weeklyMap.get(teacher.id) || { count: 0, sum: 0 };
+        const weeklyAverage =
+          weekly.count >= 3 ? Number((weekly.sum / weekly.count).toFixed(2)) : null;
+        const subjects = (subjectMap.get(teacher.id) || []).sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+        const department = teacher.department_id
+          ? deptMap.get(teacher.department_id) || null
+          : null;
+        const stats = statsMap.get(teacher.id);
+
+        return {
+          id: teacher.id,
+          name: teacher.name,
+          subject: subjects[0]?.name || null,
+          department: department?.name || null,
+          department_color_hex: department?.color_hex || null,
+          image_url: teacher.image_url,
+          rating_count: stats?.total_ratings || 0,
+          average_rating: stats?.overall_rating || null,
+          comment_count: stats?.total_comments || 0,
+          weekly_rating_count: weekly.count,
+          weekly_average_rating: weeklyAverage,
+        };
+      });
+
+      const eligible = formatted.filter((row) => (row.weekly_rating_count || 0) >= 3);
+
+      const byTop = [...eligible].sort((a, b) => {
+        const aAvg = a.weekly_average_rating ?? -1;
+        const bAvg = b.weekly_average_rating ?? -1;
+        if (bAvg !== aAvg) return bAvg - aAvg;
+        const aCount = a.weekly_rating_count ?? 0;
+        const bCount = b.weekly_rating_count ?? 0;
+        return bCount - aCount;
+      });
+
+      const byBottom = [...eligible].sort((a, b) => {
+        const aAvg = a.weekly_average_rating ?? -1;
+        const bAvg = b.weekly_average_rating ?? -1;
+        if (aAvg !== bAvg) return aAvg - bAvg;
+        const aCount = a.weekly_rating_count ?? 0;
+        const bCount = b.weekly_rating_count ?? 0;
+        return bCount - aCount;
+      });
+
+      return NextResponse.json({
+        data: {
+          period: 'weekly_unique',
+          week_start: toISODate(weekStart),
+          week_end: toISODate(weekEnd),
+          top: byTop.slice(0, limit),
+          bottom: byBottom.slice(0, limit),
+          all: formatted,
+        },
+      });
+    }
+
     let weekStart: Date;
     let weekEnd: Date;
 
     if (weekStartParam) {
-      weekStart = new Date(weekStartParam);
-      weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekEnd.getDate() + 6);
+      const parsed = parseISO(weekStartParam);
+      const range = getWeekRange(parsed);
+      weekStart = range.start;
+      weekEnd = range.end;
     } else {
       weekStart = getCurrentWeekStart();
       weekEnd = getCurrentWeekEnd();
@@ -246,6 +434,150 @@ export async function GET(request: NextRequest) {
           },
         });
       }
+
+      // If no cache exists for the requested week, compute from raw data
+      const weekStartIso = weekStart.toISOString();
+      const weekEndExclusive = new Date(weekEnd);
+      weekEndExclusive.setDate(weekEndExclusive.getDate() + 1);
+      const weekEndIso = weekEndExclusive.toISOString();
+
+      const [ratingResult, commentResult] = await Promise.all([
+        supabase
+          .from('ratings')
+          .select('teacher_id, stars')
+          .gte('created_at', weekStartIso)
+          .lt('created_at', weekEndIso),
+        supabase
+          .from('comments')
+          .select('teacher_id')
+          .eq('is_approved', true)
+          .gte('created_at', weekStartIso)
+          .lt('created_at', weekEndIso),
+      ]);
+
+      if (ratingResult.error || commentResult.error) {
+        console.error('Error computing historical leaderboard:', ratingResult.error || commentResult.error);
+        return NextResponse.json(
+          { error: 'Failed to fetch leaderboard' },
+          { status: 500 }
+        );
+      }
+
+      const ratingMap = new Map<string, { count: number; sum: number }>();
+      (ratingResult.data || []).forEach((row) => {
+        const entry = ratingMap.get(row.teacher_id) || { count: 0, sum: 0 };
+        entry.count += 1;
+        entry.sum += row.stars;
+        ratingMap.set(row.teacher_id, entry);
+      });
+
+      const commentMap = new Map<string, number>();
+      (commentResult.data || []).forEach((row) => {
+        commentMap.set(row.teacher_id, (commentMap.get(row.teacher_id) || 0) + 1);
+      });
+
+      const teacherIds = Array.from(ratingMap.keys());
+      if (teacherIds.length === 0) {
+        return NextResponse.json({
+          data: {
+            period: 'weekly',
+            week_start: toISODate(weekStart),
+            week_end: toISODate(weekEnd),
+            top: [],
+            bottom: [],
+            all: [],
+          },
+        });
+      }
+
+      const { data: teacherRows } = await supabase
+        .from('teachers')
+        .select('id, name, department_id, image_url, is_active')
+        .in('id', teacherIds);
+
+      const activeTeachers = (teacherRows || []).filter((row) => row.is_active);
+      const activeTeacherIds = activeTeachers.map((row) => row.id);
+
+      const departmentIds = Array.from(
+        new Set(activeTeachers.map((row) => row.department_id).filter(Boolean))
+      ) as string[];
+
+      const [deptResult, subjectResult] = await Promise.all([
+        departmentIds.length > 0
+          ? supabase
+              .from('departments')
+              .select('id, name, color_hex')
+              .in('id', departmentIds)
+          : Promise.resolve({ data: [] }),
+        activeTeacherIds.length > 0
+          ? supabase
+              .from('teacher_subjects')
+              .select('teacher_id, subject:subjects(id, name)')
+              .in('teacher_id', activeTeacherIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      const deptMap = new Map((deptResult.data || []).map((dept) => [dept.id, dept]));
+      const subjectMap = new Map<string, Array<{ id: string; name: string }>>();
+      (subjectResult.data || []).forEach((row: any) => {
+        const subject = row.subject;
+        if (!subject) return;
+        const list = subjectMap.get(row.teacher_id) || [];
+        list.push(subject);
+        subjectMap.set(row.teacher_id, list);
+      });
+
+      const formatted = activeTeachers.map((teacher) => {
+        const rating = ratingMap.get(teacher.id) || { count: 0, sum: 0 };
+        const avg = rating.count > 0 ? Number((rating.sum / rating.count).toFixed(2)) : null;
+        const subjects = (subjectMap.get(teacher.id) || []).sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+        const department = teacher.department_id
+          ? deptMap.get(teacher.department_id) || null
+          : null;
+
+        return {
+          id: teacher.id,
+          name: teacher.name,
+          subject: subjects[0]?.name || null,
+          department: department?.name || null,
+          department_color_hex: department?.color_hex || null,
+          image_url: teacher.image_url,
+          rating_count: rating.count,
+          average_rating: avg,
+          comment_count: commentMap.get(teacher.id) || 0,
+        };
+      });
+
+      const byTop = [...formatted].sort((a, b) => {
+        const aAvg = a.average_rating ?? -1;
+        const bAvg = b.average_rating ?? -1;
+        if (bAvg !== aAvg) return bAvg - aAvg;
+        const aCount = a.rating_count ?? 0;
+        const bCount = b.rating_count ?? 0;
+        return bCount - aCount;
+      });
+
+      const byBottom = [...formatted].sort((a, b) => {
+        const aAvg = a.average_rating ?? -1;
+        const bAvg = b.average_rating ?? -1;
+        if (aAvg !== bAvg) return aAvg - bAvg;
+        const aCount = a.rating_count ?? 0;
+        const bCount = b.rating_count ?? 0;
+        return bCount - aCount;
+      });
+
+      return NextResponse.json({
+        data: {
+          period: 'weekly',
+          week_start: toISODate(weekStart),
+          week_end: toISODate(weekEnd),
+          top: byTop.slice(0, limit),
+          bottom: byBottom.slice(0, limit),
+          all: formatted,
+        },
+      });
     }
 
     // Live computation for current week (fast + always fresh)

@@ -68,12 +68,25 @@ CREATE TABLE ratings (
   teacher_id UUID NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
   stars INTEGER NOT NULL CHECK (stars >= 1 AND stars <= 5),
   anonymous_id VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(teacher_id, anonymous_id)
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE INDEX idx_ratings_teacher ON ratings(teacher_id);
 CREATE INDEX idx_ratings_created_at ON ratings(created_at);
+
+-- Weekly unique ratings table
+CREATE TABLE weekly_ratings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  teacher_id UUID NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
+  anonymous_id VARCHAR(255) NOT NULL,
+  stars INTEGER NOT NULL CHECK (stars >= 1 AND stars <= 5),
+  week_start DATE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(teacher_id, anonymous_id, week_start)
+);
+
+CREATE INDEX idx_weekly_ratings_teacher_week ON weekly_ratings(teacher_id, week_start);
+CREATE INDEX idx_weekly_ratings_week ON weekly_ratings(week_start);
 
 -- Comments table
 CREATE TABLE comments (
@@ -338,6 +351,7 @@ $$ LANGUAGE plpgsql;
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE teachers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE weekly_ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comment_reactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE banned_words ENABLE ROW LEVEL SECURITY;
@@ -382,6 +396,16 @@ CREATE POLICY "Public can view ratings" ON ratings
 
 CREATE POLICY "Anyone can submit ratings" ON ratings
   FOR INSERT WITH CHECK (true);
+
+-- Weekly ratings policies
+CREATE POLICY "Public can view weekly ratings" ON weekly_ratings
+  FOR SELECT USING (true);
+
+CREATE POLICY "Anyone can submit weekly ratings" ON weekly_ratings
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Anyone can update weekly ratings" ON weekly_ratings
+  FOR UPDATE USING (true) WITH CHECK (true);
 
 CREATE POLICY "Anyone can submit comments" ON comments
   FOR INSERT WITH CHECK (true);

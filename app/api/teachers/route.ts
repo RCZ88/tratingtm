@@ -3,6 +3,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { validate, teacherSchema, paginationSchema } from '@/lib/utils/validation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/authOptions';
+import { getCurrentWeekStart, toISODate } from '@/lib/utils/dateHelpers';
 
 const HONORIFIC_PREFIX = /^(mr|ms|mrs|miss)\.?\s+/i;
 
@@ -173,11 +174,12 @@ export async function GET(request: NextRequest) {
     // Fetch stats for each teacher
     const teacherIds = teachers?.map((t) => t.id) || [];
     if (teacherIds.length > 0) {
+      const weekStart = toISODate(getCurrentWeekStart());
       const departmentIds = Array.from(
         new Set((teachers || []).map((t) => t.department_id).filter(Boolean))
       ) as string[];
 
-      const [statsResult, deptResult, subjectResult] = await Promise.all([
+      const [statsResult, deptResult, subjectResult, weeklyResult] = await Promise.all([
         supabase.from('teacher_stats').select('*').in('id', teacherIds),
         departmentIds.length > 0
           ? supabase
@@ -189,6 +191,11 @@ export async function GET(request: NextRequest) {
           .from('teacher_subjects')
           .select('teacher_id, subject:subjects(id, name)')
           .in('teacher_id', teacherIds),
+        supabase
+          .from('weekly_ratings')
+          .select('teacher_id, stars')
+          .in('teacher_id', teacherIds)
+          .eq('week_start', weekStart),
       ]);
 
       const statsMap = new Map(statsResult.data?.map((s) => [s.id, s]) || []);
@@ -206,10 +213,21 @@ export async function GET(request: NextRequest) {
         subjectMap.set(row.teacher_id, list);
       });
 
+      const weeklyMap = new Map<string, { count: number; sum: number }>();
+      (weeklyResult.data || []).forEach((row: any) => {
+        const entry = weeklyMap.get(row.teacher_id) || { count: 0, sum: 0 };
+        entry.count += 1;
+        entry.sum += row.stars;
+        weeklyMap.set(row.teacher_id, entry);
+      });
+
       const teachersWithStats = teachers?.map((teacher) => {
         const subjects = (subjectMap.get(teacher.id) || []).sort((a, b) =>
           a.name.localeCompare(b.name)
         );
+        const weekly = weeklyMap.get(teacher.id) || { count: 0, sum: 0 };
+        const weeklyAverage =
+          weekly.count >= 3 ? Number((weekly.sum / weekly.count).toFixed(2)) : null;
         return {
           ...teacher,
           department: teacher.department_id ? deptMap.get(teacher.department_id) || null : null,
@@ -219,6 +237,8 @@ export async function GET(request: NextRequest) {
           total_ratings: statsMap.get(teacher.id)?.total_ratings || 0,
           average_rating: statsMap.get(teacher.id)?.overall_rating || 0,
           total_comments: statsMap.get(teacher.id)?.total_comments || 0,
+          weekly_rating_count: weekly.count,
+          weekly_average_rating: weeklyAverage,
         };
       });
 

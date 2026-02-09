@@ -36,6 +36,8 @@ interface TeacherData {
   image_url: string | null;
   total_ratings: number;
   average_rating: number;
+  weekly_rating_count?: number;
+  weekly_average_rating?: number | null;
   total_comments: number;
   rating_distribution: { 1: number; 2: number; 3: number; 4: number; 5: number };
   comments: Array<{
@@ -198,12 +200,35 @@ export default function TeacherDetailPage() {
                       </div>
                     )}
 
-                    <div className="mt-4 flex items-center justify-center gap-4 sm:justify-start">
-                      <StarRatingDisplay
-                        rating={teacher.average_rating}
-                        count={teacher.total_ratings}
-                        size="md"
-                      />
+                    <div className="mt-4 grid gap-3 sm:max-w-md">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          Weekly (Unique)
+                        </p>
+                        {teacher.weekly_average_rating !== null &&
+                        teacher.weekly_average_rating !== undefined ? (
+                          <StarRatingDisplay
+                            rating={teacher.weekly_average_rating}
+                            count={teacher.weekly_rating_count || 0}
+                            size="md"
+                          />
+                        ) : (
+                          <p className="text-sm text-slate-500">Not enough data yet</p>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          All-Time (Total)
+                        </p>
+                        <StarRatingDisplay
+                          rating={teacher.average_rating}
+                          count={teacher.total_ratings}
+                          size="md"
+                        />
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        Weekly ratings reset every Monday and use one rating per user.
+                      </p>
                     </div>
                   </div>
                 </div>

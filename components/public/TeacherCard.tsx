@@ -24,6 +24,8 @@ export interface TeacherCardProps {
 const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
   const averageRating = teacher.average_rating || 0;
   const totalRatings = teacher.total_ratings || 0;
+  const weeklyRating = teacher.weekly_average_rating ?? null;
+  const weeklyCount = teacher.weekly_rating_count || 0;
   const primarySubject =
     teacher.primary_subject ||
     teacher.subjects?.[0]?.name ||
@@ -79,13 +81,20 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, className }) => {
             </div>
           )}
 
-          {/* Rating */}
-          <div className="mt-3 flex justify-center">
-            <StarRatingDisplay
-              rating={averageRating}
-              count={totalRatings}
-              size="sm"
-            />
+          {/* Ratings */}
+          <div className="mt-3 space-y-2">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              Weekly (Unique)
+            </div>
+            {weeklyRating !== null ? (
+              <StarRatingDisplay rating={weeklyRating} count={weeklyCount} size="sm" />
+            ) : (
+              <p className="text-xs text-slate-500">Not enough data</p>
+            )}
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              All-Time (Total)
+            </div>
+            <StarRatingDisplay rating={averageRating} count={totalRatings} size="sm" />
           </div>
 
           {/* Comment count */}

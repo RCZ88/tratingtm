@@ -18,6 +18,8 @@ import { getDepartmentBadgeStyle } from '@/lib/utils/teacherDisplay';
 
 type LeaderboardEntryWithDeptColor = LeaderboardEntry & {
   department_color_hex?: string | null;
+  weekly_rating_count?: number;
+  weekly_average_rating?: number | null;
 };
 
 export interface LeaderboardTableProps {
@@ -98,7 +100,7 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                 Rating
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Reviews
+                Ratings
               </th>
             </tr>
           </thead>
@@ -107,6 +109,8 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
               const rank = index + 1;
               const averageRating = entry.average_rating || 0;
               const ratingCount = entry.rating_count || 0;
+              const weeklyRating = entry.weekly_average_rating ?? null;
+              const weeklyCount = entry.weekly_rating_count || 0;
               const deptStyle = getDepartmentBadgeStyle(entry.department_color_hex || null);
 
               return (
@@ -159,16 +163,44 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                     </Link>
                   </td>
                   <td className="px-4 py-4">
-                    <StarRatingDisplay
-                      rating={averageRating}
-                      size="sm"
-                      showCount={false}
-                    />
+                    <div className="space-y-2">
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                          Weekly
+                        </p>
+                        {weeklyRating !== null ? (
+                          <StarRatingDisplay
+                            rating={weeklyRating}
+                            size="sm"
+                            showCount={false}
+                          />
+                        ) : (
+                          <p className="text-xs text-slate-500">Not enough data</p>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                          All-Time
+                        </p>
+                        <StarRatingDisplay
+                          rating={averageRating}
+                          size="sm"
+                          showCount={false}
+                        />
+                      </div>
+                    </div>
                   </td>
                   <td className="px-4 py-4">
-                    <span className="text-sm text-slate-600">
-                      {ratingCount} rating{ratingCount !== 1 ? 's' : ''}
-                    </span>
+                    <div className="space-y-1 text-xs text-slate-600">
+                      {weeklyCount > 0 && (
+                        <div>
+                          Weekly: {weeklyCount} rating{weeklyCount !== 1 ? 's' : ''}
+                        </div>
+                      )}
+                      <div>
+                        All-time: {ratingCount} rating{ratingCount !== 1 ? 's' : ''}
+                      </div>
+                    </div>
                   </td>
                 </tr>
               );

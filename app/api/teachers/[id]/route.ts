@@ -3,6 +3,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { validate, teacherUpdateSchema, uuidSchema } from '@/lib/utils/validation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/authOptions';
+import { getCurrentWeekStart, toISODate } from '@/lib/utils/dateHelpers';
 
 /**
  * GET /api/teachers/[id]
@@ -132,6 +133,18 @@ export async function GET(
       };
     });
 
+    const weekStart = toISODate(getCurrentWeekStart());
+    const { data: weeklyRatings } = await supabase
+      .from('weekly_ratings')
+      .select('stars')
+      .eq('teacher_id', id)
+      .eq('week_start', weekStart);
+
+    const weeklyCount = weeklyRatings?.length || 0;
+    const weeklySum = (weeklyRatings || []).reduce((sum, row) => sum + row.stars, 0);
+    const weeklyAverage =
+      weeklyCount >= 3 ? Number((weeklySum / weeklyCount).toFixed(2)) : null;
+
     return NextResponse.json({
       data: {
         ...teacher,
@@ -142,6 +155,8 @@ export async function GET(
         total_ratings: stats?.total_ratings || 0,
         average_rating: stats?.overall_rating || 0,
         total_comments: stats?.total_comments || 0,
+        weekly_rating_count: weeklyCount,
+        weekly_average_rating: weeklyAverage,
         rating_distribution: distribution,
         comments: commentsWithReactions,
       },
