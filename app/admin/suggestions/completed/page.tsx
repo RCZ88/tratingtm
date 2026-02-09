@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -22,10 +22,6 @@ interface AdminSuggestion {
 }
 
 const STATUS_OPTIONS = ['new', 'working', 'approved', 'declined', 'completed'];
-const STATUS_FILTER_OPTIONS = [
-  { value: '', label: 'All statuses' },
-  ...STATUS_OPTIONS.map((status) => ({ value: status, label: status })),
-];
 const TYPE_OPTIONS = [
   { value: '', label: 'All types' },
   { value: 'general', label: 'General' },
@@ -33,9 +29,8 @@ const TYPE_OPTIONS = [
   { value: 'teacher_modify', label: 'Teacher modify' },
 ];
 
-export default function AdminSuggestionsPage() {
+export default function AdminCompletedSuggestionsPage() {
   const [items, setItems] = React.useState<AdminSuggestion[]>([]);
-  const [statusFilter, setStatusFilter] = React.useState('new');
   const [typeFilter, setTypeFilter] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -43,7 +38,7 @@ export default function AdminSuggestionsPage() {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
-      if (statusFilter) params.set('status', statusFilter);
+      params.set('status', 'completed');
       if (typeFilter) params.set('type', typeFilter);
       const response = await fetch(`/api/suggestions?${params.toString()}`);
       const data = await response.json();
@@ -55,7 +50,7 @@ export default function AdminSuggestionsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [statusFilter, typeFilter]);
+  }, [typeFilter]);
 
   React.useEffect(() => {
     fetchSuggestions();
@@ -70,7 +65,7 @@ export default function AdminSuggestionsPage() {
       });
 
       if (response.ok) {
-        setItems((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)));
+        await fetchSuggestions();
       }
     } catch (error) {
       console.error('Error updating suggestion:', error);
@@ -80,9 +75,9 @@ export default function AdminSuggestionsPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Suggestions</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Completed Suggestions</h1>
         <p className="text-slate-600">
-          Review, prioritize, and update suggestion statuses.
+          A history of suggestions that have been completed.
         </p>
       </div>
 
@@ -92,20 +87,6 @@ export default function AdminSuggestionsPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Status</label>
-              <select
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-              >
-                {STATUS_FILTER_OPTIONS.map((option) => (
-                  <option key={option.value || 'all'} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700">Type</label>
               <select
@@ -131,11 +112,11 @@ export default function AdminSuggestionsPage() {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <LoadingSpinner text="Loading suggestions..." />
+          <LoadingSpinner text="Loading completed suggestions..." />
         </div>
       ) : items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center text-sm text-slate-500">
-          No suggestions found.
+          No completed suggestions yet.
         </div>
       ) : (
         <div className="space-y-4">
@@ -163,11 +144,11 @@ export default function AdminSuggestionsPage() {
                 </p>
                 {(item.teacher_name || item.subject) && (
                   <p className="text-xs text-slate-500">
-                    {item.teacher_name ? `${item.teacher_name} • ` : ''}
-                    {item.department ? `${item.department} • ` : ''}
+                    {item.teacher_name ? `${item.teacher_name} â€¢ ` : ''}
+                    {item.department ? `${item.department} â€¢ ` : ''}
                     {item.subject ? `${item.subject}` : ''}
-                    {item.level ? ` • ${item.level}` : ''}
-                    {item.year_level ? ` • ${item.year_level}` : ''}
+                    {item.level ? ` â€¢ ${item.level}` : ''}
+                    {item.year_level ? ` â€¢ ${item.year_level}` : ''}
                   </p>
                 )}
                 <div className="flex flex-wrap items-center gap-3">
