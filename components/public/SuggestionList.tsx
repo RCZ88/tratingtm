@@ -22,7 +22,13 @@ export interface SuggestionItem {
   viewer_vote: 'up' | 'down' | null;
 }
 
-interface SuggestionListProps {\n  type?: string;\n  status?: string;\n  emptyMessage?: string;\n  className?: string;\n  showVoting?: boolean;\n}
+interface SuggestionListProps {
+  type?: string;
+  status?: string;
+  emptyMessage?: string;
+  className?: string;
+  showVoting?: boolean;
+}
 
 const statusStyles: Record<string, { label: string; icon: React.ReactNode; className: string }> = {
   new: {
@@ -52,7 +58,7 @@ const statusStyles: Record<string, { label: string; icon: React.ReactNode; class
   },
 };
 
-const SuggestionList: React.FC<SuggestionListProps> = ({\n  type,\n  status,\n  emptyMessage,\n  className,\n  showVoting = true,\n}) => {
+const SuggestionList: React.FC<SuggestionListProps> = ({  type,  status,  emptyMessage,  className,  showVoting = true,}) => {
   const [items, setItems] = React.useState<SuggestionItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -206,4 +212,6 @@ const SuggestionList: React.FC<SuggestionListProps> = ({\n  type,\n  status,\n  
 };
 
 export { SuggestionList };
+
+
 

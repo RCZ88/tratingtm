@@ -70,7 +70,13 @@ export default function AdminSuggestionsPage() {
         body: JSON.stringify({ status }),
       });
 
-      if (response.ok) {\r\n        if (status === 'completed' || status === 'declined') {\r\n          setItems((prev) => prev.filter((item) => item.id !== id));\r\n        } else {\r\n          setItems((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)));\r\n        }\r\n      }
+      if (response.ok) {
+        if (status === 'completed' || status === 'declined') {
+          setItems((prev) => prev.filter((item) => item.id !== id));
+        } else {
+          setItems((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)));
+        }
+      }
     } catch (error) {
       console.error('Error updating suggestion:', error);
     }
@@ -112,23 +118,28 @@ export default function AdminSuggestionsPage() {
                   </option>
                 ))}
               </select>
-
-                  <Button
-                    size="sm"
-                    className="rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
-                    onClick={() => updateStatus(item.id, 'completed')}
-                  >
-                    Mark completed
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200"
-                    onClick={() => updateStatus(item.id, 'declined')}
-                  >
-                    Mark declined
-                  </Button>
-                </div>
-              </CardContent>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Type</label>
+              <select
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                value={typeFilter}
+                onChange={(event) => setTypeFilter(event.target.value)}
+              >
+                {TYPE_OPTIONS.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-end">
+              <Button variant="outline" onClick={fetchSuggestions}>
+                Refresh
+              </Button>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
       {isLoading ? (
@@ -165,11 +176,11 @@ export default function AdminSuggestionsPage() {
                 </p>
                 {(item.teacher_name || item.subject) && (
                   <p className="text-xs text-slate-500">
-                    {item.teacher_name ? `${item.teacher_name} • ` : ''}
-                    {item.department ? `${item.department} • ` : ''}
+                    {item.teacher_name ? `${item.teacher_name} ? ` : ''}
+                    {item.department ? `${item.department} ? ` : ''}
                     {item.subject ? `${item.subject}` : ''}
-                    {item.level ? ` • ${item.level}` : ''}
-                    {item.year_level ? ` • ${item.year_level}` : ''}
+                    {item.level ? ` ? ${item.level}` : ''}
+                    {item.year_level ? ` ? ${item.year_level}` : ''}
                   </p>
                 )}
                 <div className="flex flex-wrap items-center gap-3">
@@ -209,12 +220,3 @@ export default function AdminSuggestionsPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
