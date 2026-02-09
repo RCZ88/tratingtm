@@ -58,7 +58,7 @@ export default function TeacherDetailPage() {
   const [teacher, setTeacher] = React.useState<TeacherData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [refreshKey, setRefreshKey] = React.useState(0);
-  const [ratingMode, setRatingMode] = React.useState<'weekly' | 'all_time'>('weekly');
+  const [ratingMode, setRatingMode] = React.useState<'weekly' | 'all_time'>('all_time');
 
   const fetchTeacher = React.useCallback(async () => {
     try {
@@ -358,9 +358,13 @@ export default function TeacherDetailPage() {
                 />
               </CardContent>
             </Card>
+
+            <RatingExplainer />
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+

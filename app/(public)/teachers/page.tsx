@@ -25,7 +25,7 @@ export default function TeachersPage() {
   const [sortBy, setSortBy] = React.useState('name');
   const [departments, setDepartments] = React.useState<Department[]>([]);
   const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
-  const [ratingMode, setRatingMode] = React.useState<'weekly' | 'all_time'>('weekly');
+  const [ratingMode, setRatingMode] = React.useState<'weekly' | 'all_time'>('all_time');
 
   const fetchTeachers = React.useCallback(async () => {
     setIsLoading(true);
@@ -235,4 +235,5 @@ export default function TeachersPage() {
     </div>
   );
 }
+
 

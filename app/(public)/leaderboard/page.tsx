@@ -36,7 +36,7 @@ const YEAR_LEVELS = [7, 8, 9, 10, 11, 12];
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = React.useState<LeaderboardData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [period, setPeriod] = React.useState<'weekly_unique' | 'all_time'>('weekly_unique');
+  const [period, setPeriod] = React.useState<'weekly_unique' | 'all_time'>('all_time');
   const [type, setType] = React.useState<'overall' | 'department' | 'year_level'>('overall');
   const [sortDirection, setSortDirection] = React.useState<'desc' | 'asc'>('desc');
   const recentWeeks = React.useMemo(() => getRecentWeeks(4), []);
@@ -305,3 +305,4 @@ export default function LeaderboardPage() {
     </div>
   );
 }
+

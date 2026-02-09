@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { SuggestionForm, type SuggestionType } from '@/components/public/SuggestionForm';
 import { SuggestionList } from '@/components/public/SuggestionList';
 import { Lightbulb, UserPlus, Pencil } from 'lucide-react';
@@ -75,9 +76,17 @@ export default function SuggestionsPage() {
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Recent Suggestions
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-lg font-semibold text-slate-900">
+                Recent Suggestions
+              </h2>
+              <Link
+                href="/suggestions/completed"
+                className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
+              >
+                View completed
+              </Link>
+            </div>
             <p className="mt-1 text-sm text-slate-500">
               Vote on ideas you want to see implemented.
             </p>

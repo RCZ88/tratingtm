@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -79,11 +80,19 @@ export default function AdminSuggestionsPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Suggestions</h1>
-        <p className="text-slate-600">
-          Review, prioritize, and update suggestion statuses.
-        </p>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Suggestions</h1>
+          <p className="text-slate-600">
+            Review, prioritize, and update suggestion statuses.
+          </p>
+        </div>
+        <Link
+          href="/admin/suggestions/completed"
+          className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm hover:border-emerald-300"
+        >
+          View completed
+        </Link>
       </div>
 
       <Card className="mb-6">

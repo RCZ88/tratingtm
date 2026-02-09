@@ -57,7 +57,37 @@ export default function SearchPageClient() {
     }
   }, [initialQuery, performSearch]);
 
-  const handleSearch = (newQuery: string) => {
+    React.useEffect(() => {
+    let active = true;
+
+    const fetchDepartments = async () => {
+      setIsLoadingDepartments(true);
+      try {
+        const response = await fetch('/api/departments');
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load departments');
+        }
+        if (active) {
+          setDepartments(data.data || []);
+        }
+      } catch (error) {
+        if (active) {
+          setDepartments([]);
+        }
+      } finally {
+        if (active) {
+          setIsLoadingDepartments(false);
+        }
+      }
+    };
+
+    fetchDepartments();
+    return () => {
+      active = false;
+    };
+  }, []);
+const handleSearch = (newQuery: string) => {
     setQuery(newQuery);
     performSearch(newQuery);
 
@@ -158,3 +188,4 @@ export default function SearchPageClient() {
     </div>
   );
 }
+

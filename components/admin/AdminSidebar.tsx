@@ -35,7 +35,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ className }) => {
     { href: '/admin/teachers', label: 'Academics', icon: Users },
     { href: '/admin/comments', label: 'Comments', icon: MessageSquare },
     { href: '/admin/suggestions', label: 'Suggestions', icon: Lightbulb },
-    { href: '/admin/suggestions/completed', label: 'Completed', icon: Lightbulb },
+
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];

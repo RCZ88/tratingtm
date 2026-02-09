@@ -24,6 +24,8 @@ export interface SuggestionItem {
 
 interface SuggestionListProps {
   type?: string;
+  status?: string;
+  emptyMessage?: string;
   className?: string;
 }
 
@@ -48,9 +50,19 @@ const statusStyles: Record<string, { label: string; icon: React.ReactNode; class
     icon: <XCircle className="h-3.5 w-3.5" />,
     className: 'bg-red-100 text-red-700',
   },
+  completed: {
+    label: 'Completed',
+    icon: <CheckCircle className="h-3.5 w-3.5" />,
+    className: 'bg-emerald-100 text-emerald-700',
+  },
 };
 
-const SuggestionList: React.FC<SuggestionListProps> = ({ type, className }) => {
+const SuggestionList: React.FC<SuggestionListProps> = ({
+  type,
+  status,
+  emptyMessage,
+  className,
+}) => {
   const [items, setItems] = React.useState<SuggestionItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -60,6 +72,7 @@ const SuggestionList: React.FC<SuggestionListProps> = ({ type, className }) => {
       const anonymousId = getAnonymousId();
       const params = new URLSearchParams();
       if (type) params.set('type', type);
+      if (status) params.set('status', status);
       params.set('anonymous_id', anonymousId);
 
       const response = await fetch(`/api/suggestions?${params.toString()}`);
@@ -73,7 +86,7 @@ const SuggestionList: React.FC<SuggestionListProps> = ({ type, className }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [type]);
+  }, [type, status]);
 
   React.useEffect(() => {
     fetchSuggestions();
@@ -131,7 +144,7 @@ const SuggestionList: React.FC<SuggestionListProps> = ({ type, className }) => {
   if (items.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
-        No suggestions yet. Be the first to share one.
+        {emptyMessage || 'No suggestions yet. Be the first to share one.'}
       </div>
     );
   }
@@ -139,7 +152,7 @@ const SuggestionList: React.FC<SuggestionListProps> = ({ type, className }) => {
   return (
     <div className={cn('space-y-4', className)}>
       {items.map((item) => {
-        const status = statusStyles[item.status] || statusStyles.new;
+        const statusMeta = statusStyles[item.status] || statusStyles.new;
         return (
           <div key={item.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-start justify-between gap-4">
@@ -152,17 +165,17 @@ const SuggestionList: React.FC<SuggestionListProps> = ({ type, className }) => {
                 </p>
                 {(item.teacher_name || item.subject) && (
                   <p className="mt-3 text-xs text-slate-500">
-                    {item.teacher_name ? `${item.teacher_name} • ` : ''}
-                    {item.department ? `${item.department} • ` : ''}
+                    {item.teacher_name ? `${item.teacher_name} â€¢ ` : ''}
+                    {item.department ? `${item.department} â€¢ ` : ''}
                     {item.subject ? `${item.subject}` : ''}
-                    {item.level ? ` • ${item.level}` : ''}
-                    {item.year_level ? ` • ${item.year_level}` : ''}
+                    {item.level ? ` â€¢ ${item.level}` : ''}
+                    {item.year_level ? ` â€¢ ${item.year_level}` : ''}
                   </p>
                 )}
               </div>
-              <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium', status.className)}>
-                {status.icon}
-                {status.label}
+              <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium', statusMeta.className)}>
+                {statusMeta.icon}
+                {statusMeta.label}
               </span>
             </div>
 

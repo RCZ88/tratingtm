@@ -247,11 +247,10 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
           data: {
             period: 'weekly_unique',
+            type,
             week_start: toISODate(weekStart),
             week_end: toISODate(weekEnd),
-            top: [],
-            bottom: [],
-            all: [],
+            items: [],
           },
         });
       }
@@ -262,26 +261,70 @@ export async function GET(request: NextRequest) {
         .in('id', teacherIds);
 
       const activeTeachers = (teacherRows || []).filter((row) => row.is_active);
-      const activeTeacherIds = activeTeachers.map((row) => row.id);
+      let scopedTeachers = activeTeachers;
 
+      if (type === 'department') {
+        if (!departmentId) {
+          return NextResponse.json({
+            data: {
+              period: 'weekly_unique',
+              type,
+              week_start: toISODate(weekStart),
+              week_end: toISODate(weekEnd),
+              items: [],
+            },
+          });
+        }
+        scopedTeachers = activeTeachers.filter((row) => row.department_id === departmentId);
+      }
+
+      if (type === 'year_level') {
+        if (!yearLevel) {
+          return NextResponse.json({
+            data: {
+              period: 'weekly_unique',
+              type,
+              week_start: toISODate(weekStart),
+              week_end: toISODate(weekEnd),
+              items: [],
+            },
+          });
+        }
+        scopedTeachers = activeTeachers.filter((row) => (row.year_levels || []).includes(yearLevel));
+      }
+
+      if (scopedTeachers.length === 0) {
+        return NextResponse.json({
+          data: {
+            period: 'weekly_unique',
+            type,
+            week_start: toISODate(weekStart),
+            week_end: toISODate(weekEnd),
+            items: [],
+          },
+        });
+      }
+
+      const scopedTeacherIds = scopedTeachers.map((row) => row.id);
       const departmentIds = Array.from(
-        new Set(activeTeachers.map((row) => row.department_id).filter(Boolean))
+        new Set(scopedTeachers.map((row) => row.department_id).filter(Boolean))
       ) as string[];
 
-
       const [deptResult, subjectResult, statsResult] = await Promise.all([
-        supabase
-          .from('departments')
-          .select('id, name, color_hex')
-          .in('id', departmentIds),
+        departmentIds.length > 0
+          ? supabase
+              .from('departments')
+              .select('id, name, color_hex')
+              .in('id', departmentIds)
+          : Promise.resolve({ data: [] }),
         supabase
           .from('teacher_subjects')
           .select('teacher_id, subject:subjects(id, name)')
-          .in('teacher_id', activeTeacherIds),
+          .in('teacher_id', scopedTeacherIds),
         supabase
           .from('teacher_stats')
           .select('id, total_ratings, overall_rating, total_comments')
-          .in('id', activeTeacherIds),
+          .in('id', scopedTeacherIds),
       ]);
 
       const deptMap = new Map((deptResult.data || []).map((dept) => [dept.id, dept]));
@@ -298,7 +341,7 @@ export async function GET(request: NextRequest) {
         (statsResult.data || []).map((row: any) => [row.id, row])
       );
 
-      const formatted = activeTeachers.map((teacher) => {
+      const formatted = scopedTeachers.map((teacher) => {
         const weekly = weeklyMap.get(teacher.id) || { count: 0, sum: 0 };
         const weeklyAverage =
           weekly.count >= 3 ? Number((weekly.sum / weekly.count).toFixed(2)) : null;
@@ -325,38 +368,32 @@ export async function GET(request: NextRequest) {
         };
       });
 
-      const eligible = formatted.filter((row) => (row.weekly_rating_count || 0) >= 3);
+      const sorted = [...formatted].sort((a, b) => {
+        const aAvg = a.weekly_average_rating ?? null;
+        const bAvg = b.weekly_average_rating ?? null;
 
-      const byTop = [...eligible].sort((a, b) => {
-        const aAvg = a.weekly_average_rating ?? -1;
-        const bAvg = b.weekly_average_rating ?? -1;
-        if (bAvg !== aAvg) return bAvg - aAvg;
+        if (aAvg === null && bAvg !== null) return 1;
+        if (aAvg !== null && bAvg === null) return -1;
+
+        if (aAvg !== null && bAvg !== null && aAvg !== bAvg) {
+          return sortDirection === 'asc' ? aAvg - bAvg : bAvg - aAvg;
+        }
+
         const aCount = a.weekly_rating_count ?? 0;
         const bCount = b.weekly_rating_count ?? 0;
-        return bCount - aCount;
-      });
-
-      const byBottom = [...eligible].sort((a, b) => {
-        const aAvg = a.weekly_average_rating ?? -1;
-        const bAvg = b.weekly_average_rating ?? -1;
-        if (aAvg !== bAvg) return aAvg - bAvg;
-        const aCount = a.weekly_rating_count ?? 0;
-        const bCount = b.weekly_rating_count ?? 0;
-        return bCount - aCount;
+        return sortDirection === 'asc' ? aCount - bCount : bCount - aCount;
       });
 
       return NextResponse.json({
         data: {
           period: 'weekly_unique',
+          type,
           week_start: toISODate(weekStart),
           week_end: toISODate(weekEnd),
-          top: byTop.slice(0, limit),
-          bottom: byBottom.slice(0, limit),
-          all: formatted,
+          items: sorted,
         },
       });
     }
-
     if (weekStartParam) {
       const parsed = parseISO(weekStartParam);
       const range = getWeekRange(parsed);
@@ -700,5 +737,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
 
 

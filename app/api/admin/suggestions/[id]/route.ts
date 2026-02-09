@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { splitSubjectList, normalizeSubjectName } from '@/lib/utils/subjectParsing';
 
 const adminSuggestionUpdateSchema = z.object({
-  status: z.enum(['new', 'working', 'approved', 'declined']).optional(),
+  status: z.enum(['new', 'working', 'approved', 'declined', 'completed']).optional(),
   title: z.string().max(255).optional().nullable(),
   description: z.string().max(2000).optional(),
   teacher_name: z.string().max(255).optional().nullable(),
