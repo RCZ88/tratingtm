@@ -15,9 +15,123 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const weekStartParam = searchParams.get('week_start');
+    const period = searchParams.get('period') || 'weekly';
     const limit = parseInt(searchParams.get('limit') || '10');
 
     const supabase = createClient();
+
+    if (period === 'all_time') {
+      const { data: statsRows, error: statsError } = await supabase
+        .from('teacher_stats')
+        .select('id, name, total_ratings, overall_rating, total_comments')
+        .gt('total_ratings', 0);
+
+      if (statsError) {
+        console.error('Error fetching all-time leaderboard:', statsError);
+        return NextResponse.json(
+          { error: 'Failed to fetch leaderboard' },
+          { status: 500 }
+        );
+      }
+
+      const teacherIds = (statsRows || []).map((row) => row.id);
+      const { data: teacherRows } =
+        teacherIds.length > 0
+          ? await supabase
+              .from('teachers')
+              .select('id, department_id, image_url, is_active')
+              .in('id', teacherIds)
+          : { data: [] as Array<{ id: string; department_id: string | null; image_url: string | null; is_active: boolean }> };
+
+      const activeTeacherIds = new Set(
+        (teacherRows || []).filter((row) => row.is_active).map((row) => row.id)
+      );
+
+      const activeStats = (statsRows || []).filter((row) => activeTeacherIds.has(row.id));
+
+      const departmentIds = Array.from(
+        new Set((teacherRows || []).map((row) => row.department_id).filter(Boolean))
+      ) as string[];
+
+      const [deptResult, subjectResult] = await Promise.all([
+        departmentIds.length > 0
+          ? supabase
+              .from('departments')
+              .select('id, name, color_hex')
+              .in('id', departmentIds)
+          : Promise.resolve({ data: [] }),
+        teacherIds.length > 0
+          ? supabase
+              .from('teacher_subjects')
+              .select('teacher_id, subject:subjects(id, name)')
+              .in('teacher_id', teacherIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      const deptMap = new Map((deptResult.data || []).map((dept) => [dept.id, dept]));
+      const subjectMap = new Map<string, Array<{ id: string; name: string }>>();
+      (subjectResult.data || []).forEach((row: any) => {
+        const subject = row.subject;
+        if (!subject) return;
+        const list = subjectMap.get(row.teacher_id) || [];
+        list.push(subject);
+        subjectMap.set(row.teacher_id, list);
+      });
+
+      const teacherMap = new Map(
+        (teacherRows || []).map((row) => [row.id, row])
+      );
+
+      const formatted = activeStats.map((row) => {
+        const teacher = teacherMap.get(row.id);
+        const subjects = (subjectMap.get(row.id) || []).sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+        const department = teacher?.department_id
+          ? deptMap.get(teacher.department_id) || null
+          : null;
+
+        return {
+          id: row.id,
+          name: row.name,
+          subject: subjects[0]?.name || null,
+          department: department?.name || null,
+          department_color_hex: department?.color_hex || null,
+          image_url: teacher?.image_url || null,
+          rating_count: row.total_ratings || 0,
+          average_rating: row.overall_rating,
+          comment_count: row.total_comments || 0,
+        };
+      });
+
+      const byTop = [...formatted].sort((a, b) => {
+        const aAvg = a.average_rating ?? -1;
+        const bAvg = b.average_rating ?? -1;
+        if (bAvg !== aAvg) return bAvg - aAvg;
+        const aCount = a.rating_count ?? 0;
+        const bCount = b.rating_count ?? 0;
+        return bCount - aCount;
+      });
+      const byBottom = [...formatted].sort((a, b) => {
+        const aAvg = a.average_rating ?? -1;
+        const bAvg = b.average_rating ?? -1;
+        if (aAvg !== bAvg) return aAvg - bAvg;
+        const aCount = a.rating_count ?? 0;
+        const bCount = b.rating_count ?? 0;
+        return bCount - aCount;
+      });
+
+      return NextResponse.json({
+        data: {
+          period: 'all_time',
+          week_start: null,
+          week_end: null,
+          top: byTop.slice(0, limit),
+          bottom: byBottom.slice(0, limit),
+          all: formatted,
+        },
+      });
+    }
 
     let weekStart: Date;
     let weekEnd: Date;
@@ -123,6 +237,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({
           data: {
+            period: 'weekly',
             week_start: toISODate(weekStart),
             week_end: toISODate(weekEnd),
             top: byTop.slice(0, limit),
@@ -203,6 +318,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data: {
+        period: 'weekly',
         week_start: toISODate(weekStart),
         week_end: toISODate(weekEnd),
         top,

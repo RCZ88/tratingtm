@@ -5,7 +5,7 @@ import { LeaderboardTable } from '@/components/public/LeaderboardTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Trophy, TrendingDown, Calendar } from 'lucide-react';
-import { formatWeekRange, getRecentWeeks } from '@/lib/utils/dateHelpers';
+import { formatWeekRange, getRecentWeeks, toISODate } from '@/lib/utils/dateHelpers';
 
 /**
  * Leaderboard Page
@@ -26,8 +26,9 @@ interface LeaderboardEntry {
 }
 
 interface LeaderboardData {
-  week_start: string;
-  week_end: string;
+  period?: 'weekly' | 'all_time';
+  week_start?: string | null;
+  week_end?: string | null;
   top: LeaderboardEntry[];
   bottom: LeaderboardEntry[];
   all: LeaderboardEntry[];
@@ -36,16 +37,21 @@ interface LeaderboardData {
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = React.useState<LeaderboardData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [selectedWeek, setSelectedWeek] = React.useState<string>('');
+  const [period, setPeriod] = React.useState<'weekly' | 'all_time'>('weekly');
+  const recentWeeks = React.useMemo(() => getRecentWeeks(4), []);
+  const [selectedWeek, setSelectedWeek] = React.useState<string>(
+    () => toISODate(recentWeeks[0].start)
+  );
 
-  const recentWeeks = getRecentWeeks(4);
-
-  const fetchLeaderboard = React.useCallback(async (weekStart?: string) => {
+  const fetchLeaderboard = React.useCallback(async () => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
       params.set('limit', '10');
-      if (weekStart) params.set('week_start', weekStart);
+      params.set('period', period);
+      if (period === 'weekly' && selectedWeek) {
+        params.set('week_start', selectedWeek);
+      }
 
       const response = await fetch(`/api/leaderboard?${params.toString()}`);
       const data = await response.json();
@@ -58,11 +64,11 @@ export default function LeaderboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [period, selectedWeek]);
 
   React.useEffect(() => {
-    fetchLeaderboard(selectedWeek);
-  }, [fetchLeaderboard, selectedWeek]);
+    fetchLeaderboard();
+  }, [fetchLeaderboard]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-12">
@@ -71,33 +77,65 @@ export default function LeaderboardPage() {
         <div className="mb-8 text-center relative overflow-hidden rounded-2xl bg-white px-6 py-8 shadow-sm">
           <div className="absolute inset-0 leaf-pattern opacity-40" />
           <div className="relative">
-            <h1 className="text-3xl font-bold text-slate-900">Weekly Leaderboard</h1>
+            <h1 className="text-3xl font-bold text-slate-900">
+              {period === 'weekly' ? 'Weekly Leaderboard' : 'All-Time Leaderboard'}
+            </h1>
             <p className="mt-2 text-slate-600">
-              See the top and bottom rated teachers this week
+              {period === 'weekly'
+                ? 'See the top and bottom rated teachers this week'
+                : 'See the highest and lowest rated teachers across all time'}
             </p>
           </div>
         </div>
 
-        {/* Week Selector */}
-        <div className="mb-8 flex justify-center">
-          <div className="inline-flex items-center gap-3 rounded-lg bg-white px-4 py-2 shadow-sm">
-            <Calendar className="h-5 w-5 text-slate-400" />
-            <select
-              value={selectedWeek}
-              onChange={(e) => setSelectedWeek(e.target.value)}
-              className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none"
-            >
-              {recentWeeks.map((week) => (
-                <option key={week.start.toISOString()} value={week.start.toISOString()}>
-                  {week.label}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Period Selector */}
+        <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => setPeriod('weekly')}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              period === 'weekly'
+                ? 'bg-emerald-100 text-emerald-700'
+                : 'bg-white text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Weekly
+          </button>
+          <button
+            type="button"
+            onClick={() => setPeriod('all_time')}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              period === 'all_time'
+                ? 'bg-emerald-100 text-emerald-700'
+                : 'bg-white text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            All-Time
+          </button>
         </div>
 
+        {/* Week Selector */}
+        {period === 'weekly' && (
+          <div className="mb-8 flex justify-center">
+            <div className="inline-flex items-center gap-3 rounded-lg bg-white px-4 py-2 shadow-sm">
+              <Calendar className="h-5 w-5 text-slate-400" />
+              <select
+                value={selectedWeek}
+                onChange={(e) => setSelectedWeek(e.target.value)}
+                className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none"
+              >
+                {recentWeeks.map((week) => (
+                  <option key={week.start.toISOString()} value={toISODate(week.start)}>
+                    {week.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
         {/* Current Week Display */}
-        {leaderboard && (
+        {period === 'weekly' && leaderboard?.week_start && leaderboard?.week_end && (
           <div className="mb-8 text-center">
             <p className="text-sm text-slate-500">
               {formatWeekRange(leaderboard.week_start, leaderboard.week_end)}
