@@ -12,7 +12,8 @@ import {
   BarChart3, 
   Plus, 
   TrendingUp,
-  Clock
+  Clock,
+  Bell
 } from 'lucide-react';
 
 /**
@@ -76,6 +77,12 @@ export default function AdminDashboardPage() {
       href: '/admin/moderation',
       icon: MessageSquare,
       variant: 'secondary' as const,
+    },
+    {
+      label: 'Public Updates',
+      href: '/admin/updates',
+      icon: Bell,
+      variant: 'outline' as const,
     },
     {
       label: 'View Analytics',
