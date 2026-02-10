@@ -11,7 +11,10 @@ export const dynamic = 'force-dynamic';
  * Admin comment list with filters.
  * Query params:
  * - status: all | approved | pending | hidden
- * - teacher_id
+ * - teacher_id (single)
+ * - teacher_ids (comma-separated)
+ * - department_id (single)
+ * - department_ids (comma-separated)
  * - q (search in comment_text)
  */
 export async function GET(request: NextRequest) {
@@ -24,17 +27,65 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = (searchParams.get('status') || 'all').toLowerCase();
     const teacherId = searchParams.get('teacher_id');
+    const teacherIdsParam = searchParams.get('teacher_ids');
+    const departmentId = searchParams.get('department_id');
+    const departmentIdsParam = searchParams.get('department_ids');
     const query = searchParams.get('q');
 
     const supabase = createServiceClient();
 
     let dbQuery = supabase
       .from('comments')
-      .select('*, teacher:teachers(id, name, image_url)')
+      .select('*, teacher:teachers(id, name, image_url, department_id)')
       .order('created_at', { ascending: false });
 
+    let requestedTeacherIds = new Set<string>();
     if (teacherId) {
-      dbQuery = dbQuery.eq('teacher_id', teacherId);
+      requestedTeacherIds.add(teacherId);
+    }
+    if (teacherIdsParam) {
+      teacherIdsParam
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean)
+        .forEach((value) => requestedTeacherIds.add(value));
+    }
+
+    let departmentIds = new Set<string>();
+    if (departmentId) {
+      departmentIds.add(departmentId);
+    }
+    if (departmentIdsParam) {
+      departmentIdsParam
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean)
+        .forEach((value) => departmentIds.add(value));
+    }
+
+    if (departmentIds.size > 0) {
+      const { data: teacherRows, error: teacherError } = await supabase
+        .from('teachers')
+        .select('id')
+        .in('department_id', Array.from(departmentIds));
+
+      if (teacherError) {
+        console.error('Error fetching teachers by department:', teacherError);
+        return NextResponse.json({ error: 'Failed to fetch comments' }, { status: 500 });
+      }
+
+      const deptTeacherIds = new Set((teacherRows || []).map((row) => row.id));
+      if (requestedTeacherIds.size > 0) {
+        requestedTeacherIds = new Set(
+          Array.from(requestedTeacherIds).filter((id) => deptTeacherIds.has(id))
+        );
+      } else {
+        requestedTeacherIds = deptTeacherIds;
+      }
+    }
+
+    if (requestedTeacherIds.size > 0) {
+      dbQuery = dbQuery.in('teacher_id', Array.from(requestedTeacherIds));
     }
 
     if (query) {
