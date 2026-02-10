@@ -41,7 +41,7 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
   className,
   ratingMode = 'weekly',
 }) => {
-  const displayEntries = entries.slice(0, limit);
+  const displayEntries = typeof limit === 'number' ? entries.slice(0, limit) : entries;
   const isWeekly = ratingMode === 'weekly';
   const ratingHeader = isWeekly ? 'Weekly Rating' : 'All-Time Rating';
   const countHeader = isWeekly ? 'Weekly Votes' : 'All-Time Votes';
@@ -196,3 +196,4 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
 };
 
 export { LeaderboardTable };
+

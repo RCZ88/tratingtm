@@ -89,6 +89,7 @@ export async function GET(
       .select('id, comment_text, created_at')
       .eq('teacher_id', id)
       .eq('is_approved', true)
+      .eq('is_flagged', false)
       .order('created_at', { ascending: false })
       .limit(10);
 
@@ -366,3 +367,4 @@ export async function DELETE(
     );
   }
 }
+
