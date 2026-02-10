@@ -4,6 +4,7 @@ import * as React from 'react';
 import { LeaderboardTable } from '@/components/public/LeaderboardTable';
 import { RatingExplainer } from '@/components/public/RatingExplainer';
 import { WeeklyResetCountdown } from '@/components/public/WeeklyResetCountdown';
+import { UpdateBannerCarousel } from '@/components/public/UpdateBannerCarousel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Trophy, Calendar, ArrowDownWideNarrow, ArrowUpWideNarrow } from 'lucide-react';
@@ -134,6 +135,9 @@ export default function LeaderboardPage() {
           <WeeklyResetCountdown />
         </div>
 
+        <div className="mb-6">
+          <UpdateBannerCarousel />
+        </div>
         {/* Controls */}
         <div className="mb-8 rounded-2xl bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

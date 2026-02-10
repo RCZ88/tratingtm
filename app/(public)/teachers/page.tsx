@@ -9,6 +9,7 @@ import { TeacherWithStats, Department } from '@/lib/types/database';
 import { Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { RatingExplainer } from '@/components/public/RatingExplainer';
 import { WeeklyResetCountdown } from '@/components/public/WeeklyResetCountdown';
+import { UpdateBannerCarousel } from '@/components/public/UpdateBannerCarousel';
 
 /**
  * Teachers List Page
@@ -115,6 +116,9 @@ export default function TeachersPage() {
           </div>
         </div>        <div className="mb-6">
           <WeeklyResetCountdown />
+        </div>
+        <div className="mb-6">
+          <UpdateBannerCarousel />
         </div>
 
         {/* Filters */}

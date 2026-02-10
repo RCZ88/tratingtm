@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useSearchParams } from 'next/navigation';
 import { TeacherGrid } from '@/components/public/TeacherGrid';
+import { UpdateBannerCarousel } from '@/components/public/UpdateBannerCarousel';
 import { SearchBar } from '@/components/public/SearchBar';
 import { TeacherWithStats, Department } from '@/lib/types/database';
 import { Search } from 'lucide-react';
@@ -112,6 +113,9 @@ const handleSearch = (newQuery: string) => {
           </div>
         </div>
 
+        <div className="mb-8">
+          <UpdateBannerCarousel />
+        </div>
         {/* Search Bar */}
         <div className="mx-auto mb-10 max-w-2xl">
           <SearchBar
@@ -188,4 +192,6 @@ const handleSearch = (newQuery: string) => {
     </div>
   );
 }
+
+
 

@@ -62,6 +62,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
   const [subjectsByDepartment, setSubjectsByDepartment] = React.useState<Record<string, Subject[]>>({});
   const [isLoadingDepartments, setIsLoadingDepartments] = React.useState(false);
   const [isLoadingSubjects, setIsLoadingSubjects] = React.useState(false);
+  const [postUpdate, setPostUpdate] = React.useState(false);
 
   const handleChange = (field: keyof FormState, value: string | boolean | string[] | number[]) => {
     setState((prev) => ({
@@ -267,6 +268,24 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
         throw new Error(data.error || `Failed to ${isEditing ? 'update' : 'create'} teacher`);
       }
 
+      if (!isEditing && postUpdate && data?.data?.id) {
+        try {
+          await fetch('/api/admin/updates', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: `New teacher added: ${data.data.name}`,
+              body: `You can now rate and comment on ${data.data.name}.`,
+              type: 'new_teacher',
+              teacher_id: data.data.id,
+              link_url: `/teachers/${data.data.id}`,
+            }),
+          });
+        } catch (err) {
+          console.error('Error creating update banner:', err);
+        }
+      }
+
       onSuccess?.();
       router.push('/admin/teachers');
       router.refresh();
@@ -394,8 +413,8 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
               {state.department_id &&
                 !isLoadingSubjects &&
                 (subjectsByDepartment[state.department_id] || []).length === 0 && (
-                <p className="text-sm text-slate-500">No subjects listed for this department.</p>
-              )}
+                  <p className="text-sm text-slate-500">No subjects listed for this department.</p>
+                )}
               {!state.department_id && !isLoadingDepartments && (
                 <p className="text-sm text-slate-500">Select a department to choose subjects.</p>
               )}
@@ -495,6 +514,21 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
         </label>
       </div>
 
+      {!isEditing && (
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="post_update"
+            checked={postUpdate}
+            onChange={(e) => setPostUpdate(e.target.checked)}
+            className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+          />
+          <label htmlFor="post_update" className="text-sm text-slate-700">
+            Post update banner for this teacher
+          </label>
+        </div>
+      )}
+
       {state.errors.submit && (
         <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
           {state.errors.submit}
@@ -522,3 +556,11 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
 };
 
 export { TeacherForm };
+
+
+
+
+
+
+
+

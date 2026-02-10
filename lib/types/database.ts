@@ -309,6 +309,52 @@ export interface Database {
         };
         Relationships: [];
       };
+      public_updates: {
+        Row: {
+          id: string;
+          title: string;
+          body: string;
+          type: string;
+          created_at: string;
+          updated_at: string;
+          expires_at: string | null;
+          teacher_id: string | null;
+          link_url: string | null;
+          is_active: boolean;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          body: string;
+          type?: string;
+          created_at?: string;
+          updated_at?: string;
+          expires_at?: string | null;
+          teacher_id?: string | null;
+          link_url?: string | null;
+          is_active?: boolean;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          body?: string;
+          type?: string;
+          created_at?: string;
+          updated_at?: string;
+          expires_at?: string | null;
+          teacher_id?: string | null;
+          link_url?: string | null;
+          is_active?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'public_updates_teacher_id_fkey';
+            columns: ['teacher_id'];
+            referencedRelation: 'teachers';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       suggestions: {
         Row: {
           id: string;
@@ -535,6 +581,7 @@ export type Comment = Database['public']['Tables']['comments']['Row'];
 export type CommentInsert = Database['public']['Tables']['comments']['Insert'];
 export type CommentUpdate = Database['public']['Tables']['comments']['Update'];
 export type BannedWord = Database['public']['Tables']['banned_words']['Row'];
+export type PublicUpdate = Database['public']['Tables']['public_updates']['Row'];
 export type Suggestion = Database['public']['Tables']['suggestions']['Row'];
 export type SuggestionInsert = Database['public']['Tables']['suggestions']['Insert'];
 export type SuggestionUpdate = Database['public']['Tables']['suggestions']['Update'];
@@ -586,3 +633,7 @@ export interface PaginatedResponse<T> {
   limit: number;
   totalPages: number;
 }
+
+
+
+
