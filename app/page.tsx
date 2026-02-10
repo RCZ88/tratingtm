@@ -4,16 +4,17 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/Button';
 import { SearchBar } from '@/components/public/SearchBar';
-import { 
-  Star, 
-  Users, 
-  MessageSquare, 
-  TrendingUp, 
+import {
+  Star,
+  Users,
+  MessageSquare,
+  TrendingUp,
   Calendar,
-  Sparkles, 
-  BarChart3, 
-  ThumbsUp 
+  Sparkles,
+  BarChart3,
+  ThumbsUp
 } from 'lucide-react';
+import { ActivityFeed, type ActivityItem } from '@/components/public/ActivityFeed';
 
 /**
  * Homepage
@@ -139,6 +140,51 @@ export default async function HomePage() {
     { label: 'Comments', value: commentCount || 0, icon: MessageSquare },
   ];
 
+  const { data: activityRatings } = await supabase
+    .from('ratings')
+    .select('id, teacher_id, created_at')
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  const { data: activityComments } = await supabase
+    .from('comments')
+    .select('id, teacher_id, created_at')
+    .eq('is_approved', true)
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  const initialActivity = [
+    ...(activityRatings || []).map((row) => ({
+      id: 'rating_' + row.id,
+      type: 'rating' as const,
+      teacher_id: row.teacher_id,
+      created_at: row.created_at,
+    })),
+    ...(activityComments || []).map((row) => ({
+      id: 'comment_' + row.id,
+      type: 'comment' as const,
+      teacher_id: row.teacher_id,
+      created_at: row.created_at,
+    })),
+  ];
+
+  const activityTeacherIds = Array.from(new Set(initialActivity.map((item) => item.teacher_id))).filter(Boolean);
+  const { data: activityTeachers } = activityTeacherIds.length > 0
+    ? await supabase
+        .from('teachers')
+        .select('id, name')
+        .in('id', activityTeacherIds)
+    : { data: [] };
+
+  const activityTeacherMap = new Map((activityTeachers || []).map((t) => [t.id, t.name]));
+  const activityItems: ActivityItem[] = initialActivity
+    .map((item) => ({
+      ...item,
+      teacher_name: activityTeacherMap.get(item.teacher_id) || null,
+    }))
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 20);
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -256,6 +302,9 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-10">
+            <ActivityFeed initialItems={activityItems} />
+          </div>
+          <div className="mt-10">
             <div className="relative overflow-hidden rounded-3xl border border-emerald-300 bg-gradient-to-r from-emerald-500 via-emerald-600 to-green-600 p-8 shadow-lg">
               <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
               <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
@@ -356,5 +405,9 @@ export default async function HomePage() {
     </div>
   );
 }
+
+
+
+
 
 
