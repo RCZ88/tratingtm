@@ -41,6 +41,8 @@ const CommentList: React.FC<CommentListProps> = ({
   const [pendingIds, setPendingIds] = React.useState<Set<string>>(new Set());
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isLoadingMore, setIsLoadingMore] = React.useState(false);
+  const [sortBy, setSortBy] = React.useState<'time' | 'interactions'>('time');
+  const [sortDirection, setSortDirection] = React.useState<'desc' | 'asc'>('desc');
 
   React.useEffect(() => {
     setLocalComments(comments);
@@ -68,6 +70,22 @@ const CommentList: React.FC<CommentListProps> = ({
       setIsLoadingMore(false);
     }
   };
+
+  const sortedComments = React.useMemo(() => {
+    const entries = [...localComments];
+    entries.sort((a, b) => {
+      if (sortBy === 'interactions') {
+        const aCount = (a.like_count || 0) + (a.dislike_count || 0);
+        const bCount = (b.like_count || 0) + (b.dislike_count || 0);
+        return sortDirection === 'asc' ? aCount - bCount : bCount - aCount;
+      }
+
+      const aTime = new Date(a.created_at).getTime();
+      const bTime = new Date(b.created_at).getTime();
+      return sortDirection === 'asc' ? aTime - bTime : bTime - aTime;
+    });
+    return entries;
+  }, [localComments, sortBy, sortDirection]);
 
   const updateReaction = async (commentId: string, reaction: 'like' | 'dislike') => {
     const previous = localComments;
@@ -140,7 +158,7 @@ const CommentList: React.FC<CommentListProps> = ({
     );
   }
 
-  if (localComments.length === 0) {
+  if (sortedComments.length === 0) {
     return (
       <div className={cn('rounded-lg bg-slate-50 p-8 text-center', className)}>
         <MessageSquare className="mx-auto h-10 w-10 text-slate-300" />
@@ -151,7 +169,47 @@ const CommentList: React.FC<CommentListProps> = ({
 
   return (
     <div className={cn('space-y-4', className)}>
-      {localComments.map((comment) => {
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-xs">
+          <button
+            type="button"
+            onClick={() => setSortBy('time')}
+            className={`rounded-full px-3 py-1 font-medium transition-colors ${
+              sortBy === 'time'
+                ? ' bg-emerald-100 text-emerald-700'
+                : ' text-slate-600 hover:bg-white'
+            }`}
+          >
+            Time posted
+          </button>
+          <button
+            type="button"
+            onClick={() => setSortBy('interactions')}
+            className={`rounded-full px-3 py-1 font-medium transition-colors ${
+              sortBy === 'interactions'
+                ? ' bg-emerald-100 text-emerald-700'
+                : ' text-slate-600 hover:bg-white'
+            }`}
+          >
+            Interactions
+          </button>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setSortDirection((prev) => (prev === 'desc' ? 'asc' : 'desc'))}
+        >
+          {sortDirection === 'desc'
+            ? sortBy === 'time'
+              ? 'Newest -> Oldest'
+              : 'Most -> Least'
+            : sortBy === 'time'
+              ? 'Oldest -> Newest'
+              : 'Least -> Most'}
+        </Button>
+      </div>
+
+      {sortedComments.map((comment) => {
         const likeCount = comment.like_count || 0;
         const dislikeCount = comment.dislike_count || 0;
         const viewerReaction = comment.viewer_reaction || null;
