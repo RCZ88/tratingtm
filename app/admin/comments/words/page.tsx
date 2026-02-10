@@ -75,7 +75,7 @@ export default function AdminBannedWordsPage() {
 
   const handleToggle = async (word: BannedWord) => {
     try {
-      const response = await fetch(/api/admin/banned-words/, {
+      const response = await fetch(`/api/admin/banned-words/${word.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ enabled: !word.enabled }),
@@ -96,7 +96,7 @@ export default function AdminBannedWordsPage() {
     const confirmed = window.confirm('Delete this banned word?');
     if (!confirmed) return;
     try {
-      const response = await fetch(/api/admin/banned-words/, {
+      const response = await fetch(`/api/admin/banned-words/${id}`, {
         method: 'DELETE',
       });
       const data = await response.json();
@@ -126,7 +126,7 @@ export default function AdminBannedWordsPage() {
       if (copyFormat === 'json') payload = JSON.stringify(list);
 
       await navigator.clipboard.writeText(payload);
-      setMessage(Copied  word to clipboard.);
+      setMessage(`Copied ${list.length} word${list.length === 1 ? '' : 's'} to clipboard.`);
     } catch (err) {
       setError('Failed to copy banned words.');
     } finally {
@@ -149,7 +149,7 @@ export default function AdminBannedWordsPage() {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to purge comments');
       }
-      setMessage(${data.deleted || 0} comments deleted.);
+      setMessage(`${data.deleted || 0} comments deleted.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to purge comments');
     } finally {
@@ -309,4 +309,3 @@ export default function AdminBannedWordsPage() {
     </div>
   );
 }
-
