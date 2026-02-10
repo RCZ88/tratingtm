@@ -100,7 +100,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
   }, [limit]);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-emerald-700">
           <span className="relative flex h-2 w-2">
@@ -114,7 +114,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
       {items.length === 0 ? (
         <p className="mt-4 text-sm text-slate-500">No recent activity yet.</p>
       ) : (
-        <ul className="mt-4 space-y-3">
+        <ul className="mt-4 max-h-56 space-y-3 overflow-y-auto pr-2">
           {items.map((item) => (
             <li key={item.id} className="flex items-start justify-between gap-4 text-sm">
               <div className="flex items-start gap-3">
@@ -151,4 +151,5 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
 };
 
 export { ActivityFeed };
+
 

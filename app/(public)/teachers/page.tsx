@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { TeacherWithStats, Department } from '@/lib/types/database';
 import { Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { RatingExplainer } from '@/components/public/RatingExplainer';
+import { WeeklyResetCountdown } from '@/components/public/WeeklyResetCountdown';
 
 /**
  * Teachers List Page
@@ -112,6 +113,8 @@ export default function TeachersPage() {
               Find and rate teachers from all departments
             </p>
           </div>
+        </div>        <div className="mb-6">
+          <WeeklyResetCountdown />
         </div>
 
         {/* Filters */}
@@ -235,5 +238,7 @@ export default function TeachersPage() {
     </div>
   );
 }
+
+
 
 

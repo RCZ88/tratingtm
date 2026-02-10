@@ -20,6 +20,9 @@ export default function AdminBannedWordsPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSaving, setIsSaving] = React.useState(false);
   const [isPurging, setIsPurging] = React.useState(false);
+  const [isCopying, setIsCopying] = React.useState(false);
+  const [copyScope, setCopyScope] = React.useState<'all' | 'enabled' | 'disabled'>('all');
+  const [copyFormat, setCopyFormat] = React.useState<'newline' | 'comma' | 'json'>('newline');
   const [newWord, setNewWord] = React.useState('');
   const [message, setMessage] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
@@ -72,7 +75,7 @@ export default function AdminBannedWordsPage() {
 
   const handleToggle = async (word: BannedWord) => {
     try {
-      const response = await fetch(`/api/admin/banned-words/${word.id}`, {
+      const response = await fetch(/api/admin/banned-words/, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ enabled: !word.enabled }),
@@ -93,7 +96,7 @@ export default function AdminBannedWordsPage() {
     const confirmed = window.confirm('Delete this banned word?');
     if (!confirmed) return;
     try {
-      const response = await fetch(`/api/admin/banned-words/${id}`, {
+      const response = await fetch(/api/admin/banned-words/, {
         method: 'DELETE',
       });
       const data = await response.json();
@@ -103,6 +106,31 @@ export default function AdminBannedWordsPage() {
       fetchWords();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete word');
+    }
+  };
+
+  const handleCopy = async () => {
+    setIsCopying(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const filtered = words.filter((word) => {
+        if (copyScope === 'enabled') return word.enabled === true;
+        if (copyScope === 'disabled') return word.enabled !== true;
+        return true;
+      });
+
+      const list = filtered.map((word) => word.word.trim()).filter(Boolean);
+      let payload = list.join('\n');
+      if (copyFormat === 'comma') payload = list.join(', ');
+      if (copyFormat === 'json') payload = JSON.stringify(list);
+
+      await navigator.clipboard.writeText(payload);
+      setMessage(Copied  word to clipboard.);
+    } catch (err) {
+      setError('Failed to copy banned words.');
+    } finally {
+      setIsCopying(false);
     }
   };
 
@@ -121,7 +149,7 @@ export default function AdminBannedWordsPage() {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to purge comments');
       }
-      setMessage(`${data.deleted || 0} comments deleted.`);
+      setMessage(${data.deleted || 0} comments deleted.);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to purge comments');
     } finally {
@@ -170,11 +198,42 @@ export default function AdminBannedWordsPage() {
       </Card>
 
       <Card className="mb-6">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-wrap items-center justify-between gap-3">
           <CardTitle>Banned words list</CardTitle>
-          <Button variant="danger" onClick={handlePurge} isLoading={isPurging}>
-            Purge Comments
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="sr-only" htmlFor="copy-scope">
+              Copy scope
+            </label>
+            <select
+              id="copy-scope"
+              value={copyScope}
+              onChange={(event) => setCopyScope(event.target.value as typeof copyScope)}
+              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
+            >
+              <option value="all">Copy all</option>
+              <option value="enabled">Copy enabled</option>
+              <option value="disabled">Copy disabled</option>
+            </select>
+            <label className="sr-only" htmlFor="copy-format">
+              Copy format
+            </label>
+            <select
+              id="copy-format"
+              value={copyFormat}
+              onChange={(event) => setCopyFormat(event.target.value as typeof copyFormat)}
+              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
+            >
+              <option value="newline">Format: newline</option>
+              <option value="comma">Format: comma</option>
+              <option value="json">Format: JSON</option>
+            </select>
+            <Button variant="outline" onClick={handleCopy} isLoading={isCopying}>
+              Copy list
+            </Button>
+            <Button variant="danger" onClick={handlePurge} isLoading={isPurging}>
+              Purge Comments
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -214,9 +273,13 @@ export default function AdminBannedWordsPage() {
                       <td className="px-4 py-3 text-sm text-slate-600">
                         <button
                           onClick={() => handleToggle(word)}
-                          className={word.enabled ? 'text-emerald-600' : 'text-slate-400'}
+                          className={
+                            word.enabled
+                              ? 'rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700'
+                              : 'rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-500'
+                          }
                         >
-                          {word.enabled ? 'Enabled' : 'Disabled'}
+                          {word.enabled ? 'Enabled (click to disable)' : 'Disabled (click to enable)'}
                         </button>
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -246,3 +309,4 @@ export default function AdminBannedWordsPage() {
     </div>
   );
 }
+

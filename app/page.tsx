@@ -302,9 +302,6 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-10">
-            <ActivityFeed initialItems={activityItems} />
-          </div>
-          <div className="mt-10">
             <div className="relative overflow-hidden rounded-3xl border border-emerald-300 bg-gradient-to-r from-emerald-500 via-emerald-600 to-green-600 p-8 shadow-lg">
               <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
               <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
@@ -332,6 +329,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+          <div className="mt-10">
+            <ActivityFeed initialItems={activityItems} />
+          </div>
 
       {/* How It Works Section */}
       <section className="border-t border-slate-200 bg-slate-50 py-16 lg:py-24">

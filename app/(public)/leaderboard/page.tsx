@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LeaderboardTable } from '@/components/public/LeaderboardTable';
 import { RatingExplainer } from '@/components/public/RatingExplainer';
+import { WeeklyResetCountdown } from '@/components/public/WeeklyResetCountdown';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Trophy, Calendar, ArrowDownWideNarrow, ArrowUpWideNarrow } from 'lucide-react';
@@ -129,6 +130,8 @@ export default function LeaderboardPage() {
               Compare ratings across the school community
             </p>
           </div>
+        </div>        <div className="mb-6">
+          <WeeklyResetCountdown />
         </div>
 
         {/* Controls */}
@@ -305,4 +308,6 @@ export default function LeaderboardPage() {
     </div>
   );
 }
+
+
 
