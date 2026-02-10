@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils/cn';
+import { Button } from '@/components/ui/Button';
 import { getAnonymousId } from '@/lib/utils/anonymousId';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
 import { MessageSquare, User, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -24,6 +25,8 @@ export interface CommentListProps {
   isLoading?: boolean;
   emptyMessage?: string;
   className?: string;
+  teacherId?: string;
+  totalCount?: number;
 }
 
 const CommentList: React.FC<CommentListProps> = ({
@@ -31,13 +34,40 @@ const CommentList: React.FC<CommentListProps> = ({
   isLoading = false,
   emptyMessage = 'No comments yet. Be the first to share your thoughts!',
   className,
+  teacherId,
+  totalCount,
 }) => {
   const [localComments, setLocalComments] = React.useState(comments);
   const [pendingIds, setPendingIds] = React.useState<Set<string>>(new Set());
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isLoadingMore, setIsLoadingMore] = React.useState(false);
 
   React.useEffect(() => {
     setLocalComments(comments);
   }, [comments]);
+
+  const canExpand = !!teacherId && typeof totalCount === 'number' && totalCount > localComments.length;
+
+  const handleLoadAll = async () => {
+    if (!teacherId) return;
+    setIsLoadingMore(true);
+    try {
+      const anonymousId = getAnonymousId();
+      const params = new URLSearchParams();
+      params.set('teacher_id', teacherId);
+      params.set('anonymous_id', anonymousId);
+      const response = await fetch(`/api/comments?${params.toString()}`);
+      const data = await response.json();
+      if (response.ok) {
+        setLocalComments(data.data || []);
+        setIsExpanded(true);
+      }
+    } catch (error) {
+      console.error('Error loading all comments:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   const updateReaction = async (commentId: string, reaction: 'like' | 'dislike') => {
     const previous = localComments;
@@ -96,6 +126,7 @@ const CommentList: React.FC<CommentListProps> = ({
       });
     }
   };
+
   if (isLoading) {
     return (
       <div className={cn('space-y-4', className)}>
@@ -127,57 +158,70 @@ const CommentList: React.FC<CommentListProps> = ({
         const isPending = pendingIds.has(comment.id);
 
         return (
-        <div
-          key={comment.id}
-          className="rounded-lg border border-slate-200 bg-white p-4 transition-shadow hover:shadow-sm"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
-                <User className="h-4 w-4 text-emerald-600" />
+          <div
+            key={comment.id}
+            className="rounded-lg border border-slate-200 bg-white p-4 transition-shadow hover:shadow-sm"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
+                  <User className="h-4 w-4 text-emerald-600" />
+                </div>
+                <span className="text-sm font-medium text-slate-600">Anonymous</span>
               </div>
-              <span className="text-sm font-medium text-slate-600">Anonymous</span>
+              <time className="text-xs text-slate-400">
+                {formatRelativeTime(comment.created_at)}
+              </time>
             </div>
-            <time className="text-xs text-slate-400">
-              {formatRelativeTime(comment.created_at)}
-            </time>
+            <p className="mt-3 text-sm text-slate-700 whitespace-pre-wrap">
+              {comment.comment_text}
+            </p>
+            <div className="mt-4 flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => updateReaction(comment.id, 'like')}
+                disabled={isPending}
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-colors',
+                  viewerReaction === 'like'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                )}
+              >
+                <ThumbsUp className="h-3.5 w-3.5" />
+                {likeCount}
+              </button>
+              <button
+                type="button"
+                onClick={() => updateReaction(comment.id, 'dislike')}
+                disabled={isPending}
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-colors',
+                  viewerReaction === 'dislike'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                )}
+              >
+                <ThumbsDown className="h-3.5 w-3.5" />
+                {dislikeCount}
+              </button>
+            </div>
           </div>
-          <p className="mt-3 text-sm text-slate-700 whitespace-pre-wrap">
-            {comment.comment_text}
-          </p>
-          <div className="mt-4 flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => updateReaction(comment.id, 'like')}
-              disabled={isPending}
-              className={cn(
-                'inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-colors',
-                viewerReaction === 'like'
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              )}
-            >
-              <ThumbsUp className="h-3.5 w-3.5" />
-              {likeCount}
-            </button>
-            <button
-              type="button"
-              onClick={() => updateReaction(comment.id, 'dislike')}
-              disabled={isPending}
-              className={cn(
-                'inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-colors',
-                viewerReaction === 'dislike'
-                  ? 'bg-red-100 text-red-700'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              )}
-            >
-              <ThumbsDown className="h-3.5 w-3.5" />
-              {dislikeCount}
-            </button>
-          </div>
-        </div>
         );
       })}
+
+      {canExpand && !isExpanded && (
+        <div className="flex justify-center pt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLoadAll}
+            disabled={isLoadingMore}
+          >
+            {isLoadingMore ? 'Loading comments...' : 'View all comments'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

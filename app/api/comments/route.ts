@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const teacherId = searchParams.get('teacher_id');
     const status = searchParams.get('status');
+    const anonymousId = searchParams.get('anonymous_id');
 
     const supabase = createClient();
 
@@ -47,7 +48,48 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ data: comments || [] });
+    const commentIds = (comments || []).map((comment) => comment.id);
+    let commentsWithReactions = comments || [];
+
+    if (commentIds.length > 0) {
+      const { data: reactions } = await supabase
+        .from('comment_reactions')
+        .select('comment_id, reaction, anonymous_id')
+        .in('comment_id', commentIds);
+
+      const reactionMap = new Map(
+        commentIds.map((commentId) => [
+          commentId,
+          { like_count: 0, dislike_count: 0, viewer_reaction: null as 'like' | 'dislike' | null },
+        ])
+      );
+
+      reactions?.forEach((reaction) => {
+        const entry = reactionMap.get(reaction.comment_id);
+        if (!entry) return;
+        if (reaction.reaction === 'like') entry.like_count += 1;
+        if (reaction.reaction === 'dislike') entry.dislike_count += 1;
+        if (anonymousId && reaction.anonymous_id === anonymousId) {
+          entry.viewer_reaction = reaction.reaction as 'like' | 'dislike';
+        }
+      });
+
+      commentsWithReactions = (comments || []).map((comment) => {
+        const counts = reactionMap.get(comment.id) || {
+          like_count: 0,
+          dislike_count: 0,
+          viewer_reaction: null as 'like' | 'dislike' | null,
+        };
+        return {
+          ...comment,
+          like_count: counts.like_count,
+          dislike_count: counts.dislike_count,
+          viewer_reaction: counts.viewer_reaction,
+        };
+      });
+    }
+
+    return NextResponse.json({ data: commentsWithReactions });
   } catch (error) {
     console.error('Error in GET /api/comments:', error);
     return NextResponse.json(
@@ -171,3 +213,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+

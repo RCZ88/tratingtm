@@ -326,7 +326,7 @@ export default function TeacherDetailPage() {
                 <CardTitle>Comments ({teacher.total_comments})</CardTitle>
               </CardHeader>
               <CardContent>
-                <CommentList comments={teacher.comments} />
+                <CommentList comments={teacher.comments} teacherId={teacher.id} totalCount={teacher.total_comments} />
               </CardContent>
             </Card>
           </div>
@@ -366,5 +366,6 @@ export default function TeacherDetailPage() {
     </div>
   );
 }
+
 
 
