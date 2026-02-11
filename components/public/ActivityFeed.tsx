@@ -4,11 +4,11 @@ import * as React from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
-import { MessageSquare, Star } from 'lucide-react';
+import { MessageSquare, Star, CornerDownRight } from 'lucide-react';
 
 export type ActivityItem = {
   id: string;
-  type: 'rating' | 'comment';
+  type: 'rating' | 'comment' | 'reply';
   teacher_id: string;
   teacher_name: string | null;
   created_at: string;
@@ -52,20 +52,16 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
       return null;
     };
 
-    const handleInsert = async (payload: any, type: ActivityItem['type']) => {
-      const record = payload?.new;
-      if (!record) return;
-      if (type === 'comment' && !record.is_approved) return;
-
-      const teacherId = record.teacher_id as string;
-      const teacherName = await ensureTeacherName(teacherId);
-
+    const pushItem = async (input: {
+      id: string;
+      type: ActivityItem['type'];
+      teacher_id: string;
+      created_at: string;
+    }) => {
+      const teacherName = await ensureTeacherName(input.teacher_id);
       const next: ActivityItem = {
-        id: `${type}_${record.id}`,
-        type,
-        teacher_id: teacherId,
+        ...input,
         teacher_name: teacherName,
-        created_at: record.created_at,
       };
 
       setItems((prev) => {
@@ -73,6 +69,22 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
         if (exists) return prev;
         const updated = [next, ...prev];
         return updated.slice(0, limit);
+      });
+    };
+
+    const handleInsert = async (payload: any, type: ActivityItem['type']) => {
+      const record = payload?.new;
+      if (!record) return;
+
+      if (type === 'comment' || type === 'reply') {
+        if (!record.is_approved || record.is_flagged) return;
+      }
+
+      await pushItem({
+        id: `${type}_${record.id}`,
+        type,
+        teacher_id: record.teacher_id,
+        created_at: record.created_at,
       });
     };
 
@@ -87,10 +99,58 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'comments' },
         (payload) => handleInsert(payload, 'comment')
-      )      .on(
+      )
+      .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'comments', filter: 'is_approved=eq.true' },
         (payload) => handleInsert(payload, 'comment')
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'comment_replies' },
+        async (payload: any) => {
+          const record = payload?.new;
+          if (!record) return;
+          if (!record.is_approved || record.is_flagged) return;
+
+          const { data: comment } = await supabase
+            .from('comments')
+            .select('teacher_id')
+            .eq('id', record.comment_id)
+            .maybeSingle();
+
+          if (!comment?.teacher_id) return;
+
+          await pushItem({
+            id: `reply_${record.id}`,
+            type: 'reply',
+            teacher_id: comment.teacher_id,
+            created_at: record.created_at,
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'comment_replies', filter: 'is_approved=eq.true' },
+        async (payload: any) => {
+          const record = payload?.new;
+          if (!record || record.is_flagged) return;
+
+          const { data: comment } = await supabase
+            .from('comments')
+            .select('teacher_id')
+            .eq('id', record.comment_id)
+            .maybeSingle();
+
+          if (!comment?.teacher_id) return;
+
+          await pushItem({
+            id: `reply_${record.id}`,
+            type: 'reply',
+            teacher_id: comment.teacher_id,
+            created_at: record.created_at,
+          });
+        }
       )
       .subscribe();
 
@@ -121,13 +181,19 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
                 <div className="mt-0.5 rounded-full bg-slate-100 p-2 text-slate-600">
                   {item.type === 'comment' ? (
                     <MessageSquare className="h-4 w-4" />
+                  ) : item.type === 'reply' ? (
+                    <CornerDownRight className="h-4 w-4" />
                   ) : (
                     <Star className="h-4 w-4" />
                   )}
                 </div>
                 <div>
                   <p className="text-slate-700">
-                    {item.type === 'comment' ? 'New comment on' : 'New rating for'}{' '}
+                    {item.type === 'comment'
+                      ? 'New comment on'
+                      : item.type === 'reply'
+                      ? 'New reply on'
+                      : 'New rating for'}{' '}
                     {item.teacher_id ? (
                       <Link
                         href={`/teachers/${item.teacher_id}`}
@@ -151,5 +217,3 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
 };
 
 export { ActivityFeed };
-
-

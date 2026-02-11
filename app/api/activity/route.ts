@@ -7,7 +7,7 @@ export async function GET(_request: NextRequest) {
   try {
     const supabase = createClient();
 
-    const [ratingsResult, commentsResult] = await Promise.all([
+    const [ratingsResult, commentsResult, repliesResult] = await Promise.all([
       supabase
         .from('ratings')
         .select('id, teacher_id, created_at')
@@ -17,12 +17,20 @@ export async function GET(_request: NextRequest) {
         .from('comments')
         .select('id, teacher_id, created_at')
         .eq('is_approved', true)
+        .eq('is_flagged', false)
+        .order('created_at', { ascending: false })
+        .limit(20),
+      supabase
+        .from('comment_replies')
+        .select('id, created_at, comments!inner(teacher_id)')
+        .eq('is_approved', true)
+        .eq('is_flagged', false)
         .order('created_at', { ascending: false })
         .limit(20),
     ]);
 
-    if (ratingsResult.error || commentsResult.error) {
-      console.error('Error fetching activity:', ratingsResult.error || commentsResult.error);
+    if (ratingsResult.error || commentsResult.error || repliesResult.error) {
+      console.error('Error fetching activity:', ratingsResult.error || commentsResult.error || repliesResult.error);
       return NextResponse.json({ error: 'Failed to load activity' }, { status: 500 });
     }
 
@@ -40,7 +48,16 @@ export async function GET(_request: NextRequest) {
       created_at: row.created_at,
     }));
 
-    const combined = [...ratingRows, ...commentRows];
+    const replyRows = (repliesResult.data || [])
+      .map((row: any) => ({
+        id: `reply_${row.id}`,
+        type: 'reply' as const,
+        teacher_id: row.comments?.teacher_id || null,
+        created_at: row.created_at,
+      }))
+      .filter((row) => !!row.teacher_id);
+
+    const combined = [...ratingRows, ...commentRows, ...replyRows];
 
     const teacherIds = Array.from(new Set(combined.map((item) => item.teacher_id))).filter(Boolean);
     const { data: teachers } = teacherIds.length > 0

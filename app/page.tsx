@@ -15,6 +15,7 @@ import {
   ThumbsUp
 } from 'lucide-react';
 import { ActivityFeed, type ActivityItem } from '@/components/public/ActivityFeed';
+import { UpdateBannerCarousel } from '@/components/public/UpdateBannerCarousel';
 
 /**
  * Homepage
@@ -224,7 +225,12 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
+      {/* Latest Updates Banner */}
+      <section className="pt-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <UpdateBannerCarousel className="mb-6" />
+        </div>
+      </section>
       {/* Interesting Facts Section */}
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -405,6 +411,10 @@ export default async function HomePage() {
     </div>
   );
 }
+
+
+
+
 
 
 
