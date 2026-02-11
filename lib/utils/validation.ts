@@ -37,6 +37,28 @@ export const commentModerationSchema = z.object({
 
 export type CommentModerationInput = z.infer<typeof commentModerationSchema>;
 
+// Reply validation
+export const replySchema = z.object({
+  comment_id: z.string().uuid('Invalid comment ID'),
+  parent_reply_id: z.string().uuid('Invalid parent reply ID').optional().nullable(),
+  reply_text: z
+    .string()
+    .min(5, 'Reply must be at least 5 characters')
+    .max(500, 'Reply cannot exceed 500 characters')
+    .transform((text) => sanitizeHtml(text)),
+  anonymous_id: z.string().min(1, 'Anonymous ID is required').max(255, 'Anonymous ID too long'),
+});
+
+export type ReplyInput = z.infer<typeof replySchema>;
+
+// Reply moderation validation
+export const replyModerationSchema = z.object({
+  is_approved: z.boolean().optional(),
+  is_flagged: z.boolean().optional(),
+});
+
+export type ReplyModerationInput = z.infer<typeof replyModerationSchema>;
+
 // Teacher validation
 export const teacherSchema = z.object({
   name: z
@@ -233,3 +255,4 @@ export function validatePartial<T extends z.ZodRawShape>(
   const partialSchema = schema.partial();
   return validate(partialSchema, data);
 }
+

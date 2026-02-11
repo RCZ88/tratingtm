@@ -8,11 +8,11 @@ export const dynamic = 'force-dynamic';
 
 const settingsSchema = z.object({
   comments_require_approval: z.boolean(),
+  replies_require_approval: z.boolean(),
 });
 
 /**
  * GET /api/admin/settings
- * 
  * Fetch admin settings.
  */
 export async function GET(request: NextRequest) {
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const supabase = createServiceClient();
     const { data, error } = await supabase
       .from('app_settings')
-      .select('comments_require_approval')
+      .select('comments_require_approval, replies_require_approval')
       .eq('id', 'global')
       .maybeSingle();
 
@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       data: {
         comments_require_approval: data?.comments_require_approval ?? true,
+        replies_require_approval: data?.replies_require_approval ?? true,
       },
     });
   } catch (error) {
@@ -47,7 +48,6 @@ export async function GET(request: NextRequest) {
 
 /**
  * PUT /api/admin/settings
- * 
  * Update admin settings.
  */
 export async function PUT(request: NextRequest) {
@@ -70,6 +70,7 @@ export async function PUT(request: NextRequest) {
       .upsert({
         id: 'global',
         comments_require_approval: validation.data.comments_require_approval,
+        replies_require_approval: validation.data.replies_require_approval,
         updated_at: new Date().toISOString(),
       })
       .select()
@@ -83,6 +84,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       data: {
         comments_require_approval: data.comments_require_approval,
+        replies_require_approval: data.replies_require_approval,
       },
       message: 'Settings updated',
     });

@@ -288,6 +288,52 @@ export interface Database {
           }
         ];
       };
+      comment_replies: {
+        Row: {
+          id: string;
+          comment_id: string;
+          parent_reply_id: string | null;
+          reply_text: string;
+          anonymous_id: string;
+          is_approved: boolean;
+          is_flagged: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          comment_id: string;
+          parent_reply_id?: string | null;
+          reply_text: string;
+          anonymous_id: string;
+          is_approved?: boolean;
+          is_flagged?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          comment_id?: string;
+          parent_reply_id?: string | null;
+          reply_text?: string;
+          anonymous_id?: string;
+          is_approved?: boolean;
+          is_flagged?: boolean;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'comment_replies_comment_id_fkey';
+            columns: ['comment_id'];
+            referencedRelation: 'comments';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'comment_replies_parent_reply_id_fkey';
+            columns: ['parent_reply_id'];
+            referencedRelation: 'comment_replies';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       banned_words: {
         Row: {
           id: string;
@@ -432,16 +478,19 @@ export interface Database {
         Row: {
           id: string;
           comments_require_approval: boolean | null;
+          replies_require_approval: boolean | null;
           updated_at: string;
         };
         Insert: {
           id?: string;
           comments_require_approval?: boolean | null;
+          replies_require_approval?: boolean | null;
           updated_at?: string;
         };
         Update: {
           id?: string;
           comments_require_approval?: boolean | null;
+          replies_require_approval?: boolean | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -580,6 +629,9 @@ export type WeeklyRating = Database['public']['Tables']['weekly_ratings']['Row']
 export type Comment = Database['public']['Tables']['comments']['Row'];
 export type CommentInsert = Database['public']['Tables']['comments']['Insert'];
 export type CommentUpdate = Database['public']['Tables']['comments']['Update'];
+export type CommentReply = Database['public']['Tables']['comment_replies']['Row'];
+export type CommentReplyInsert = Database['public']['Tables']['comment_replies']['Insert'];
+export type CommentReplyUpdate = Database['public']['Tables']['comment_replies']['Update'];
 export type BannedWord = Database['public']['Tables']['banned_words']['Row'];
 export type PublicUpdate = Database['public']['Tables']['public_updates']['Row'];
 export type Suggestion = Database['public']['Tables']['suggestions']['Row'];

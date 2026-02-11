@@ -7,6 +7,7 @@ import { Settings } from 'lucide-react';
 
 interface SettingsData {
   comments_require_approval: boolean;
+  replies_require_approval: boolean;
 }
 
 export default function AdminSettingsPage() {
@@ -74,43 +75,58 @@ export default function AdminSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
-            Comment Moderation
+            Moderation
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
             <p className="text-sm text-slate-500">Loading...</p>
           ) : (
-            <label className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4">
-              <div>
-                <p className="font-medium text-slate-900">Require approval for new comments</p>
-                <p className="text-sm text-slate-500">
-                  When enabled, new comments are hidden until approved by an admin.
-                </p>
-              </div>
-              <input
-                type="checkbox"
-                className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                checked={settings?.comments_require_approval ?? true}
-                onChange={(e) =>
-                  setSettings((prev) => ({
-                    comments_require_approval: e.target.checked,
-                  }))
-                }
-              />
-            </label>
+            <>
+              <label className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4">
+                <div>
+                  <p className="font-medium text-slate-900">Require approval for new comments</p>
+                  <p className="text-sm text-slate-500">
+                    When enabled, new comments are hidden until approved by an admin.
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  checked={settings?.comments_require_approval ?? true}
+                  onChange={(e) =>
+                    setSettings((prev) => ({
+                      comments_require_approval: e.target.checked,
+                      replies_require_approval: prev?.replies_require_approval ?? true,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4">
+                <div>
+                  <p className="font-medium text-slate-900">Require approval for new replies</p>
+                  <p className="text-sm text-slate-500">
+                    When enabled, replies are hidden until approved by an admin.
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  checked={settings?.replies_require_approval ?? true}
+                  onChange={(e) =>
+                    setSettings((prev) => ({
+                      comments_require_approval: prev?.comments_require_approval ?? true,
+                      replies_require_approval: e.target.checked,
+                    }))
+                  }
+                />
+              </label>
+            </>
           )}
 
-          {error && (
-            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700">
-              {success}
-            </div>
-          )}
+          {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+          {success && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700">{success}</div>}
 
           <div>
             <Button onClick={saveSettings} isLoading={isSaving} disabled={!settings}>
