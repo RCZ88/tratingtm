@@ -185,7 +185,12 @@ export default function AdminTeachersPage() {
                   teachers.map((teacher) => (
                     <tr key={teacher.id} className="hover:bg-slate-50">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-slate-900">{teacher.name}</p>
+                        <Link
+                          href={`/admin/teachers/${teacher.id}`}
+                          className="font-medium text-slate-900 hover:text-emerald-700"
+                        >
+                          {teacher.name}
+                        </Link>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-600">
                         {teacher.primary_subject || teacher.subjects?.[0]?.name || '-'}
@@ -311,3 +316,4 @@ export default function AdminTeachersPage() {
     </div>
   );
 }
+
