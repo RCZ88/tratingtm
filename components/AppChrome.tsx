@@ -34,7 +34,7 @@ const AppChrome: React.FC<React.PropsWithChildren> = ({ children }) => {
   const shouldHideNavbar = isAdminRoute && hidePublicNav;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       {!shouldHideNavbar && <Navbar />}
       <main className="flex-1">{children}</main>
       <Footer />

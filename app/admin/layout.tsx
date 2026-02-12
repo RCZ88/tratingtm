@@ -20,7 +20,7 @@ export default async function AdminLayout({
   // The middleware will handle auth protection for other routes
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background text-foreground">
       {session && <AdminNav user={{ email: session.user.email, role: session.user.role }} />}
       <main className="p-4 lg:p-8">
         {children}

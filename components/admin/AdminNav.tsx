@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/Button';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { 
   LayoutDashboard, 
   Users, 
@@ -48,7 +49,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
     { href: '/admin/comments', label: 'Comments', icon: MessageSquare },
     { href: '/admin/suggestions', label: 'Suggestions', icon: Lightbulb },
     { href: '/admin/updates', label: 'Updates', icon: Bell },
-{ href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];
 
@@ -70,14 +71,14 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-background">
       <div className="flex h-16 items-center justify-between px-4 lg:px-8">
         {/* Logo */}
         <Link href="/admin/dashboard" className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Shield className="h-5 w-5" />
           </div>
-          <span className="hidden text-lg font-bold text-slate-900 sm:block">
+          <span className="hidden text-lg font-bold text-foreground sm:block">
             TM Ratings Admin
           </span>
         </Link>
@@ -91,8 +92,8 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
               className={cn(
                 'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                 isActive(item.href)
-                  ? 'bg-emerald-50 text-emerald-700'
-                  : 'text-slate-600 hover:bg-emerald-50/60 hover:text-slate-900'
+                  ? 'bg-emerald-500/10 text-emerald-600'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -103,8 +104,9 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
 
         {/* User & Logout */}
         <div className="hidden md:flex md:items-center md:gap-4">
+          <ThemeToggle />
           {user?.email && (
-            <span className="text-sm text-slate-500">{user.email}</span>
+            <span className="text-sm text-muted-foreground">{user.email}</span>
           )}
           <Button
             variant="outline"
@@ -132,7 +134,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 md:hidden"
+          className="rounded-lg p-2 text-muted-foreground hover:bg-accent md:hidden"
         >
           {isMobileMenuOpen ? (
             <X className="h-6 w-6" />
@@ -144,7 +146,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="border-t border-slate-200 bg-white md:hidden">
+        <div className="border-t border-border bg-background md:hidden">
           <nav className="space-y-1 p-4">
             {navItems.map((item) => (
               <Link
@@ -154,28 +156,31 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors',
                   isActive(item.href)
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'text-slate-600 hover:bg-emerald-50/60'
+                    ? 'bg-emerald-500/10 text-emerald-600'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                 )}
               >
                 <item.icon className="h-5 w-5" />
                 {item.label}
               </Link>
             ))}
-            <div className="border-t border-slate-200 pt-4 mt-4 space-y-2">
+            <div className="border-t border-border pt-4 mt-4 space-y-2">
+              <div className="px-4">
+                <ThemeToggle className="w-full justify-between" />
+              </div>
               {user?.email && (
-                <p className="px-4 py-2 text-sm text-slate-500">{user.email}</p>
+                <p className="px-4 py-2 text-sm text-muted-foreground">{user.email}</p>
               )}
               <button
                 onClick={togglePublicNav}
-                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50"
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-foreground hover:bg-accent"
               >
                 {hidePublicNav ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
                 {hidePublicNav ? 'Show Public Nav' : 'Hide Public Nav'}
               </button>
               <Link
                 href="/"
-                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50"
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-foreground hover:bg-accent"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <ArrowUpRight className="h-5 w-5" />
@@ -183,7 +188,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
               </Link>
               <button
                 onClick={() => signOut({ callbackUrl: '/admin/login' })}
-                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-red-600 hover:bg-red-50"
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-red-500 hover:bg-red-500/10"
               >
                 <LogOut className="h-5 w-5" />
                 Logout

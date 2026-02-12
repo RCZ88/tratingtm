@@ -3,6 +3,7 @@ import './globals.css';
 import { Analytics } from '@vercel/analytics/next';
 import { SessionProvider } from '@/components/SessionProvider';
 import { AppChrome } from '@/components/AppChrome';
+import { ThemeProvider } from '@/components/ui/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'TM Ratings',
@@ -16,16 +17,31 @@ export const metadata: Metadata = {
   },
 };
 
+const themeScript = `(() => {
+  try {
+    const stored = localStorage.getItem('tm-theme');
+    const theme = stored || 'system';
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+    document.documentElement.classList.toggle('dark', isDark);
+  } catch (_) {}
+})();`;
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="antialiased">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="antialiased bg-background text-foreground">
         <SessionProvider>
-          <AppChrome>{children}</AppChrome>
+          <ThemeProvider>
+            <AppChrome>{children}</AppChrome>
+          </ThemeProvider>
         </SessionProvider>
         <Analytics />
       </body>
