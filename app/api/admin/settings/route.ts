@@ -9,6 +9,8 @@ export const dynamic = 'force-dynamic';
 const settingsSchema = z.object({
   comments_require_approval: z.boolean(),
   replies_require_approval: z.boolean(),
+  maintenance_enabled: z.boolean(),
+  maintenance_message: z.string().max(500).optional().nullable(),
 });
 
 /**
@@ -25,7 +27,7 @@ export async function GET(request: NextRequest) {
     const supabase = createServiceClient();
     const { data, error } = await supabase
       .from('app_settings')
-      .select('comments_require_approval, replies_require_approval')
+      .select('comments_require_approval, replies_require_approval, maintenance_enabled, maintenance_message')
       .eq('id', 'global')
       .maybeSingle();
 
@@ -38,6 +40,8 @@ export async function GET(request: NextRequest) {
       data: {
         comments_require_approval: data?.comments_require_approval ?? true,
         replies_require_approval: data?.replies_require_approval ?? true,
+        maintenance_enabled: data?.maintenance_enabled ?? false,
+        maintenance_message: data?.maintenance_message ?? '',
       },
     });
   } catch (error) {
@@ -71,6 +75,8 @@ export async function PUT(request: NextRequest) {
         id: 'global',
         comments_require_approval: validation.data.comments_require_approval,
         replies_require_approval: validation.data.replies_require_approval,
+        maintenance_enabled: validation.data.maintenance_enabled,
+        maintenance_message: validation.data.maintenance_message ?? '',
         updated_at: new Date().toISOString(),
       })
       .select()
@@ -85,6 +91,8 @@ export async function PUT(request: NextRequest) {
       data: {
         comments_require_approval: data.comments_require_approval,
         replies_require_approval: data.replies_require_approval,
+        maintenance_enabled: data.maintenance_enabled,
+        maintenance_message: data.maintenance_message ?? '',
       },
       message: 'Settings updated',
     });

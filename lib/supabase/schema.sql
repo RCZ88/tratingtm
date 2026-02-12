@@ -163,6 +163,9 @@ CREATE INDEX idx_suggestion_votes_vote ON suggestion_votes(vote);
 CREATE TABLE app_settings (
   id TEXT PRIMARY KEY DEFAULT 'global',
   comments_require_approval BOOLEAN DEFAULT true,
+  replies_require_approval BOOLEAN DEFAULT true,
+  maintenance_enabled BOOLEAN DEFAULT false,
+  maintenance_message TEXT,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -475,4 +478,5 @@ CREATE POLICY "Admin full access on users" ON users
 
 CREATE POLICY "Admin full access on leaderboard_cache" ON leaderboard_cache
   FOR ALL USING (auth.role() = 'service_role');
+
 

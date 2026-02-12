@@ -6,7 +6,11 @@ import { Button } from '@/components/ui/Button';
 import { getAnonymousId } from '@/lib/utils/anonymousId';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
 import { MessageSquare, User, CornerDownRight, Smile } from 'lucide-react';
-import { defaultReactionEmojis } from '@/lib/utils/commentReactions';
+import {
+  defaultReactionEmojis,
+  THUMBS_DOWN,
+  THUMBS_UP,
+} from '@/lib/utils/commentReactions';
 
 export interface CommentListProps {
   comments: Array<{
@@ -74,15 +78,19 @@ const CommentList: React.FC<CommentListProps> = ({
 
     const fromComments = Array.from(
       new Set(
-        comments.flatMap((comment) => Object.keys(comment.emoji_counts || {})).filter(Boolean)
+        comments
+          .flatMap((comment) => Object.keys(comment.emoji_counts || {}))
+          .filter((emoji) => emoji && emoji !== THUMBS_UP && emoji !== THUMBS_DOWN)
       )
     );
 
-    if (availableReactionEmojis?.length) {
-      setReactionEmojis(Array.from(new Set([...availableReactionEmojis, ...fromComments])));
-    } else if (fromComments.length > 0) {
-      setReactionEmojis(Array.from(new Set([...defaultReactionEmojis, ...fromComments])));
-    }
+    const nextEmojis = availableReactionEmojis?.length
+      ? [...availableReactionEmojis]
+      : [...defaultReactionEmojis];
+
+    setReactionEmojis(
+      Array.from(new Set([...nextEmojis.filter((emoji) => emoji !== THUMBS_UP && emoji !== THUMBS_DOWN), ...fromComments]))
+    );
   }, [comments, availableReactionEmojis]);
 
   React.useEffect(() => {
@@ -91,7 +99,13 @@ const CommentList: React.FC<CommentListProps> = ({
         const response = await fetch('/api/comment-reaction-emojis');
         const data = await response.json();
         if (response.ok && Array.isArray(data.data) && data.data.length > 0) {
-          setReactionEmojis((prev) => Array.from(new Set([...data.data, ...prev])));
+          setReactionEmojis((prev) =>
+            Array.from(
+              new Set(
+                [...data.data, ...prev].filter((emoji) => emoji !== THUMBS_UP && emoji !== THUMBS_DOWN)
+              )
+            )
+          );
         }
       } catch (error) {
         console.error('Error loading reaction emojis:', error);
@@ -116,7 +130,15 @@ const CommentList: React.FC<CommentListProps> = ({
       if (response.ok) {
         setLocalComments(data.data || []);
         if (Array.isArray(data.meta?.available_reaction_emojis)) {
-          setReactionEmojis((prev) => Array.from(new Set([...data.meta.available_reaction_emojis, ...prev])));
+          setReactionEmojis((prev) =>
+            Array.from(
+              new Set(
+                [...data.meta.available_reaction_emojis, ...prev].filter(
+                  (emoji: string) => emoji !== THUMBS_UP && emoji !== THUMBS_DOWN
+                )
+              )
+            )
+          );
         }
         setIsExpanded(true);
       }
@@ -179,8 +201,6 @@ const CommentList: React.FC<CommentListProps> = ({
 
   const updateReaction = async (commentId: string, emoji: string) => {
     const previous = localComments;
-    const currentViewer = localComments.find((comment) => comment.id === commentId)?.viewer_emojis || [];
-    const isRemoving = currentViewer.includes(emoji);
     setPendingIds((prev) => new Set(prev).add(commentId));
 
     setLocalComments((prev) =>
@@ -202,9 +222,13 @@ const CommentList: React.FC<CommentListProps> = ({
           ...comment,
           emoji_counts: emojiCounts,
           viewer_emojis: Array.from(viewerEmojis),
-          like_count: emojiCounts['??'] || 0,
-          dislike_count: emojiCounts['??'] || 0,
-          viewer_reaction: viewerEmojis.has('??') ? 'like' : viewerEmojis.has('??') ? 'dislike' : null,
+          like_count: emojiCounts[THUMBS_UP] || 0,
+          dislike_count: emojiCounts[THUMBS_DOWN] || 0,
+          viewer_reaction: viewerEmojis.has(THUMBS_UP)
+            ? 'like'
+            : viewerEmojis.has(THUMBS_DOWN)
+            ? 'dislike'
+            : null,
         };
       })
     );
@@ -367,7 +391,9 @@ const CommentList: React.FC<CommentListProps> = ({
   };
 
   const getEmojiSequence = (comment: CommentListProps['comments'][number]) => {
-    const used = Object.keys(comment.emoji_counts || {}).filter(Boolean);
+    const used = Object.keys(comment.emoji_counts || {}).filter(
+      (emoji) => emoji && emoji !== THUMBS_UP && emoji !== THUMBS_DOWN
+    );
     return Array.from(new Set([...reactionEmojis, ...used]));
   };
 
@@ -441,6 +467,7 @@ const CommentList: React.FC<CommentListProps> = ({
           replyTarget?.commentId === comment.id && replyTarget?.parentReplyId === null;
         const replyCount = (repliesByComment[comment.id] || []).length;
         const emojiSequence = getEmojiSequence(comment);
+        const emojiCounts = comment.emoji_counts || {};
 
         return (
           <div key={comment.id} className="rounded-lg border border-border bg-card p-4 transition-shadow hover:shadow-sm">
@@ -458,8 +485,37 @@ const CommentList: React.FC<CommentListProps> = ({
 
             <div className="mt-4 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => updateReaction(comment.id, THUMBS_UP)}
+                  disabled={isPending}
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+                    viewerEmojis.includes(THUMBS_UP)
+                      ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                      : 'border-border bg-muted text-muted-foreground hover:bg-card'
+                  )}
+                >
+                  <span>{THUMBS_UP}</span>
+                  <span>{emojiCounts[THUMBS_UP] || 0}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateReaction(comment.id, THUMBS_DOWN)}
+                  disabled={isPending}
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+                    viewerEmojis.includes(THUMBS_DOWN)
+                      ? 'border-rose-400/40 bg-rose-500/15 text-rose-600 dark:text-rose-200'
+                      : 'border-border bg-muted text-muted-foreground hover:bg-card'
+                  )}
+                >
+                  <span>{THUMBS_DOWN}</span>
+                  <span>{emojiCounts[THUMBS_DOWN] || 0}</span>
+                </button>
+
                 {emojiSequence.map((emoji) => {
-                  const count = (comment.emoji_counts || {})[emoji] || 0;
+                  const count = emojiCounts[emoji] || 0;
                   const isActive = viewerEmojis.includes(emoji);
                   return (
                     <button

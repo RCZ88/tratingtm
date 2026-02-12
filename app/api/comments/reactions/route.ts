@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
-import { normalizeReaction } from '@/lib/utils/commentReactions';
+import { normalizeReaction, THUMBS_DOWN, THUMBS_UP } from '@/lib/utils/commentReactions';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,8 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to update reaction' }, { status: 500 });
     }
 
-    const allowed = new Set((allowedRows || []).map((row) => row.emoji));
-    if (!allowed.has(reaction) && reaction !== '??') {
+    const allowed = new Set((allowedRows || []).map((row) => row.emoji));    if (!allowed.has(reaction) && reaction !== THUMBS_UP && reaction !== THUMBS_DOWN) {
       return NextResponse.json({ error: 'Reaction emoji is not enabled' }, { status: 400 });
     }
 
@@ -93,3 +92,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+

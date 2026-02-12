@@ -502,18 +502,24 @@ export interface Database {
           id: string;
           comments_require_approval: boolean | null;
           replies_require_approval: boolean | null;
+          maintenance_enabled: boolean | null;
+          maintenance_message: string | null;
           updated_at: string;
         };
         Insert: {
           id?: string;
           comments_require_approval?: boolean | null;
           replies_require_approval?: boolean | null;
+          maintenance_enabled?: boolean | null;
+          maintenance_message?: string | null;
           updated_at?: string;
         };
         Update: {
           id?: string;
           comments_require_approval?: boolean | null;
           replies_require_approval?: boolean | null;
+          maintenance_enabled?: boolean | null;
+          maintenance_message?: string | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -709,6 +715,7 @@ export interface PaginatedResponse<T> {
   limit: number;
   totalPages: number;
 }
+
 
 
 

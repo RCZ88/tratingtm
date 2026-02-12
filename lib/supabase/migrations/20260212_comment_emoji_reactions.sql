@@ -120,3 +120,5 @@ WHERE c.is_approved = true
   AND t.is_active = true
 ORDER BY COALESCE(cl.like_count, 0) DESC, c.created_at DESC
 LIMIT 1;
+
+
