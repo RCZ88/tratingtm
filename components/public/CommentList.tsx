@@ -59,6 +59,7 @@ const CommentList: React.FC<CommentListProps> = ({
   const [sortDirection, setSortDirection] = React.useState<'desc' | 'asc'>('desc');
   const [repliesByComment, setRepliesByComment] = React.useState<Record<string, ReplyItem[]>>({});
   const [isLoadingReplies, setIsLoadingReplies] = React.useState(false);
+  const [emojiPickerOpenId, setEmojiPickerOpenId] = React.useState<string | null>(null);
   const [reactionEmojis, setReactionEmojis] = React.useState<string[]>(
     availableReactionEmojis?.length ? availableReactionEmojis : [...defaultReactionEmojis]
   );
@@ -260,6 +261,10 @@ const CommentList: React.FC<CommentListProps> = ({
     }
   };
 
+  const toggleEmojiPicker = (commentId: string) => {
+    setEmojiPickerOpenId((prev) => (prev === commentId ? null : commentId));
+  };
+
   const openReplyComposer = (commentId: string, parentReplyId: string | null, preview: string) => {
     setReplyError(null);
     setReplySuccess(null);
@@ -390,13 +395,22 @@ const CommentList: React.FC<CommentListProps> = ({
     );
   };
 
-  const getEmojiSequence = (comment: CommentListProps['comments'][number]) => {
+  const getVisibleEmojis = (comment: CommentListProps['comments'][number]) => {
     const used = Object.keys(comment.emoji_counts || {}).filter(
       (emoji) => emoji && emoji !== THUMBS_UP && emoji !== THUMBS_DOWN
     );
-    return Array.from(new Set([...reactionEmojis, ...used]));
+    const ordered = reactionEmojis.filter((emoji) => used.includes(emoji));
+    const extras = used.filter((emoji) => !reactionEmojis.includes(emoji));
+    return [...ordered, ...extras];
   };
-
+  const getAvailableEmojis = (comment: CommentListProps['comments'][number]) => {
+    const used = new Set(
+      Object.keys(comment.emoji_counts || {}).filter(
+        (emoji) => emoji && emoji !== THUMBS_UP && emoji !== THUMBS_DOWN
+      )
+    );
+    return reactionEmojis.filter((emoji) => !used.has(emoji));
+  };
   if (isLoading) {
     return (
       <div className={cn('space-y-4', className)}>
@@ -466,7 +480,8 @@ const CommentList: React.FC<CommentListProps> = ({
         const isCommentComposerTarget =
           replyTarget?.commentId === comment.id && replyTarget?.parentReplyId === null;
         const replyCount = (repliesByComment[comment.id] || []).length;
-        const emojiSequence = getEmojiSequence(comment);
+        const emojiSequence = getVisibleEmojis(comment);
+        const availableEmojis = getAvailableEmojis(comment);
         const emojiCounts = comment.emoji_counts || {};
 
         return (
@@ -606,3 +621,4 @@ const CommentList: React.FC<CommentListProps> = ({
 };
 
 export { CommentList };
+
