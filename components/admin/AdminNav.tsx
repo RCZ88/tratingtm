@@ -131,6 +131,11 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
           </Button>
         </div>
 
+        {/* Mobile Theme Toggle */}
+        <div className="mr-2 md:hidden">
+          <ThemeToggle />
+        </div>
+
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -202,3 +207,6 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
 };
 
 export { AdminNav };
+
+
+

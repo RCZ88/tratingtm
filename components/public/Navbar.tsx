@@ -90,6 +90,11 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
 
+          {/* Mobile Theme Toggle */}
+          <div className="mr-2 md:hidden">
+            <ThemeToggle />
+          </div>
+
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -148,3 +153,6 @@ const Navbar: React.FC = () => {
 };
 
 export { Navbar };
+
+
+
