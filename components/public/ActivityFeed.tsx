@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
 import { MessageSquare, Star, CornerDownRight } from 'lucide-react';
+import { cn } from '@/lib/utils/cn';
 
 export type ActivityItem = {
   id: string;
@@ -17,11 +18,13 @@ export type ActivityItem = {
 interface ActivityFeedProps {
   initialItems?: ActivityItem[];
   limit?: number;
+  className?: string;
 }
 
 const ActivityFeed: React.FC<ActivityFeedProps> = ({
   initialItems = [],
   limit = 20,
+  className,
 }) => {
   const [items, setItems] = React.useState<ActivityItem[]>(initialItems);
   const teacherCacheRef = React.useRef<Record<string, string>>({});
@@ -160,25 +163,26 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
   }, [limit]);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-      <div className="flex items-center justify-between">
+    <div className={cn('rounded-2xl border border-border bg-card p-5 shadow-sm', className)}>
+      <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
         <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-200">
-          <span className="relative flex h-2 w-2">
+          <span className="relative flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
           </span>
           Live Activity
         </div>
+        <span className="text-xs text-muted-foreground">Latest {limit}</span>
       </div>
 
       {items.length === 0 ? (
         <p className="mt-4 text-sm text-muted-foreground">No recent activity yet.</p>
       ) : (
-        <ul className="mt-4 max-h-56 space-y-3 overflow-y-auto pr-2">
+        <ul className="mt-3 max-h-[24rem] divide-y divide-border overflow-y-auto pr-1">
           {items.map((item) => (
-            <li key={item.id} className="flex items-start justify-between gap-4 text-sm">
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 rounded-full bg-muted p-2 text-muted-foreground">
+            <li key={item.id} className="animate-fade-up py-3 first:pt-0">
+              <div className="flex items-start gap-3 text-sm">
+                <div className="mt-0.5 rounded-xl bg-muted/70 p-2 text-muted-foreground">
                   {item.type === 'comment' ? (
                     <MessageSquare className="h-4 w-4" />
                   ) : item.type === 'reply' ? (
@@ -197,7 +201,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
                     {item.teacher_id ? (
                       <Link
                         href={`/teachers/${item.teacher_id}`}
-                        className="font-semibold text-emerald-700 dark:text-emerald-200 hover:text-emerald-800"
+                        className="font-semibold text-emerald-700 transition-colors hover:text-emerald-800 dark:text-emerald-200 dark:hover:text-emerald-100"
                       >
                         {item.teacher_name || 'Teacher'}
                       </Link>
@@ -217,8 +221,3 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
 };
 
 export { ActivityFeed };
-
-
-
-
-

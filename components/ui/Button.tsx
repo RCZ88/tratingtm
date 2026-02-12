@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils/cn';
 
 /**
  * Button Component
- * 
+ *
  * A versatile button component with multiple variants and sizes.
  * Supports loading states, disabled states, and full-width option.
  */
@@ -36,19 +36,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+      'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50';
 
     const variants = {
       primary:
-        'bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary active:bg-primary/80',
+        'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 focus-visible:ring-primary active:bg-primary/80',
       secondary:
-        'bg-secondary text-secondary-foreground hover:bg-secondary/80 focus-visible:ring-primary/40 active:bg-secondary/70',
+        'border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80 focus-visible:ring-primary/40 active:bg-secondary/70',
       outline:
-        'border-2 border-border bg-transparent text-foreground hover:bg-accent focus-visible:ring-primary/40 active:bg-accent/70',
+        'border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-primary/40 active:bg-accent/70',
       ghost:
-        'bg-transparent text-foreground hover:bg-accent focus-visible:ring-primary/40 active:bg-accent/70',
+        'bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-primary/40 active:bg-accent/70',
       danger:
-        'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive active:bg-destructive/80',
+        'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 focus-visible:ring-destructive active:bg-destructive/80',
     };
 
     const sizes = {
@@ -103,4 +103,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export { Button };
-

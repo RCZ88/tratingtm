@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils/cn';
 import { getAnonymousId } from '@/lib/utils/anonymousId';
-import { ThumbsUp, ThumbsDown, CheckCircle, Clock, XCircle, Wrench } from 'lucide-react';
+import { ChevronUp, ChevronDown, CheckCircle, Clock, XCircle, Wrench } from 'lucide-react';
 
 export interface SuggestionItem {
   id: string;
@@ -34,31 +34,43 @@ const statusStyles: Record<string, { label: string; icon: React.ReactNode; class
   new: {
     label: 'New',
     icon: <Clock className="h-3.5 w-3.5" />,
-    className: 'bg-muted text-foreground',
+    className: 'border border-border bg-muted text-foreground',
   },
-  working: {
-    label: 'Working',
+  on_hold: {
+    label: 'On Hold',
     icon: <Wrench className="h-3.5 w-3.5" />,
-    className: 'bg-amber-100 text-amber-700 dark:text-amber-200',
+    className: 'border border-amber-500/30 bg-amber-500/15 text-amber-900 dark:text-amber-200',
+  },
+  // Backward-compatible display for legacy rows until DB migration is run
+  working: {
+    label: 'On Hold',
+    icon: <Wrench className="h-3.5 w-3.5" />,
+    className: 'border border-amber-500/30 bg-amber-500/15 text-amber-900 dark:text-amber-200',
   },
   approved: {
     label: 'Approved',
     icon: <CheckCircle className="h-3.5 w-3.5" />,
-    className: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200',
+    className: 'border border-emerald-500/30 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200',
   },
   declined: {
     label: 'Declined',
     icon: <XCircle className="h-3.5 w-3.5" />,
-    className: 'bg-red-100 text-red-700 dark:text-red-300',
+    className: 'border border-red-500/30 bg-red-500/15 text-red-800 dark:text-red-200',
   },
   completed: {
     label: 'Completed',
     icon: <CheckCircle className="h-3.5 w-3.5" />,
-    className: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200',
+    className: 'border border-emerald-500/30 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200',
   },
 };
 
-const SuggestionList: React.FC<SuggestionListProps> = ({  type,  status,  emptyMessage,  className,  showVoting = true,}) => {
+const SuggestionList: React.FC<SuggestionListProps> = ({
+  type,
+  status,
+  emptyMessage,
+  className,
+  showVoting = true,
+}) => {
   const [items, setItems] = React.useState<SuggestionItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -161,11 +173,11 @@ const SuggestionList: React.FC<SuggestionListProps> = ({  type,  status,  emptyM
                 </p>
                 {(item.teacher_name || item.subject) && (
                   <p className="mt-3 text-xs text-muted-foreground">
-                    {item.teacher_name ? `${item.teacher_name} â€¢ ` : ''}
-                    {item.department ? `${item.department} â€¢ ` : ''}
+                    {item.teacher_name ? `${item.teacher_name} ? ` : ''}
+                    {item.department ? `${item.department} ? ` : ''}
                     {item.subject ? `${item.subject}` : ''}
-                    {item.level ? ` â€¢ ${item.level}` : ''}
-                    {item.year_level ? ` â€¢ ${item.year_level}` : ''}
+                    {item.level ? ` ? ${item.level}` : ''}
+                    {item.year_level ? ` ? ${item.year_level}` : ''}
                   </p>
                 )}
               </div>
@@ -186,7 +198,7 @@ const SuggestionList: React.FC<SuggestionListProps> = ({  type,  status,  emptyM
                       : 'bg-muted text-muted-foreground hover:bg-muted'
                   )}
                 >
-                  <ThumbsUp className="h-3.5 w-3.5" />
+                  <ChevronUp className="h-3.5 w-3.5" />
                   {item.upvotes}
                 </button>
                 <button
@@ -195,11 +207,11 @@ const SuggestionList: React.FC<SuggestionListProps> = ({  type,  status,  emptyM
                   className={cn(
                     'inline-flex items-center gap-1 rounded-full px-2 py-1 transition-colors',
                     item.viewer_vote === 'down'
-                      ? 'bg-red-100 text-red-700 dark:text-red-300'
+                      ? 'bg-red-500/15 text-red-700 dark:text-red-300'
                       : 'bg-muted text-muted-foreground hover:bg-muted'
                   )}
                 >
-                  <ThumbsDown className="h-3.5 w-3.5" />
+                  <ChevronDown className="h-3.5 w-3.5" />
                   {item.downvotes}
                 </button>
               </div>
@@ -212,13 +224,4 @@ const SuggestionList: React.FC<SuggestionListProps> = ({  type,  status,  emptyM
 };
 
 export { SuggestionList };
-
-
-
-
-
-
-
-
-
 

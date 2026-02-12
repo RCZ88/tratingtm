@@ -12,20 +12,20 @@ import {
   Calendar,
   Sparkles,
   BarChart3,
-  ThumbsUp
+  ThumbsUp,
+  ArrowRight,
 } from 'lucide-react';
 import { ActivityFeed, type ActivityItem } from '@/components/public/ActivityFeed';
 import { UpdateBannerCarousel } from '@/components/public/UpdateBannerCarousel';
 
 /**
  * Homepage
- * 
+ *
  * Hero section with search, quick stats, and featured teachers.
  */
 export default async function HomePage() {
   const supabase = createClient();
 
-  // Fetch stats
   const { count: teacherCount } = await supabase
     .from('teachers')
     .select('*', { count: 'exact', head: true })
@@ -104,7 +104,7 @@ export default async function HomePage() {
         ? `${mostRatedTeacher.total_ratings} ratings`
         : 'No ratings submitted',
       icon: Star,
-      style: 'border-teal-200 bg-teal-500/10 dark:bg-teal-500/20/70 text-teal-700 dark:text-teal-200',
+      style: 'border-teal-500/30 bg-teal-500/10 text-teal-700 dark:text-teal-200',
     },
     {
       title: 'Most Commented Teacher',
@@ -114,7 +114,7 @@ export default async function HomePage() {
         ? `${mostCommentedTeacher.total_comments} comments`
         : 'No comments submitted',
       icon: MessageSquare,
-      style: 'border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/20/70 text-amber-700 dark:text-amber-200',
+      style: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-200',
     },
     {
       title: 'Overall Average Rating',
@@ -122,12 +122,11 @@ export default async function HomePage() {
       teacherId: null,
       detail: ratingCount ? `${ratingCount.toLocaleString()} total ratings` : 'No ratings yet',
       icon: BarChart3,
-      style: 'border-sky-200 bg-sky-500/10 dark:bg-sky-500/20/70 text-sky-700 dark:text-sky-200',
+      style: 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-200',
     },
   ];
 
-  const shouldShowLikedComment =
-    topLikedComment && Number(topLikedComment.like_count || 0) > 0;
+  const shouldShowLikedComment = topLikedComment && Number(topLikedComment.like_count || 0) > 0;
 
   const likedCommentPreview = shouldShowLikedComment
     ? topLikedComment.comment_text.length > 140
@@ -154,6 +153,14 @@ export default async function HomePage() {
     .order('created_at', { ascending: false })
     .limit(20);
 
+  const { data: activityReplies } = await supabase
+    .from('comment_replies')
+    .select('id, created_at, comments!inner(teacher_id)')
+    .eq('is_approved', true)
+    .eq('is_flagged', false)
+    .order('created_at', { ascending: false })
+    .limit(20);
+
   const initialActivity = [
     ...(activityRatings || []).map((row) => ({
       id: 'rating_' + row.id,
@@ -165,6 +172,12 @@ export default async function HomePage() {
       id: 'comment_' + row.id,
       type: 'comment' as const,
       teacher_id: row.teacher_id,
+      created_at: row.created_at,
+    })),
+    ...((activityReplies || []) as any[]).map((row) => ({
+      id: 'reply_' + row.id,
+      type: 'reply' as const,
+      teacher_id: row.comments?.teacher_id,
       created_at: row.created_at,
     })),
   ];
@@ -187,32 +200,27 @@ export default async function HomePage() {
     .slice(0, 20);
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-green-800 py-20 lg:py-32">
+    <div className="min-h-screen bg-background">
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-green-800 py-20 lg:py-28">
         <div className="absolute inset-0 leaf-pattern opacity-40" />
-        
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <div className="mx-auto max-w-4xl animate-fade-up text-center">
+            <h1 className="text-balance text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
               Rate Your Teachers
-              <span className="block text-emerald-100">Anonymously</span>
+              <span className="mt-1 block text-emerald-100">Anonymously</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-emerald-100">
-              Share your experience and help other students find the best educators. 
-              All ratings and comments are completely anonymous.
+            <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg text-emerald-100/95">
+              Share your experience and help other students find the best educators.
+              All ratings and comments are anonymous.
             </p>
-            
-            {/* Search Bar */}
             <div className="mx-auto mt-10 max-w-xl">
               <SearchBar size="lg" placeholder="Search for a teacher..." />
             </div>
 
-            {/* Quick Stats */}
             <div className="mt-12 flex flex-wrap justify-center gap-8">
               {stats.map((stat) => (
                 <div key={stat.label} className="flex items-center gap-3 text-white">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
                     <stat.icon className="h-5 w-5" />
                   </div>
                   <div className="text-left">
@@ -225,20 +233,25 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-      {/* Latest Updates Banner */}
-      <section className="pt-10">
+
+      <section className="py-12 lg:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <UpdateBannerCarousel className="mb-6" />
+          <div className="grid gap-6 lg:grid-cols-12">
+            <div className="animate-fade-up lg:col-span-8">
+              <UpdateBannerCarousel className="h-full rounded-3xl" />
+            </div>
+            <div className="animate-fade-up lg:col-span-4 [animation-delay:120ms]">
+              <ActivityFeed initialItems={activityItems} className="h-full rounded-3xl" />
+            </div>
+          </div>
         </div>
       </section>
-      {/* Interesting Facts Section */}
+
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
-                Interesting Facts
-              </h2>
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Interesting Facts</h2>
               <p className="mt-2 text-muted-foreground">
                 Highlights from ratings and comments across the platform
               </p>
@@ -250,49 +263,39 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {factCards.map((card) => (
-              <div
-                key={card.title}
-                className={`rounded-2xl border p-5 shadow-sm ${card.style}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide">
-                    <card.icon className="h-4 w-4" />
-                    <span>{card.title}</span>
-                  </div>
+              <div key={card.title} className={`rounded-2xl border p-5 shadow-sm ${card.style}`}>
+                <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide">
+                  <card.icon className="h-4 w-4" />
+                  <span>{card.title}</span>
                 </div>
                 {card.teacherId ? (
                   <Link
                     href={`/teachers/${card.teacherId}`}
-                    className="mt-4 inline-flex text-xl font-bold text-foreground hover:text-emerald-700 dark:text-emerald-200"
+                    className="mt-4 inline-flex text-xl font-bold text-foreground transition-colors hover:text-emerald-700 dark:text-emerald-200 dark:hover:text-emerald-100"
                   >
                     {card.value}
                   </Link>
                 ) : (
                   <p className="mt-4 text-xl font-bold text-foreground">{card.value}</p>
                 )}
-                <p className="mt-1 text-sm text-muted-foreground">{card.detail}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{card.detail}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 mb-12">
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div className="mt-12 grid gap-6 lg:grid-cols-5">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm lg:col-span-3">
               <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-200">
                 <ThumbsUp className="h-4 w-4" />
                 Top-Liked Comment
               </div>
-
               {shouldShowLikedComment ? (
-                <div className="mt-4 space-y-2">
-                  <p className="text-sm text-foreground whitespace-pre-wrap">
-                    {likedCommentPreview}
-                  </p>
+                <div className="mt-4 space-y-3">
+                  <p className="whitespace-pre-wrap text-sm text-foreground">{likedCommentPreview}</p>
                   <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                    <span className="font-medium text-foreground">
-                      {topLikedComment.teacher_name}
-                    </span>
+                    <span className="font-medium text-foreground">{topLikedComment.teacher_name}</span>
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-emerald-700 dark:text-emerald-200">
                       <ThumbsUp className="h-3.5 w-3.5" />
                       {topLikedComment.like_count}
@@ -300,77 +303,65 @@ export default async function HomePage() {
                   </div>
                 </div>
               ) : (
-                <div className="mt-4 text-sm text-muted-foreground">
-                  No liked comments yet. Be the first to leave one!
-                </div>
+                <p className="mt-4 text-sm text-muted-foreground">
+                  No liked comments yet. Be the first to leave one.
+                </p>
               )}
             </div>
-          </div>
 
-          <div className="mt-10 mb-12">
-            <div className="relative overflow-hidden rounded-3xl border border-emerald-300 bg-gradient-to-r from-emerald-500 via-emerald-600 to-green-600 p-8 shadow-lg">
-              <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
-              <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-              <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-widest text-emerald-50">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20">
-                      <Calendar className="h-5 w-5" />
-                    </span>
-                    Weekly Reset Reminder
-                  </div>
-                  <h3 className="mt-3 text-2xl font-bold text-white sm:text-3xl">
-                    Vote once per week, every Monday
-                  </h3>
-                  <p className="mt-2 text-base text-emerald-50/90 sm:text-lg">
-                    Your weekly vote refreshes at the start of each week, so you can keep sharing new feedback.
-                  </p>
+            <div className="relative overflow-hidden rounded-3xl border border-emerald-400/40 bg-gradient-to-br from-emerald-500 via-emerald-600 to-green-700 p-6 shadow-lg lg:col-span-2">
+              <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/20 blur-3xl" />
+              <div className="absolute bottom-0 -left-12 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+              <div className="relative">
+                <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-50">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/20">
+                    <Calendar className="h-4 w-4" />
+                  </span>
+                  Weekly Reset Reminder
                 </div>
-                <div className="shrink-0 rounded-2xl bg-white/15 px-4 py-3 text-center text-sm font-semibold text-white">
-                  Weekly votes reset
-                  <span className="block text-lg font-bold">Every Monday</span>
+                <h3 className="mt-4 text-2xl font-bold text-white">Vote once per week</h3>
+                <p className="mt-2 text-sm text-emerald-50/90">
+                  Weekly votes refresh every Monday, so students can share updated feedback.
+                </p>
+                <div className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white">
+                  Every Monday
+                  <ArrowRight className="h-4 w-4" />
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-          <div className="mt-10 mb-12">
-            <ActivityFeed initialItems={activityItems} />
-          </div>
 
-      {/* How It Works Section */}
-      <section className="border-t border-border bg-muted py-16 lg:py-24">
+      <section className="border-y border-border bg-muted/50 py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
-              How It Works
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              Share your feedback in three simple steps
+            <h2 className="text-2xl font-bold text-foreground sm:text-3xl">How It Works</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+              Share your feedback in three simple steps.
             </p>
           </div>
 
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
             {[
               {
                 step: '01',
                 title: 'Find Your Teacher',
-                description: 'Search or browse our directory to find the teacher you want to rate.',
+                description: 'Search or browse the directory to find the teacher you want to rate.',
               },
               {
                 step: '02',
-                title: 'Rate & Comment',
-                description: 'Give a star rating and share your experience with an optional comment.',
+                title: 'Rate and Comment',
+                description: 'Give a star rating and add optional context to help other students.',
               },
               {
                 step: '03',
                 title: 'Stay Anonymous',
-                description: 'Your feedback is completely anonymous. No account required!',
+                description: 'All activity is anonymous so feedback stays focused and constructive.',
               },
             ].map((item) => (
-              <div key={item.step} className="relative">
-                <div className="text-6xl font-bold text-emerald-100">{item.step}</div>
+              <div key={item.step} className="animate-scale-in rounded-2xl border border-border bg-card p-6 shadow-sm">
+                <div className="text-5xl font-bold text-emerald-500/20">{item.step}</div>
                 <h3 className="mt-4 text-xl font-semibold text-foreground">{item.title}</h3>
                 <p className="mt-2 text-muted-foreground">{item.description}</p>
               </div>
@@ -379,15 +370,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl bg-emerald-600 px-6 py-12 text-center lg:px-16">
-            <h2 className="text-3xl font-bold text-white">
-              Ready to share your experience?
-            </h2>
+          <div className="rounded-3xl bg-gradient-to-br from-emerald-600 to-green-700 px-6 py-12 text-center shadow-xl lg:px-16">
+            <h2 className="text-3xl font-bold text-white">Ready to share your experience?</h2>
             <p className="mx-auto mt-4 max-w-xl text-lg text-emerald-100">
-              Join thousands of students in helping others find great teachers.
+              Join other students in helping the school community with better feedback.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link href="/teachers">
@@ -396,11 +384,7 @@ export default async function HomePage() {
                 </Button>
               </Link>
               <Link href="/leaderboard">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white/10"
-                >
+                <Button size="lg" variant="outline" className="border-white/70 bg-transparent text-white hover:bg-white/10">
                   View Leaderboard
                 </Button>
               </Link>
@@ -411,22 +395,3 @@ export default async function HomePage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

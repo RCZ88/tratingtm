@@ -21,7 +21,7 @@ interface AdminSuggestion {
   downvotes: number;
 }
 
-const STATUS_OPTIONS = ['new', 'working', 'approved', 'declined', 'completed'];
+const STATUS_OPTIONS = ['new', 'on_hold', 'approved', 'declined', 'completed'];
 const TYPE_OPTIONS = [
   { value: '', label: 'All types' },
   { value: 'general', label: 'General' },
@@ -160,7 +160,7 @@ export default function AdminCompletedSuggestionsPage() {
                   >
                     {STATUS_OPTIONS.map((status) => (
                       <option key={status} value={status}>
-                        {status}
+                        {status === 'on_hold' ? 'On Hold' : status}
                       </option>
                     ))}
                   </select>
@@ -173,6 +173,9 @@ export default function AdminCompletedSuggestionsPage() {
     </div>
   );
 }
+
+
+
 
 
 

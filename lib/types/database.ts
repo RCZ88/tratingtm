@@ -256,8 +256,7 @@ export interface Database {
             referencedColumns: ['id'];
           }
         ];
-      };
-      comment_reactions: {
+      };      comment_reactions: {
         Row: {
           id: string;
           comment_id: string;
@@ -287,6 +286,30 @@ export interface Database {
             referencedColumns: ['id'];
           }
         ];
+      };
+      comment_reaction_emojis: {
+        Row: {
+          id: string;
+          emoji: string;
+          enabled: boolean;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          emoji: string;
+          enabled?: boolean;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          emoji?: string;
+          enabled?: boolean;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       comment_replies: {
         Row: {
@@ -633,6 +656,7 @@ export type CommentReply = Database['public']['Tables']['comment_replies']['Row'
 export type CommentReplyInsert = Database['public']['Tables']['comment_replies']['Insert'];
 export type CommentReplyUpdate = Database['public']['Tables']['comment_replies']['Update'];
 export type BannedWord = Database['public']['Tables']['banned_words']['Row'];
+export type CommentReactionEmoji = Database['public']['Tables']['comment_reaction_emojis']['Row'];
 export type PublicUpdate = Database['public']['Tables']['public_updates']['Row'];
 export type Suggestion = Database['public']['Tables']['suggestions']['Row'];
 export type SuggestionInsert = Database['public']['Tables']['suggestions']['Insert'];
@@ -685,6 +709,9 @@ export interface PaginatedResponse<T> {
   limit: number;
   totalPages: number;
 }
+
+
+
 
 
 

@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { cn } from '@/lib/utils/cn';
-import { Menu, X, GraduationCap, Trophy, Search, Users, Shield } from 'lucide-react';
+import { Menu, X, GraduationCap, Trophy, Search, Users, Shield, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
     { href: '/teachers', label: 'Teachers', icon: Users },
     { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
     { href: '/search', label: 'Search', icon: Search },
-    { href: '/suggestions', label: 'Suggestions', icon: null },
+    { href: '/suggestions', label: 'Suggestions', icon: Lightbulb },
   ];
 
   const isActive = (href: string) => {
@@ -153,6 +153,7 @@ const Navbar: React.FC = () => {
 };
 
 export { Navbar };
+
 
 
 

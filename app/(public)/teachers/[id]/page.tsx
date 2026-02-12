@@ -48,7 +48,10 @@ interface TeacherData {
     like_count: number;
     dislike_count: number;
     viewer_reaction: 'like' | 'dislike' | null;
+    emoji_counts?: Record<string, number>;
+    viewer_emojis?: string[];
   }>;
+  available_reaction_emojis?: string[];
 }
 
 export default function TeacherDetailPage() {
@@ -326,7 +329,12 @@ export default function TeacherDetailPage() {
                 <CardTitle>Comments ({teacher.total_comments})</CardTitle>
               </CardHeader>
               <CardContent>
-                <CommentList comments={teacher.comments} teacherId={teacher.id} totalCount={teacher.total_comments} />
+                <CommentList
+                  comments={teacher.comments}
+                  teacherId={teacher.id}
+                  totalCount={teacher.total_comments}
+                  availableReactionEmojis={teacher.available_reaction_emojis || []}
+                />
               </CardContent>
             </Card>
           </div>
@@ -366,6 +374,7 @@ export default function TeacherDetailPage() {
     </div>
   );
 }
+
 
 
 

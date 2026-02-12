@@ -133,7 +133,7 @@ CREATE TABLE suggestions (
   type VARCHAR(50) NOT NULL CHECK (type IN ('general', 'teacher_add', 'teacher_modify')),
   title VARCHAR(255),
   description TEXT NOT NULL,
-  status VARCHAR(50) NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'working', 'approved', 'declined', 'completed')),
+  status VARCHAR(50) NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'on_hold', 'approved', 'declined', 'completed')),
   teacher_name VARCHAR(255),
   department VARCHAR(255),
   subject VARCHAR(255),
@@ -475,3 +475,4 @@ CREATE POLICY "Admin full access on users" ON users
 
 CREATE POLICY "Admin full access on leaderboard_cache" ON leaderboard_cache
   FOR ALL USING (auth.role() = 'service_role');
+

@@ -22,10 +22,10 @@ interface AdminSuggestion {
   downvotes: number;
 }
 
-const STATUS_OPTIONS = ['new', 'working', 'approved'];
+const STATUS_OPTIONS = ['new', 'on_hold', 'approved'];
 const STATUS_FILTER_OPTIONS = [
   { value: '', label: 'All statuses' },
-  ...STATUS_OPTIONS.map((status) => ({ value: status, label: status })),
+  ...STATUS_OPTIONS.map((status) => ({ value: status, label: status === 'on_hold' ? 'On Hold' : status })),
 ];
 const TYPE_OPTIONS = [
   { value: '', label: 'All types' },
@@ -192,7 +192,7 @@ export default function AdminSuggestionsPage() {
                   >
                     {STATUS_OPTIONS.map((status) => (
                       <option key={status} value={status}>
-                        {status}
+                        {status === 'on_hold' ? 'On Hold' : status}
                       </option>
                     ))}
                   </select>
@@ -220,6 +220,8 @@ export default function AdminSuggestionsPage() {
     </div>
   );
 }
+
+
 
 
 

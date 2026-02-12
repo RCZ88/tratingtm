@@ -5,7 +5,8 @@ import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/Button';
 import { getAnonymousId } from '@/lib/utils/anonymousId';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
-import { MessageSquare, User, ThumbsUp, ThumbsDown, CornerDownRight } from 'lucide-react';
+import { MessageSquare, User, CornerDownRight, Smile } from 'lucide-react';
+import { defaultReactionEmojis } from '@/lib/utils/commentReactions';
 
 export interface CommentListProps {
   comments: Array<{
@@ -15,12 +16,15 @@ export interface CommentListProps {
     like_count?: number;
     dislike_count?: number;
     viewer_reaction?: 'like' | 'dislike' | null;
+    emoji_counts?: Record<string, number>;
+    viewer_emojis?: string[];
   }>;
   isLoading?: boolean;
   emptyMessage?: string;
   className?: string;
   teacherId?: string;
   totalCount?: number;
+  availableReactionEmojis?: string[];
 }
 
 type ReplyItem = {
@@ -41,6 +45,7 @@ const CommentList: React.FC<CommentListProps> = ({
   className,
   teacherId,
   totalCount,
+  availableReactionEmojis,
 }) => {
   const [localComments, setLocalComments] = React.useState(comments);
   const [pendingIds, setPendingIds] = React.useState<Set<string>>(new Set());
@@ -50,6 +55,9 @@ const CommentList: React.FC<CommentListProps> = ({
   const [sortDirection, setSortDirection] = React.useState<'desc' | 'asc'>('desc');
   const [repliesByComment, setRepliesByComment] = React.useState<Record<string, ReplyItem[]>>({});
   const [isLoadingReplies, setIsLoadingReplies] = React.useState(false);
+  const [reactionEmojis, setReactionEmojis] = React.useState<string[]>(
+    availableReactionEmojis?.length ? availableReactionEmojis : [...defaultReactionEmojis]
+  );
 
   const [replyTarget, setReplyTarget] = React.useState<{
     commentId: string;
@@ -63,7 +71,35 @@ const CommentList: React.FC<CommentListProps> = ({
 
   React.useEffect(() => {
     setLocalComments(comments);
-  }, [comments]);
+
+    const fromComments = Array.from(
+      new Set(
+        comments.flatMap((comment) => Object.keys(comment.emoji_counts || {})).filter(Boolean)
+      )
+    );
+
+    if (availableReactionEmojis?.length) {
+      setReactionEmojis(Array.from(new Set([...availableReactionEmojis, ...fromComments])));
+    } else if (fromComments.length > 0) {
+      setReactionEmojis(Array.from(new Set([...defaultReactionEmojis, ...fromComments])));
+    }
+  }, [comments, availableReactionEmojis]);
+
+  React.useEffect(() => {
+    const loadReactions = async () => {
+      try {
+        const response = await fetch('/api/comment-reaction-emojis');
+        const data = await response.json();
+        if (response.ok && Array.isArray(data.data) && data.data.length > 0) {
+          setReactionEmojis((prev) => Array.from(new Set([...data.data, ...prev])));
+        }
+      } catch (error) {
+        console.error('Error loading reaction emojis:', error);
+      }
+    };
+
+    loadReactions();
+  }, []);
 
   const canExpand = !!teacherId && typeof totalCount === 'number' && totalCount > localComments.length;
 
@@ -79,6 +115,9 @@ const CommentList: React.FC<CommentListProps> = ({
       const data = await response.json();
       if (response.ok) {
         setLocalComments(data.data || []);
+        if (Array.isArray(data.meta?.available_reaction_emojis)) {
+          setReactionEmojis((prev) => Array.from(new Set([...data.meta.available_reaction_emojis, ...prev])));
+        }
         setIsExpanded(true);
       }
     } catch (error) {
@@ -126,8 +165,8 @@ const CommentList: React.FC<CommentListProps> = ({
     const entries = [...localComments];
     entries.sort((a, b) => {
       if (sortBy === 'interactions') {
-        const aCount = (a.like_count || 0) + (a.dislike_count || 0);
-        const bCount = (b.like_count || 0) + (b.dislike_count || 0);
+        const aCount = Object.values(a.emoji_counts || {}).reduce((sum, value) => sum + Number(value || 0), 0);
+        const bCount = Object.values(b.emoji_counts || {}).reduce((sum, value) => sum + Number(value || 0), 0);
         return sortDirection === 'asc' ? aCount - bCount : bCount - aCount;
       }
 
@@ -138,30 +177,34 @@ const CommentList: React.FC<CommentListProps> = ({
     return entries;
   }, [localComments, sortBy, sortDirection]);
 
-  const updateReaction = async (commentId: string, reaction: 'like' | 'dislike') => {
+  const updateReaction = async (commentId: string, emoji: string) => {
     const previous = localComments;
-    const current = localComments.find((comment) => comment.id === commentId)?.viewer_reaction || null;
-    const nextReaction = current === reaction ? null : reaction;
+    const currentViewer = localComments.find((comment) => comment.id === commentId)?.viewer_emojis || [];
+    const isRemoving = currentViewer.includes(emoji);
     setPendingIds((prev) => new Set(prev).add(commentId));
 
     setLocalComments((prev) =>
       prev.map((comment) => {
         if (comment.id !== commentId) return comment;
-        const currentLocal = comment.viewer_reaction || null;
-        const next = currentLocal === reaction ? null : reaction;
-        let likeCount = comment.like_count || 0;
-        let dislikeCount = comment.dislike_count || 0;
+        const emojiCounts = { ...(comment.emoji_counts || {}) };
+        const viewerEmojis = new Set(comment.viewer_emojis || []);
 
-        if (currentLocal === 'like') likeCount -= 1;
-        if (currentLocal === 'dislike') dislikeCount -= 1;
-        if (next === 'like') likeCount += 1;
-        if (next === 'dislike') dislikeCount += 1;
+        if (viewerEmojis.has(emoji)) {
+          viewerEmojis.delete(emoji);
+          emojiCounts[emoji] = Math.max(0, (emojiCounts[emoji] || 0) - 1);
+          if (emojiCounts[emoji] === 0) delete emojiCounts[emoji];
+        } else {
+          viewerEmojis.add(emoji);
+          emojiCounts[emoji] = (emojiCounts[emoji] || 0) + 1;
+        }
 
         return {
           ...comment,
-          like_count: Math.max(0, likeCount),
-          dislike_count: Math.max(0, dislikeCount),
-          viewer_reaction: next,
+          emoji_counts: emojiCounts,
+          viewer_emojis: Array.from(viewerEmojis),
+          like_count: emojiCounts['??'] || 0,
+          dislike_count: emojiCounts['??'] || 0,
+          viewer_reaction: viewerEmojis.has('??') ? 'like' : viewerEmojis.has('??') ? 'dislike' : null,
         };
       })
     );
@@ -174,7 +217,7 @@ const CommentList: React.FC<CommentListProps> = ({
         body: JSON.stringify({
           comment_id: commentId,
           anonymous_id: anonymousId,
-          reaction: nextReaction,
+          emoji,
         }),
       });
 
@@ -323,6 +366,11 @@ const CommentList: React.FC<CommentListProps> = ({
     );
   };
 
+  const getEmojiSequence = (comment: CommentListProps['comments'][number]) => {
+    const used = Object.keys(comment.emoji_counts || {}).filter(Boolean);
+    return Array.from(new Set([...reactionEmojis, ...used]));
+  };
+
   if (isLoading) {
     return (
       <div className={cn('space-y-4', className)}>
@@ -387,13 +435,12 @@ const CommentList: React.FC<CommentListProps> = ({
       {replySuccess && <div className="rounded-md bg-emerald-500/10 p-2 text-xs text-emerald-700 dark:text-emerald-200">{replySuccess}</div>}
 
       {sortedComments.map((comment) => {
-        const likeCount = comment.like_count || 0;
-        const dislikeCount = comment.dislike_count || 0;
-        const viewerReaction = comment.viewer_reaction || null;
+        const viewerEmojis = comment.viewer_emojis || [];
         const isPending = pendingIds.has(comment.id);
         const isCommentComposerTarget =
           replyTarget?.commentId === comment.id && replyTarget?.parentReplyId === null;
         const replyCount = (repliesByComment[comment.id] || []).length;
+        const emojiSequence = getEmojiSequence(comment);
 
         return (
           <div key={comment.id} className="rounded-lg border border-border bg-card p-4 transition-shadow hover:shadow-sm">
@@ -409,42 +456,47 @@ const CommentList: React.FC<CommentListProps> = ({
 
             <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{comment.comment_text}</p>
 
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() => updateReaction(comment.id, 'like')}
-                disabled={isPending}
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-colors',
-                  viewerReaction === 'like' ? 'bg-green-100 text-green-700 dark:text-green-300' : 'bg-muted text-muted-foreground hover:bg-muted'
-                )}
-              >
-                <ThumbsUp className="h-3.5 w-3.5" />
-                {likeCount}
-              </button>
-              <button
-                type="button"
-                onClick={() => updateReaction(comment.id, 'dislike')}
-                disabled={isPending}
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-colors',
-                  viewerReaction === 'dislike' ? 'bg-red-100 text-red-700 dark:text-red-300' : 'bg-muted text-muted-foreground hover:bg-muted'
-                )}
-              >
-                <ThumbsDown className="h-3.5 w-3.5" />
-                {dislikeCount}
-              </button>
+            <div className="mt-4 space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {emojiSequence.map((emoji) => {
+                  const count = (comment.emoji_counts || {})[emoji] || 0;
+                  const isActive = viewerEmojis.includes(emoji);
+                  return (
+                    <button
+                      key={`${comment.id}-${emoji}`}
+                      type="button"
+                      onClick={() => updateReaction(comment.id, emoji)}
+                      disabled={isPending}
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+                        isActive
+                          ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                          : 'border-border bg-muted text-muted-foreground hover:bg-card'
+                      )}
+                    >
+                      <span>{emoji}</span>
+                      <span>{count}</span>
+                    </button>
+                  );
+                })}
+                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                  <Smile className="h-3.5 w-3.5" />
+                  Tap an emoji to react
+                </span>
+              </div>
 
-              <button
-                type="button"
-                onClick={() => openReplyComposer(comment.id, null, comment.comment_text)}
-                className="inline-flex items-center gap-1 rounded-lg bg-muted px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted"
-              >
-                <CornerDownRight className="h-3.5 w-3.5" />
-                Reply
-              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => openReplyComposer(comment.id, null, comment.comment_text)}
+                  className="inline-flex items-center gap-1 rounded-lg bg-muted px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-card"
+                >
+                  <CornerDownRight className="h-3.5 w-3.5" />
+                  Reply
+                </button>
 
-              <span className="text-xs text-muted-foreground">{replyCount} repl{replyCount === 1 ? 'y' : 'ies'}</span>
+                <span className="text-xs text-muted-foreground">{replyCount} repl{replyCount === 1 ? 'y' : 'ies'}</span>
+              </div>
             </div>
 
             {isCommentComposerTarget && (
@@ -498,11 +550,3 @@ const CommentList: React.FC<CommentListProps> = ({
 };
 
 export { CommentList };
-
-
-
-
-
-
-
-

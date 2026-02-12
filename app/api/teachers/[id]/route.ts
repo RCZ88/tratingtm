@@ -4,6 +4,7 @@ import { validate, teacherUpdateSchema, uuidSchema } from '@/lib/utils/validatio
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/authOptions';
 import { getCurrentWeekStart, toISODate } from '@/lib/utils/dateHelpers';
+import { aggregateCommentReactions } from '@/lib/utils/commentReactionAggregates';
 
 /**
  * GET /api/teachers/[id]
@@ -92,47 +93,9 @@ export async function GET(
       .eq('is_flagged', false)
       .order('created_at', { ascending: false })
       .limit(10);
+    const reactionAggregate = await aggregateCommentReactions(supabase, comments || [], { anonymousId });
+    const commentsWithReactions = reactionAggregate.comments;
 
-    const commentIds = comments?.map((c) => c.id) || [];
-    const reactionMap = new Map<
-      string,
-      { like_count: number; dislike_count: number; viewer_reaction: 'like' | 'dislike' | null }
-    >();
-
-    commentIds.forEach((commentId) => {
-      reactionMap.set(commentId, { like_count: 0, dislike_count: 0, viewer_reaction: null });
-    });
-
-    if (commentIds.length > 0) {
-      const { data: reactions } = await supabase
-        .from('comment_reactions')
-        .select('comment_id, reaction, anonymous_id')
-        .in('comment_id', commentIds);
-
-      reactions?.forEach((reaction) => {
-        const entry = reactionMap.get(reaction.comment_id);
-        if (!entry) return;
-        if (reaction.reaction === 'like') entry.like_count += 1;
-        if (reaction.reaction === 'dislike') entry.dislike_count += 1;
-        if (anonymousId && reaction.anonymous_id === anonymousId) {
-          entry.viewer_reaction = reaction.reaction as 'like' | 'dislike';
-        }
-      });
-    }
-
-    const commentsWithReactions = (comments || []).map((comment) => {
-      const counts = reactionMap.get(comment.id) || {
-        like_count: 0,
-        dislike_count: 0,
-        viewer_reaction: null,
-      };
-      return {
-        ...comment,
-        like_count: counts.like_count,
-        dislike_count: counts.dislike_count,
-        viewer_reaction: counts.viewer_reaction,
-      };
-    });
 
     const weekStart = toISODate(getCurrentWeekStart());
     const { data: weeklyRatings } = await supabase
@@ -160,6 +123,7 @@ export async function GET(
         weekly_average_rating: weeklyAverage,
         rating_distribution: distribution,
         comments: commentsWithReactions,
+        available_reaction_emojis: reactionAggregate.availableEmojis,
       },
     });
   } catch (error) {
@@ -367,4 +331,6 @@ export async function DELETE(
     );
   }
 }
+
+
 

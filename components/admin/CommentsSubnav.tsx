@@ -9,6 +9,7 @@ const tabs = [
   { href: '/admin/comments', label: 'All Comments', exact: true },
   { href: '/admin/moderation', label: 'Moderation Queue', exact: true },
   { href: '/admin/comments/words', label: 'Word Filter' },
+  { href: '/admin/comments/reactions', label: 'Reactions' },
 ];
 
 const CommentsSubnav: React.FC = () => {
@@ -37,6 +38,7 @@ const CommentsSubnav: React.FC = () => {
 };
 
 export { CommentsSubnav };
+
 
 
 
