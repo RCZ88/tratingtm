@@ -120,14 +120,14 @@ export default function LeaderboardPage() {
   }, [fetchLeaderboard]);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-muted py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8 text-center relative overflow-hidden rounded-2xl bg-white px-6 py-8 shadow-sm">
+        <div className="mb-8 text-center relative overflow-hidden rounded-2xl bg-card px-6 py-8 shadow-sm">
           <div className="absolute inset-0 leaf-pattern opacity-40" />
           <div className="relative">
-            <h1 className="text-3xl font-bold text-slate-900">Leaderboard</h1>
-            <p className="mt-2 text-slate-600">
+            <h1 className="text-3xl font-bold text-foreground">Leaderboard</h1>
+            <p className="mt-2 text-muted-foreground">
               Compare ratings across the school community
             </p>
           </div>
@@ -139,7 +139,7 @@ export default function LeaderboardPage() {
           <UpdateBannerCarousel />
         </div>
         {/* Controls */}
-        <div className="mb-8 rounded-2xl bg-white p-4 shadow-sm">
+        <div className="mb-8 rounded-2xl bg-card p-4 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap gap-2">
               {['overall', 'department', 'year_level'].map((option) => (
@@ -149,8 +149,8 @@ export default function LeaderboardPage() {
                   onClick={() => setType(option as typeof type)}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                     type === option
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                      : 'bg-muted text-muted-foreground hover:bg-muted'
                   }`}
                 >
                   {option === 'overall'
@@ -163,14 +163,14 @@ export default function LeaderboardPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-sm">
+              <div className="inline-flex rounded-full border border-border bg-muted p-1 text-sm">
                 <button
                   type="button"
                   onClick={() => setPeriod('weekly_unique')}
                   className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                     period === 'weekly_unique'
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'text-slate-600 hover:bg-white'
+                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                      : 'text-muted-foreground hover:bg-card'
                   }`}
                 >
                   Weekly (Unique)
@@ -180,8 +180,8 @@ export default function LeaderboardPage() {
                   onClick={() => setPeriod('all_time')}
                   className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                     period === 'all_time'
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'text-slate-600 hover:bg-white'
+                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                      : 'text-muted-foreground hover:bg-card'
                   }`}
                 >
                   All-Time
@@ -193,7 +193,7 @@ export default function LeaderboardPage() {
                 onClick={() =>
                   setSortDirection((prev) => (prev === 'desc' ? 'asc' : 'desc'))
                 }
-                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 shadow-sm hover:border-emerald-300"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground shadow-sm hover:border-emerald-300"
               >
                 {sortDirection === 'desc' ? (
                   <ArrowDownWideNarrow className="h-4 w-4" />
@@ -208,13 +208,13 @@ export default function LeaderboardPage() {
           <div className="mt-4 flex flex-wrap items-center gap-3">
             {type === 'department' && (
               <div className="min-w-[220px]">
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Department
                 </label>
                 <select
                   value={departmentId}
                   onChange={(e) => setDepartmentId(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                 >
                   {isLoadingDepartments && <option>Loading...</option>}
                   {!isLoadingDepartments && departments.length === 0 && (
@@ -231,13 +231,13 @@ export default function LeaderboardPage() {
 
             {type === 'year_level' && (
               <div className="min-w-[160px]">
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Year Level
                 </label>
                 <select
                   value={yearLevel}
                   onChange={(e) => setYearLevel(parseInt(e.target.value, 10))}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                 >
                   {YEAR_LEVELS.map((level) => (
                     <option key={level} value={level}>
@@ -250,15 +250,15 @@ export default function LeaderboardPage() {
 
             {period === 'weekly_unique' && (
               <div className="min-w-[220px]">
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Week
                 </label>
-                <div className="inline-flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm">
-                  <Calendar className="h-4 w-4 text-slate-400" />
+                <div className="inline-flex w-full items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
                   <select
                     value={selectedWeek}
                     onChange={(e) => setSelectedWeek(e.target.value)}
-                    className="w-full bg-transparent text-sm font-medium text-slate-700 focus:outline-none"
+                    className="w-full bg-transparent text-sm font-medium text-foreground focus:outline-none"
                   >
                     {recentWeeks.map((week) => (
                       <option key={week.start.toISOString()} value={toISODate(week.start)}>
@@ -277,14 +277,14 @@ export default function LeaderboardPage() {
         </div>
 
         {period === 'weekly_unique' && leaderboard?.week_start && leaderboard?.week_end && (
-          <div className="mb-6 text-center text-sm text-slate-500">
+          <div className="mb-6 text-center text-sm text-muted-foreground">
             {formatWeekRange(leaderboard.week_start, leaderboard.week_end)}
           </div>
         )}
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-emerald-700">
+            <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-200">
               <Trophy className="h-5 w-5" />
               {type === 'overall'
                 ? 'Overall Leaderboard'
@@ -312,6 +312,12 @@ export default function LeaderboardPage() {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 

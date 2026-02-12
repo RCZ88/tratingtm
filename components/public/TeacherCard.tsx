@@ -46,12 +46,12 @@ const TeacherCard: React.FC<TeacherCardProps> = ({
     <Link href={`/teachers/${teacher.id}`}>
       <div
         className={cn(
-          'group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg',
+          'group relative overflow-hidden rounded-xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg',
           className
         )}
       >
         {/* Image */}
-        <div className="relative mx-auto mb-4 h-24 w-24 overflow-hidden rounded-full bg-slate-100">
+        <div className="relative mx-auto mb-4 h-24 w-24 overflow-hidden rounded-full bg-muted">
           {teacher.image_url ? (
             <Image
               src={teacher.image_url}
@@ -68,12 +68,12 @@ const TeacherCard: React.FC<TeacherCardProps> = ({
 
         {/* Content */}
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-1">
+          <h3 className="text-lg font-semibold text-foreground group-hover:text-emerald-700 dark:text-emerald-200 transition-colors line-clamp-1">
             {teacher.name}
           </h3>
 
           {primarySubject && (
-            <div className="mt-1 flex items-center justify-center gap-1.5 text-sm text-slate-500">
+            <div className="mt-1 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
               <BookOpen className="h-3.5 w-3.5" />
               <span className="line-clamp-1">{primarySubject}</span>
             </div>
@@ -92,11 +92,11 @@ const TeacherCard: React.FC<TeacherCardProps> = ({
 
           {/* Ratings */}
           <div className="mt-3 space-y-2">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               {ratingLabel}
             </div>
             {isWeekly && displayRating === null ? (
-              <p className="text-xs text-slate-500">Not enough data</p>
+              <p className="text-xs text-muted-foreground">Not enough data</p>
             ) : (
               <div className="flex justify-center">
                 <StarRatingDisplay
@@ -110,7 +110,7 @@ const TeacherCard: React.FC<TeacherCardProps> = ({
 
           {/* Comment count */}
           {teacher.total_comments !== undefined && teacher.total_comments > 0 && (
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-xs text-muted-foreground">
               {teacher.total_comments} comment{teacher.total_comments !== 1 ? 's' : ''}
             </p>
           )}
@@ -124,3 +124,8 @@ const TeacherCard: React.FC<TeacherCardProps> = ({
 };
 
 export { TeacherCard };
+
+
+
+
+

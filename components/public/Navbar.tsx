@@ -65,7 +65,7 @@ const Navbar: React.FC = () => {
                 className={cn(
                   'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors',
                   isActive(item.href)
-                    ? 'bg-emerald-500/10 text-emerald-600'
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
                     : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                 )}
               >
@@ -122,7 +122,7 @@ const Navbar: React.FC = () => {
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors',
                   isActive(item.href)
-                    ? 'bg-emerald-500/10 text-emerald-600'
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
                     : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                 )}
               >
@@ -153,6 +153,7 @@ const Navbar: React.FC = () => {
 };
 
 export { Navbar };
+
 
 
 

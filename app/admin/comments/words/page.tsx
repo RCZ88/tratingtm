@@ -162,8 +162,8 @@ export default function AdminBannedWordsPage() {
       <CommentsSubnav />
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Word Filter</h1>
-        <p className="text-slate-600">
+        <h1 className="text-2xl font-bold text-foreground">Word Filter</h1>
+        <p className="text-muted-foreground">
           Manage banned words and purge existing comments that contain them.
         </p>
       </div>
@@ -185,12 +185,12 @@ export default function AdminBannedWordsPage() {
             </Button>
           </div>
           {error && (
-            <div className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">
+            <div className="rounded-lg bg-red-500/10 dark:bg-red-500/20 px-4 py-2 text-sm text-red-600 dark:text-red-300">
               {error}
             </div>
           )}
           {message && (
-            <div className="rounded-lg bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+            <div className="rounded-lg bg-emerald-500/10 px-4 py-2 text-sm text-emerald-700 dark:text-emerald-200">
               {message}
             </div>
           )}
@@ -208,7 +208,7 @@ export default function AdminBannedWordsPage() {
               id="copy-scope"
               value={copyScope}
               onChange={(event) => setCopyScope(event.target.value as typeof copyScope)}
-              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
+              className="h-10 rounded-lg border border-border bg-card px-3 text-sm text-foreground"
             >
               <option value="all">Copy all</option>
               <option value="enabled">Copy enabled</option>
@@ -221,7 +221,7 @@ export default function AdminBannedWordsPage() {
               id="copy-format"
               value={copyFormat}
               onChange={(event) => setCopyFormat(event.target.value as typeof copyFormat)}
-              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
+              className="h-10 rounded-lg border border-border bg-card px-3 text-sm text-foreground"
             >
               <option value="newline">Format: newline</option>
               <option value="comma">Format: comma</option>
@@ -238,15 +238,15 @@ export default function AdminBannedWordsPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-50">
+              <thead className="bg-muted">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Word
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Enabled
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Actions
                   </th>
                 </tr>
@@ -260,23 +260,23 @@ export default function AdminBannedWordsPage() {
                   </tr>
                 ) : words.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="py-8 text-center text-slate-500">
+                    <td colSpan={3} className="py-8 text-center text-muted-foreground">
                       No banned words yet.
                     </td>
                   </tr>
                 ) : (
                   words.map((word) => (
-                    <tr key={word.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 text-sm font-medium text-slate-900">
+                    <tr key={word.id} className="hover:bg-muted">
+                      <td className="px-4 py-3 text-sm font-medium text-foreground">
                         {word.word}
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600">
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
                         <button
                           onClick={() => handleToggle(word)}
                           className={
                             word.enabled
-                              ? 'rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700'
-                              : 'rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-500'
+                              ? 'rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-200'
+                              : 'rounded-full border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground'
                           }
                         >
                           {word.enabled ? 'Enabled (click to disable)' : 'Disabled (click to enable)'}
@@ -285,7 +285,7 @@ export default function AdminBannedWordsPage() {
                       <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => handleDelete(word.id)}
-                          className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                          className="rounded-lg p-2 text-muted-foreground hover:bg-red-500/10 dark:bg-red-500/20 hover:text-red-600 dark:text-red-300"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -300,7 +300,7 @@ export default function AdminBannedWordsPage() {
         </CardContent>
       </Card>
 
-      <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+      <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/20 p-4 text-sm text-amber-700 dark:text-amber-200">
         <AlertTriangle className="h-5 w-5" />
         <p>
           Purge will permanently delete comments containing banned words. Use with care.
@@ -309,3 +309,11 @@ export default function AdminBannedWordsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+

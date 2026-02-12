@@ -94,7 +94,7 @@ export default async function HomePage() {
         ? `${mostPopularTeacher.total_interactions} interactions`
         : 'Waiting for ratings and comments',
       icon: Sparkles,
-      style: 'border-emerald-200 bg-emerald-50/70 text-emerald-700',
+      style: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200',
     },
     {
       title: 'Most Rated Teacher',
@@ -104,7 +104,7 @@ export default async function HomePage() {
         ? `${mostRatedTeacher.total_ratings} ratings`
         : 'No ratings submitted',
       icon: Star,
-      style: 'border-teal-200 bg-teal-50/70 text-teal-700',
+      style: 'border-teal-200 bg-teal-500/10 dark:bg-teal-500/20/70 text-teal-700 dark:text-teal-200',
     },
     {
       title: 'Most Commented Teacher',
@@ -114,7 +114,7 @@ export default async function HomePage() {
         ? `${mostCommentedTeacher.total_comments} comments`
         : 'No comments submitted',
       icon: MessageSquare,
-      style: 'border-amber-200 bg-amber-50/70 text-amber-700',
+      style: 'border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/20/70 text-amber-700 dark:text-amber-200',
     },
     {
       title: 'Overall Average Rating',
@@ -122,7 +122,7 @@ export default async function HomePage() {
       teacherId: null,
       detail: ratingCount ? `${ratingCount.toLocaleString()} total ratings` : 'No ratings yet',
       icon: BarChart3,
-      style: 'border-sky-200 bg-sky-50/70 text-sky-700',
+      style: 'border-sky-200 bg-sky-500/10 dark:bg-sky-500/20/70 text-sky-700 dark:text-sky-200',
     },
   ];
 
@@ -236,10 +236,10 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
                 Interesting Facts
               </h2>
-              <p className="mt-2 text-slate-600">
+              <p className="mt-2 text-muted-foreground">
                 Highlights from ratings and comments across the platform
               </p>
             </div>
@@ -265,42 +265,42 @@ export default async function HomePage() {
                 {card.teacherId ? (
                   <Link
                     href={`/teachers/${card.teacherId}`}
-                    className="mt-4 inline-flex text-xl font-bold text-slate-900 hover:text-emerald-700"
+                    className="mt-4 inline-flex text-xl font-bold text-foreground hover:text-emerald-700 dark:text-emerald-200"
                   >
                     {card.value}
                   </Link>
                 ) : (
-                  <p className="mt-4 text-xl font-bold text-slate-900">{card.value}</p>
+                  <p className="mt-4 text-xl font-bold text-foreground">{card.value}</p>
                 )}
-                <p className="mt-1 text-sm text-slate-600">{card.detail}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{card.detail}</p>
               </div>
             ))}
           </div>
 
           <div className="mt-10 mb-12">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-emerald-700">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-200">
                 <ThumbsUp className="h-4 w-4" />
                 Top-Liked Comment
               </div>
 
               {shouldShowLikedComment ? (
                 <div className="mt-4 space-y-2">
-                  <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                  <p className="text-sm text-foreground whitespace-pre-wrap">
                     {likedCommentPreview}
                   </p>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                    <span className="font-medium text-slate-700">
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">
                       {topLikedComment.teacher_name}
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-emerald-700">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-emerald-700 dark:text-emerald-200">
                       <ThumbsUp className="h-3.5 w-3.5" />
                       {topLikedComment.like_count}
                     </span>
                   </div>
                 </div>
               ) : (
-                <div className="mt-4 text-sm text-slate-500">
+                <div className="mt-4 text-sm text-muted-foreground">
                   No liked comments yet. Be the first to leave one!
                 </div>
               )}
@@ -340,13 +340,13 @@ export default async function HomePage() {
           </div>
 
       {/* How It Works Section */}
-      <section className="border-t border-slate-200 bg-slate-50 py-16 lg:py-24">
+      <section className="border-t border-border bg-muted py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">
+            <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
               How It Works
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-slate-600">
+            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
               Share your feedback in three simple steps
             </p>
           </div>
@@ -371,8 +371,8 @@ export default async function HomePage() {
             ].map((item) => (
               <div key={item.step} className="relative">
                 <div className="text-6xl font-bold text-emerald-100">{item.step}</div>
-                <h3 className="mt-4 text-xl font-semibold text-slate-900">{item.title}</h3>
-                <p className="mt-2 text-slate-600">{item.description}</p>
+                <h3 className="mt-4 text-xl font-semibold text-foreground">{item.title}</h3>
+                <p className="mt-2 text-muted-foreground">{item.description}</p>
               </div>
             ))}
           </div>
@@ -411,6 +411,14 @@ export default async function HomePage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

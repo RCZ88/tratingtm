@@ -257,11 +257,11 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
         <div className="grid gap-4 md:grid-cols-2">
           {isModifyForm ? (
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Teacher Name
               </label>
               <select
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 value={teacherName}
                 onChange={(event) => setTeacherName(event.target.value)}
                 required
@@ -288,11 +288,11 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
           )}
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Department
             </label>
             <select
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               value={departmentId}
               onChange={(event) => setDepartmentId(event.target.value)}
               required
@@ -307,11 +307,11 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Subject
             </label>
             <select
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               value={subjectId}
               onChange={(event) => setSubjectId(event.target.value)}
               required
@@ -335,11 +335,11 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Level (optional)
             </label>
             <select
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               value={level}
               onChange={(event) => setLevel(event.target.value)}
             >
@@ -362,7 +362,7 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
       )}
 
       {message && (
-        <p className="text-sm text-slate-600">{message}</p>
+        <p className="text-sm text-muted-foreground">{message}</p>
       )}
 
       <Button type="submit" isLoading={isSubmitting}>
@@ -373,3 +373,6 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
 };
 
 export { SuggestionForm };
+
+
+

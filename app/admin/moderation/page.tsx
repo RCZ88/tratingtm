@@ -88,8 +88,8 @@ export default function ModerationPage() {
     <div className="mx-auto max-w-4xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Comment Moderation</h1>
-        <p className="text-slate-600">
+        <h1 className="text-2xl font-bold text-foreground">Comment Moderation</h1>
+        <p className="text-muted-foreground">
           Review and approve pending comments before they appear publicly
         </p>
       </div>
@@ -104,8 +104,8 @@ export default function ModerationPage() {
               <MessageSquare className="h-6 w-6 text-amber-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900">{comments.length}</p>
-              <p className="text-sm text-slate-500">Pending Comments</p>
+              <p className="text-2xl font-bold text-foreground">{comments.length}</p>
+              <p className="text-sm text-muted-foreground">Pending Comments</p>
             </div>
           </CardContent>
         </Card>
@@ -116,8 +116,8 @@ export default function ModerationPage() {
               <CheckCircle className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900">Ready to Review</p>
-              <p className="text-sm text-slate-500">All systems operational</p>
+              <p className="text-2xl font-bold text-foreground">Ready to Review</p>
+              <p className="text-sm text-muted-foreground">All systems operational</p>
             </div>
           </CardContent>
         </Card>
@@ -140,7 +140,7 @@ export default function ModerationPage() {
       </Card>
 
       {/* Guidelines */}
-      <div className="mt-8 rounded-lg bg-blue-50 p-4">
+      <div className="mt-8 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 p-4">
         <h3 className="font-medium text-blue-900">Moderation Guidelines</h3>
         <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-blue-700">
           <li>Approve comments that are constructive and respectful</li>
@@ -152,3 +152,5 @@ export default function ModerationPage() {
     </div>
   );
 }
+
+

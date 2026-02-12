@@ -144,14 +144,14 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
 
   if (state.success) {
     return (
-      <div className={cn('rounded-lg bg-green-50 p-4', className)}>
+      <div className={cn('rounded-lg bg-green-500/10 dark:bg-green-500/20 p-4', className)}>
         <div className="flex items-start gap-3">
           <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
           <div>
             <p className="font-medium text-green-800">
               {state.requiresApproval === false ? 'Comment Posted!' : 'Comment Submitted!'}
             </p>
-            <p className="text-sm text-green-700">
+            <p className="text-sm text-green-700 dark:text-green-300">
               {state.requiresApproval === false
                 ? 'Your comment is now visible.'
                 : 'Your comment is pending moderation and will appear once approved.'}
@@ -180,13 +180,13 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
       />
 
       {flaggedWords.length > 0 && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 dark:bg-red-500/20 px-3 py-2 text-sm text-red-700 dark:text-red-300">
           Please remove inappropriate words before submitting.
         </div>
       )}
 
-      <div className="flex items-start gap-2 rounded-lg bg-blue-50 p-3">
-        <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+      <div className="flex items-start gap-2 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 p-3">
+        <Info className="h-4 w-4 text-blue-600 dark:text-blue-300 mt-0.5 flex-shrink-0" />
         <p className="text-xs text-blue-700">
           Comments are moderated before being published. Please be respectful and constructive.
         </p>
@@ -209,12 +209,12 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
         description="Please remove the highlighted words before submitting."
         size="sm"
       >
-        <div className="space-y-4 text-sm text-slate-600">
+        <div className="space-y-4 text-sm text-muted-foreground">
           <div className="flex flex-wrap gap-2">
             {flaggedWords.map((word) => (
               <span
                 key={word}
-                className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700"
+                className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 dark:text-red-300"
               >
                 {word}
               </span>
@@ -230,3 +230,5 @@ const CommentForm: React.FC<CommentFormProps> = ({ teacherId, onSuccess, classNa
 };
 
 export { CommentForm };
+
+

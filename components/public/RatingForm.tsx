@@ -116,12 +116,12 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
 
   if (state.success) {
     return (
-      <div className={cn('rounded-lg bg-green-50 p-4', className)}>
+      <div className={cn('rounded-lg bg-green-500/10 dark:bg-green-500/20 p-4', className)}>
         <div className="flex items-center gap-3">
           <CheckCircle className="h-5 w-5 text-green-600" />
           <div>
             <p className="font-medium text-green-800">Thank You!</p>
-            <p className="text-sm text-green-700">
+            <p className="text-sm text-green-700 dark:text-green-300">
               {state.updatedWeekly
                 ? 'Your weekly rating has been updated.'
                 : 'Your rating has been submitted successfully.'}
@@ -135,7 +135,7 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
   return (
     <form onSubmit={handleSubmit} className={cn('space-y-4', className)}>
       <div>
-        <label className="mb-2 block text-sm font-medium text-slate-700">
+        <label className="mb-2 block text-sm font-medium text-foreground">
           Rate this teacher
         </label>
         <StarRating
@@ -146,13 +146,13 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
       </div>
 
       {state.error && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+        <div className="rounded-lg bg-red-500/10 dark:bg-red-500/20 p-3 text-sm text-red-600 dark:text-red-300">
           {state.error}
         </div>
       )}
 
       {state.hasRatedThisWeek && (
-        <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-700">
+        <div className="rounded-lg bg-amber-500/10 dark:bg-amber-500/20 p-3 text-sm text-amber-700 dark:text-amber-200">
           You have already rated this teacher this week. Submitting again will update
           your weekly rating.
         </div>
@@ -167,7 +167,7 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
         Submit Rating
       </Button>
 
-      <p className="text-xs text-center text-slate-500">
+      <p className="text-xs text-center text-muted-foreground">
         Your rating is anonymous. You can update your weekly rating once per week.
       </p>
     </form>
@@ -175,3 +175,5 @@ const RatingForm: React.FC<RatingFormProps> = ({ teacherId, onSuccess, className
 };
 
 export { RatingForm };
+
+

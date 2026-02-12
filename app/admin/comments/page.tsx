@@ -277,8 +277,8 @@ export default function AdminCommentsPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">All Comments</h1>
-        <p className="text-slate-600">Review, hide, or delete comments and replies</p>
+        <h1 className="text-2xl font-bold text-foreground">All Comments</h1>
+        <p className="text-muted-foreground">Review, hide, or delete comments and replies</p>
       </div>
 
       <CommentsSubnav />
@@ -287,11 +287,11 @@ export default function AdminCommentsPage() {
         <CardContent className="flex flex-col gap-4 p-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-slate-400" />
+              <MessageSquare className="h-4 w-4 text-muted-foreground" />
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as StatusFilter)}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700"
+                className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground"
               >
                 <option value="all">All</option>
                 <option value="approved">Approved</option>
@@ -316,21 +316,21 @@ export default function AdminCommentsPage() {
           </div>
 
           {(selectedTeacherIds.length > 0 || selectedDepartmentIds.length > 0) && (
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-muted-foreground">
               Filters applied: {selectedTeacherIds.length} teacher{selectedTeacherIds.length !== 1 ? 's' : ''}, {selectedDepartmentIds.length} department{selectedDepartmentIds.length !== 1 ? 's' : ''}.
             </div>
           )}
 
           {showTeacherFilter && (
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-xl border border-border bg-muted p-4">
               <div className="flex flex-col gap-4 lg:flex-row">
                 <div className="w-full lg:w-1/3">
-                  <h3 className="text-sm font-semibold text-slate-700">Departments</h3>
-                  <div className="mt-2 max-h-52 overflow-y-auto rounded-lg border border-slate-200 bg-white p-3">
+                  <h3 className="text-sm font-semibold text-foreground">Departments</h3>
+                  <div className="mt-2 max-h-52 overflow-y-auto rounded-lg border border-border bg-card p-3">
                     {isLoadingDepartments ? (
-                      <p className="text-sm text-slate-500">Loading departments...</p>
+                      <p className="text-sm text-muted-foreground">Loading departments...</p>
                     ) : departments.length === 0 ? (
-                      <p className="text-sm text-slate-500">No departments found.</p>
+                      <p className="text-sm text-muted-foreground">No departments found.</p>
                     ) : (
                       <div className="space-y-2">
                         {departments.map((dept) => (
@@ -346,8 +346,8 @@ export default function AdminCommentsPage() {
 
                 <div className="w-full lg:w-2/3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-slate-700">Teachers</h3>
-                    <span className="text-xs text-slate-500">{selectedTeacherIds.length}/{MAX_TEACHER_SELECTION} selected</span>
+                    <h3 className="text-sm font-semibold text-foreground">Teachers</h3>
+                    <span className="text-xs text-muted-foreground">{selectedTeacherIds.length}/{MAX_TEACHER_SELECTION} selected</span>
                   </div>
                   <div className="mt-2">
                     <Input
@@ -357,11 +357,11 @@ export default function AdminCommentsPage() {
                       leftIcon={<Search className="h-4 w-4" />}
                     />
                   </div>
-                  <div className="mt-3 max-h-72 overflow-y-auto rounded-lg border border-slate-200 bg-white p-3">
+                  <div className="mt-3 max-h-72 overflow-y-auto rounded-lg border border-border bg-card p-3">
                     {isLoadingTeachers ? (
-                      <p className="text-sm text-slate-500">Loading teachers...</p>
+                      <p className="text-sm text-muted-foreground">Loading teachers...</p>
                     ) : filteredTeachers.length === 0 ? (
-                      <p className="text-sm text-slate-500">No teachers match your filters.</p>
+                      <p className="text-sm text-muted-foreground">No teachers match your filters.</p>
                     ) : (
                       <div className="space-y-2">
                         {filteredTeachers.map((teacher) => (
@@ -392,7 +392,7 @@ export default function AdminCommentsPage() {
           {isLoading ? (
             <LoadingSpinner />
           ) : comments.length === 0 ? (
-            <div className="rounded-lg bg-slate-50 p-8 text-center text-slate-500">No comments found</div>
+            <div className="rounded-lg bg-muted p-8 text-center text-muted-foreground">No comments found</div>
           ) : (
             <div className="space-y-4">
               {comments.map((comment) => {
@@ -406,12 +406,12 @@ export default function AdminCommentsPage() {
                 });
 
                 return (
-                  <div key={comment.id} className="rounded-lg border border-slate-200 bg-white p-4">
+                  <div key={comment.id} className="rounded-lg border border-border bg-card p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-muted-foreground">
                           {comment.teacher?.name ? (
-                            <Link href={`/teachers/${comment.teacher.id}`} className="font-medium text-slate-700 hover:text-emerald-700">
+                            <Link href={`/teachers/${comment.teacher.id}`} className="font-medium text-foreground hover:text-emerald-700 dark:text-emerald-200">
                               {comment.teacher.name}
                             </Link>
                           ) : (
@@ -419,9 +419,9 @@ export default function AdminCommentsPage() {
                           )}{' '}
                           - {formatRelativeTime(comment.created_at)}
                         </p>
-                        <p className="mt-2 whitespace-pre-wrap text-sm text-slate-800">{comment.comment_text}</p>
+                        <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{comment.comment_text}</p>
                       </div>
-                      <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">{statusLabel}</span>
+                      <span className="inline-flex rounded-full bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">{statusLabel}</span>
                     </div>
 
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -459,30 +459,30 @@ export default function AdminCommentsPage() {
                     </div>
 
                     {isRepliesOpen && (
-                      <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <div className="mt-4 rounded-lg border border-border bg-muted p-3">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                           Replies ({commentReplies.length})
                         </p>
 
                         {isRepliesLoading ? (
-                          <p className="text-sm text-slate-500">Loading replies...</p>
+                          <p className="text-sm text-muted-foreground">Loading replies...</p>
                         ) : commentReplies.length === 0 ? (
-                          <p className="text-sm text-slate-500">No replies yet.</p>
+                          <p className="text-sm text-muted-foreground">No replies yet.</p>
                         ) : (
                           <div className="space-y-3">
                             {commentReplies.map((reply) => {
                               const replyStatus = reply.is_flagged ? 'Hidden' : reply.is_approved ? 'Approved' : 'Pending';
                               const parentPreview = reply.parent_reply_id ? replyTextMap[reply.parent_reply_id] : null;
                               return (
-                                <div key={reply.id} className="rounded-md border border-slate-200 bg-white p-3">
-                                  <div className="flex items-center justify-between text-xs text-slate-500">
+                                <div key={reply.id} className="rounded-md border border-border bg-card p-3">
+                                  <div className="flex items-center justify-between text-xs text-muted-foreground">
                                     <span>Anonymous - {formatRelativeTime(reply.created_at)}</span>
-                                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">{replyStatus}</span>
+                                    <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{replyStatus}</span>
                                   </div>
                                   {parentPreview && (
-                                    <p className="mt-2 text-xs text-slate-500">Replying to: {parentPreview.slice(0, 120)}</p>
+                                    <p className="mt-2 text-xs text-muted-foreground">Replying to: {parentPreview.slice(0, 120)}</p>
                                   )}
-                                  <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700">{reply.reply_text}</p>
+                                  <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{reply.reply_text}</p>
 
                                   <div className="mt-3 flex flex-wrap gap-2">
                                     {!reply.is_approved && !reply.is_flagged && (
@@ -530,7 +530,7 @@ export default function AdminCommentsPage() {
         size="sm"
       >
         <div className="text-center">
-          <p className="text-slate-600">Are you sure you want to delete this comment? This action cannot be undone.</p>
+          <p className="text-muted-foreground">Are you sure you want to delete this comment? This action cannot be undone.</p>
           <div className="mt-6 flex gap-3">
             <Button
               variant="outline"
@@ -551,3 +551,8 @@ export default function AdminCommentsPage() {
     </div>
   );
 }
+
+
+
+
+

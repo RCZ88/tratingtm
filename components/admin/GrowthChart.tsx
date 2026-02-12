@@ -18,7 +18,7 @@ interface GrowthChartProps {
 const GrowthChart: React.FC<GrowthChartProps> = ({ data, height = 240 }) => {
   if (!data.length) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-slate-500">
+      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
         No activity yet
       </div>
     );
@@ -35,7 +35,7 @@ const GrowthChart: React.FC<GrowthChartProps> = ({ data, height = 240 }) => {
 
   if (maxValue === 0) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-slate-500">
+      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
         No activity yet
       </div>
     );
@@ -119,3 +119,4 @@ const GrowthChart: React.FC<GrowthChartProps> = ({ data, height = 240 }) => {
 };
 
 export { GrowthChart };
+

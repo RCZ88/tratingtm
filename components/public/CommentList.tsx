@@ -257,14 +257,14 @@ const CommentList: React.FC<CommentListProps> = ({
     if (rows.length === 0) return null;
 
     return (
-      <div className={cn('space-y-3', depth > 0 ? 'ml-6 border-l border-slate-200 pl-4' : 'mt-3')}>
+      <div className={cn('space-y-3', depth > 0 ? 'ml-6 border-l border-border pl-4' : 'mt-3')}>
         {rows.map((reply) => {
           const isComposerTarget =
             replyTarget?.commentId === commentId && replyTarget?.parentReplyId === reply.id;
 
           return (
-            <div key={reply.id} className="rounded-md border border-slate-200 bg-slate-50 p-3">
-              <div className="flex items-center justify-between text-xs text-slate-500">
+            <div key={reply.id} className="rounded-md border border-border bg-muted p-3">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
                   <User className="h-3.5 w-3.5" />
                   Anonymous
@@ -272,13 +272,13 @@ const CommentList: React.FC<CommentListProps> = ({
                 <time>{formatRelativeTime(reply.created_at)}</time>
               </div>
 
-              <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700">{reply.reply_text}</p>
+              <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{reply.reply_text}</p>
 
               <div className="mt-2">
                 <button
                   type="button"
                   onClick={() => openReplyComposer(commentId, reply.id, reply.reply_text)}
-                  className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 hover:text-emerald-800"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-200 hover:text-emerald-800"
                 >
                   <CornerDownRight className="h-3.5 w-3.5" />
                   Reply
@@ -286,13 +286,13 @@ const CommentList: React.FC<CommentListProps> = ({
               </div>
 
               {isComposerTarget && (
-                <div className="mt-3 rounded-md border border-emerald-200 bg-white p-3">
-                  <p className="mb-2 text-xs text-slate-500">Replying to: {reply.reply_text.slice(0, 120)}</p>
+                <div className="mt-3 rounded-md border border-emerald-500/30 bg-card p-3">
+                  <p className="mb-2 text-xs text-muted-foreground">Replying to: {reply.reply_text.slice(0, 120)}</p>
                   <textarea
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     rows={3}
-                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
                     placeholder="Write your reply..."
                   />
                   <div className="mt-2 flex gap-2">
@@ -327,9 +327,9 @@ const CommentList: React.FC<CommentListProps> = ({
     return (
       <div className={cn('space-y-4', className)}>
         {Array.from({ length: 3 }, (_, i) => (
-          <div key={i} className="animate-pulse rounded-lg bg-slate-100 p-4">
-            <div className="h-4 w-1/4 rounded bg-slate-200" />
-            <div className="mt-2 h-16 rounded bg-slate-200" />
+          <div key={i} className="animate-pulse rounded-lg bg-muted p-4">
+            <div className="h-4 w-1/4 rounded bg-muted" />
+            <div className="mt-2 h-16 rounded bg-muted" />
           </div>
         ))}
       </div>
@@ -338,9 +338,9 @@ const CommentList: React.FC<CommentListProps> = ({
 
   if (sortedComments.length === 0) {
     return (
-      <div className={cn('rounded-lg bg-slate-50 p-8 text-center', className)}>
-        <MessageSquare className="mx-auto h-10 w-10 text-slate-300" />
-        <p className="mt-3 text-slate-500">{emptyMessage}</p>
+      <div className={cn('rounded-lg bg-muted p-8 text-center', className)}>
+        <MessageSquare className="mx-auto h-10 w-10 text-muted-foreground" />
+        <p className="mt-3 text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }
@@ -348,12 +348,12 @@ const CommentList: React.FC<CommentListProps> = ({
   return (
     <div className={cn('space-y-4', className)}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-xs">
+        <div className="inline-flex rounded-full border border-border bg-muted p-1 text-xs">
           <button
             type="button"
             onClick={() => setSortBy('time')}
             className={`rounded-full px-3 py-1 font-medium transition-colors ${
-              sortBy === 'time' ? ' bg-emerald-100 text-emerald-700' : ' text-slate-600 hover:bg-white'
+              sortBy === 'time' ? ' bg-emerald-500/15 text-emerald-700 dark:text-emerald-200' : ' text-muted-foreground hover:bg-card'
             }`}
           >
             Time posted
@@ -362,7 +362,7 @@ const CommentList: React.FC<CommentListProps> = ({
             type="button"
             onClick={() => setSortBy('interactions')}
             className={`rounded-full px-3 py-1 font-medium transition-colors ${
-              sortBy === 'interactions' ? ' bg-emerald-100 text-emerald-700' : ' text-slate-600 hover:bg-white'
+              sortBy === 'interactions' ? ' bg-emerald-500/15 text-emerald-700 dark:text-emerald-200' : ' text-muted-foreground hover:bg-card'
             }`}
           >
             Interactions
@@ -383,8 +383,8 @@ const CommentList: React.FC<CommentListProps> = ({
         </Button>
       </div>
 
-      {replyError && <div className="rounded-md bg-red-50 p-2 text-xs text-red-600">{replyError}</div>}
-      {replySuccess && <div className="rounded-md bg-emerald-50 p-2 text-xs text-emerald-700">{replySuccess}</div>}
+      {replyError && <div className="rounded-md bg-red-500/10 dark:bg-red-500/20 p-2 text-xs text-red-600 dark:text-red-300">{replyError}</div>}
+      {replySuccess && <div className="rounded-md bg-emerald-500/10 p-2 text-xs text-emerald-700 dark:text-emerald-200">{replySuccess}</div>}
 
       {sortedComments.map((comment) => {
         const likeCount = comment.like_count || 0;
@@ -396,18 +396,18 @@ const CommentList: React.FC<CommentListProps> = ({
         const replyCount = (repliesByComment[comment.id] || []).length;
 
         return (
-          <div key={comment.id} className="rounded-lg border border-slate-200 bg-white p-4 transition-shadow hover:shadow-sm">
+          <div key={comment.id} className="rounded-lg border border-border bg-card p-4 transition-shadow hover:shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
-                  <User className="h-4 w-4 text-emerald-600" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15">
+                  <User className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
                 </div>
-                <span className="text-sm font-medium text-slate-600">Anonymous</span>
+                <span className="text-sm font-medium text-muted-foreground">Anonymous</span>
               </div>
-              <time className="text-xs text-slate-400">{formatRelativeTime(comment.created_at)}</time>
+              <time className="text-xs text-muted-foreground">{formatRelativeTime(comment.created_at)}</time>
             </div>
 
-            <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">{comment.comment_text}</p>
+            <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{comment.comment_text}</p>
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <button
@@ -416,7 +416,7 @@ const CommentList: React.FC<CommentListProps> = ({
                 disabled={isPending}
                 className={cn(
                   'inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-colors',
-                  viewerReaction === 'like' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  viewerReaction === 'like' ? 'bg-green-100 text-green-700 dark:text-green-300' : 'bg-muted text-muted-foreground hover:bg-muted'
                 )}
               >
                 <ThumbsUp className="h-3.5 w-3.5" />
@@ -428,7 +428,7 @@ const CommentList: React.FC<CommentListProps> = ({
                 disabled={isPending}
                 className={cn(
                   'inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-colors',
-                  viewerReaction === 'dislike' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  viewerReaction === 'dislike' ? 'bg-red-100 text-red-700 dark:text-red-300' : 'bg-muted text-muted-foreground hover:bg-muted'
                 )}
               >
                 <ThumbsDown className="h-3.5 w-3.5" />
@@ -438,23 +438,23 @@ const CommentList: React.FC<CommentListProps> = ({
               <button
                 type="button"
                 onClick={() => openReplyComposer(comment.id, null, comment.comment_text)}
-                className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200"
+                className="inline-flex items-center gap-1 rounded-lg bg-muted px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted"
               >
                 <CornerDownRight className="h-3.5 w-3.5" />
                 Reply
               </button>
 
-              <span className="text-xs text-slate-500">{replyCount} repl{replyCount === 1 ? 'y' : 'ies'}</span>
+              <span className="text-xs text-muted-foreground">{replyCount} repl{replyCount === 1 ? 'y' : 'ies'}</span>
             </div>
 
             {isCommentComposerTarget && (
-              <div className="mt-3 rounded-md border border-emerald-200 bg-slate-50 p-3">
-                <p className="mb-2 text-xs text-slate-500">Replying to: {comment.comment_text.slice(0, 120)}</p>
+              <div className="mt-3 rounded-md border border-emerald-500/30 bg-muted p-3">
+                <p className="mb-2 text-xs text-muted-foreground">Replying to: {comment.comment_text.slice(0, 120)}</p>
                 <textarea
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   rows={3}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
                   placeholder="Write your reply..."
                 />
                 <div className="mt-2 flex gap-2">
@@ -478,7 +478,7 @@ const CommentList: React.FC<CommentListProps> = ({
             )}
 
             {isLoadingReplies ? (
-              <p className="mt-3 text-xs text-slate-500">Loading replies...</p>
+              <p className="mt-3 text-xs text-muted-foreground">Loading replies...</p>
             ) : (
               renderReplies(comment.id, null, 0)
             )}
@@ -498,3 +498,11 @@ const CommentList: React.FC<CommentListProps> = ({
 };
 
 export { CommentList };
+
+
+
+
+
+
+
+

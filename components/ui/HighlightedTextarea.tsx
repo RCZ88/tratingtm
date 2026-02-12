@@ -56,7 +56,7 @@ const HighlightedTextarea = React.forwardRef<HTMLTextAreaElement, HighlightedTex
     const highlightNodes = React.useMemo(() => {
       if (!textValue) {
         return (
-          <span className="text-slate-400">
+          <span className="text-muted-foreground">
             {props.placeholder || ''}
           </span>
         );
@@ -97,7 +97,7 @@ const HighlightedTextarea = React.forwardRef<HTMLTextAreaElement, HighlightedTex
         {label && (
           <label
             htmlFor={textareaId}
-            className="mb-2 block text-sm font-medium text-slate-700"
+            className="mb-2 block text-sm font-medium text-foreground"
           >
             {label}
             {props.required && <span className="ml-1 text-red-500">*</span>}
@@ -107,7 +107,7 @@ const HighlightedTextarea = React.forwardRef<HTMLTextAreaElement, HighlightedTex
           <div
             ref={overlayRef}
             className={cn(
-              'pointer-events-none absolute inset-0 overflow-hidden rounded-lg border border-transparent px-4 py-3 text-sm text-slate-900',
+              'pointer-events-none absolute inset-0 overflow-hidden rounded-lg border border-transparent px-4 py-3 text-sm text-foreground',
               'whitespace-pre-wrap break-words'
             )}
             aria-hidden="true"
@@ -118,7 +118,7 @@ const HighlightedTextarea = React.forwardRef<HTMLTextAreaElement, HighlightedTex
             id={textareaId}
             ref={textareaRef}
             className={cn(
-              'relative z-10 flex min-h-[100px] w-full rounded-lg border border-slate-300 bg-transparent px-4 py-3 text-sm text-transparent caret-slate-900 placeholder:text-transparent focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 resize-y',
+              'relative z-10 flex min-h-[100px] w-full rounded-lg border border-border bg-transparent px-4 py-3 text-sm text-transparent caret-slate-900 placeholder:text-transparent focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground resize-y',
               error && 'border-red-500 focus:border-red-500 focus:ring-red-500/20',
               className
             )}
@@ -133,7 +133,7 @@ const HighlightedTextarea = React.forwardRef<HTMLTextAreaElement, HighlightedTex
           {error ? (
             <p className="text-sm text-red-500">{error}</p>
           ) : helperText ? (
-            <p className="text-sm text-slate-500">{helperText}</p>
+            <p className="text-sm text-muted-foreground">{helperText}</p>
           ) : (
             <span />
           )}
@@ -141,7 +141,7 @@ const HighlightedTextarea = React.forwardRef<HTMLTextAreaElement, HighlightedTex
             <p
               className={cn(
                 'text-sm',
-                characterCount > maxLength * 0.9 ? 'text-amber-600' : 'text-slate-400'
+                characterCount > maxLength * 0.9 ? 'text-amber-600' : 'text-muted-foreground'
               )}
             >
               {characterCount}/{maxLength}
@@ -156,3 +156,6 @@ const HighlightedTextarea = React.forwardRef<HTMLTextAreaElement, HighlightedTex
 HighlightedTextarea.displayName = 'HighlightedTextarea';
 
 export { HighlightedTextarea };
+
+
+

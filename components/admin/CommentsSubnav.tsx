@@ -17,7 +17,7 @@ const CommentsSubnav: React.FC = () => {
     exact ? pathname === href : pathname.startsWith(href);
 
   return (
-    <div className="mb-6 flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
+    <div className="mb-6 flex flex-wrap gap-2 rounded-xl border border-border bg-card p-2 shadow-sm">
       {tabs.map((tab) => (
         <Link
           key={tab.href}
@@ -25,8 +25,8 @@ const CommentsSubnav: React.FC = () => {
           className={cn(
             'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
             isActive(tab.href, tab.exact)
-              ? 'bg-emerald-100 text-emerald-700'
-              : 'text-slate-600 hover:bg-slate-100'
+              ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+              : 'text-muted-foreground hover:bg-muted'
           )}
         >
           {tab.label}
@@ -37,3 +37,9 @@ const CommentsSubnav: React.FC = () => {
 };
 
 export { CommentsSubnav };
+
+
+
+
+
+

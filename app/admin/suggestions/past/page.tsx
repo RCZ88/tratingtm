@@ -18,20 +18,20 @@ export default function AdminPastSuggestionsPage() {
     <div className="mx-auto max-w-6xl">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Past Suggestions</h1>
-          <p className="text-slate-600">
+          <h1 className="text-2xl font-bold text-foreground">Past Suggestions</h1>
+          <p className="text-muted-foreground">
             Review suggestions that have been completed or declined.
           </p>
         </div>
         <Link
           href="/admin/suggestions"
-          className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:border-slate-300"
+          className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground shadow-sm hover:border-border"
         >
           Back to suggestions
         </Link>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-6 rounded-2xl border border-border bg-card p-4 shadow-sm">
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => (
             <button
@@ -40,8 +40,8 @@ export default function AdminPastSuggestionsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 activeTab === tab.id
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                  : 'bg-muted text-muted-foreground hover:bg-muted'
               }`}
             >
               {tab.label}
@@ -62,3 +62,9 @@ export default function AdminPastSuggestionsPage() {
     </div>
   );
 }
+
+
+
+
+
+

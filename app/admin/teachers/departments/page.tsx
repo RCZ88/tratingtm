@@ -131,8 +131,8 @@ export default function AdminDepartmentsPage() {
     <div>
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Departments</h1>
-          <p className="text-slate-600">
+          <h1 className="text-2xl font-bold text-foreground">Departments</h1>
+          <p className="text-muted-foreground">
             Manage department options used across teacher forms and suggestions.
           </p>
         </div>
@@ -148,7 +148,7 @@ export default function AdminDepartmentsPage() {
               onChange={(event) => setName(event.target.value)}
             />
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Tag Color
               </label>
               <div className="flex items-center gap-2">
@@ -156,7 +156,7 @@ export default function AdminDepartmentsPage() {
                   type="color"
                   value={colorHex}
                   onChange={(event) => setColorHex(event.target.value)}
-                  className="h-10 w-10 cursor-pointer rounded border border-slate-300 bg-white p-1"
+                  className="h-10 w-10 cursor-pointer rounded border border-border bg-card p-1"
                   aria-label="Department color"
                 />
                 <Input
@@ -171,12 +171,12 @@ export default function AdminDepartmentsPage() {
             </Button>
           </div>
           {error && (
-            <div className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">
+            <div className="rounded-lg bg-red-500/10 dark:bg-red-500/20 px-4 py-2 text-sm text-red-600 dark:text-red-300">
               {error}
             </div>
           )}
           {success && (
-            <div className="rounded-lg bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+            <div className="rounded-lg bg-emerald-500/10 px-4 py-2 text-sm text-emerald-700 dark:text-emerald-200">
               {success}
             </div>
           )}
@@ -187,15 +187,15 @@ export default function AdminDepartmentsPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-50">
+              <thead className="bg-muted">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Department
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Tag Color
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Actions
                   </th>
                 </tr>
@@ -209,14 +209,14 @@ export default function AdminDepartmentsPage() {
                   </tr>
                 ) : departments.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="py-8 text-center text-slate-500">
+                    <td colSpan={3} className="py-8 text-center text-muted-foreground">
                       No departments yet.
                     </td>
                   </tr>
                 ) : (
                   departments.map((dept) => (
-                    <tr key={dept.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 text-sm font-medium text-slate-900">
+                    <tr key={dept.id} className="hover:bg-muted">
+                      <td className="px-4 py-3 text-sm font-medium text-foreground">
                         {editingId === dept.id ? (
                           <Input
                             value={editingName}
@@ -226,14 +226,14 @@ export default function AdminDepartmentsPage() {
                           dept.name
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600">
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
                         {editingId === dept.id ? (
                           <div className="flex items-center gap-2">
                             <input
                               type="color"
                               value={editingColor}
                               onChange={(event) => setEditingColor(event.target.value)}
-                              className="h-9 w-9 cursor-pointer rounded border border-slate-300 bg-white p-1"
+                              className="h-9 w-9 cursor-pointer rounded border border-border bg-card p-1"
                               aria-label="Edit department color"
                             />
                             <Input
@@ -260,14 +260,14 @@ export default function AdminDepartmentsPage() {
                             <>
                               <button
                                 onClick={() => handleUpdate(dept.id)}
-                                className="rounded-lg p-2 text-emerald-600 hover:bg-emerald-50"
+                                className="rounded-lg p-2 text-emerald-600 dark:text-emerald-300 hover:bg-emerald-500/10"
                                 title="Save"
                               >
                                 <Check className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={cancelEdit}
-                                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100"
+                                className="rounded-lg p-2 text-muted-foreground hover:bg-muted"
                                 title="Cancel"
                               >
                                 <X className="h-4 w-4" />
@@ -276,7 +276,7 @@ export default function AdminDepartmentsPage() {
                           ) : (
                             <button
                               onClick={() => startEdit(dept)}
-                              className="rounded-lg p-2 text-slate-400 hover:bg-emerald-50 hover:text-emerald-700"
+                              className="rounded-lg p-2 text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-700 dark:text-emerald-200"
                               title="Edit"
                             >
                               <Pencil className="h-4 w-4" />
@@ -284,7 +284,7 @@ export default function AdminDepartmentsPage() {
                           )}
                           <button
                             onClick={() => handleDelete(dept.id)}
-                            className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                            className="rounded-lg p-2 text-muted-foreground hover:bg-red-500/10 dark:bg-red-500/20 hover:text-red-600 dark:text-red-300"
                             title="Delete"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -300,9 +300,17 @@ export default function AdminDepartmentsPage() {
         </CardContent>
       </Card>
 
-      <div className="mt-6 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-700">
+      <div className="mt-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-200">
         Deleting a department will also remove its subjects from the dropdowns.
       </div>
     </div>
   );
 }
+
+
+
+
+
+
+
+

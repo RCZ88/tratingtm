@@ -103,14 +103,14 @@ export default function TeachersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-muted py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8 relative overflow-hidden rounded-2xl bg-white px-6 py-8 shadow-sm">
+        <div className="mb-8 relative overflow-hidden rounded-2xl bg-card px-6 py-8 shadow-sm">
           <div className="absolute inset-0 leaf-pattern opacity-40" />
           <div className="relative">
-            <h1 className="text-3xl font-bold text-slate-900">Browse Teachers</h1>
-            <p className="mt-2 text-slate-600">
+            <h1 className="text-3xl font-bold text-foreground">Browse Teachers</h1>
+            <p className="mt-2 text-muted-foreground">
               Find and rate teachers from all departments
             </p>
           </div>
@@ -122,7 +122,7 @@ export default function TeachersPage() {
         </div>
 
         {/* Filters */}
-        <div className="mb-8 rounded-xl bg-white p-4 shadow-sm">
+        <div className="mb-8 rounded-xl bg-card p-4 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="flex-1">
               <SearchBar
@@ -134,13 +134,13 @@ export default function TeachersPage() {
             </div>
             <div className="flex flex-wrap gap-4">
               <div className="w-40">
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-foreground">
                   Department
                 </label>
                 <select
                   value={departmentId}
                   onChange={handleDepartmentChange}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="">All Departments</option>
                   {isLoadingDepartments && (
@@ -156,30 +156,30 @@ export default function TeachersPage() {
                 </select>
               </div>
               <div className="w-40">
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-foreground">
                   Sort By
                 </label>
                 <select
                   value={sortBy}
                   onChange={handleSortChange}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="name">Name</option>
                   <option value="created_at">Newest</option>
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-foreground">
                   Rating View
                 </label>
-                <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-sm">
+                <div className="inline-flex rounded-full border border-border bg-muted p-1 text-sm">
                   <button
                     type="button"
                     onClick={() => setRatingMode('weekly')}
                     className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                       ratingMode === 'weekly'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'text-slate-600 hover:bg-white'
+                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                        : 'text-muted-foreground hover:bg-card'
                     }`}
                   >
                     Weekly
@@ -189,8 +189,8 @@ export default function TeachersPage() {
                     onClick={() => setRatingMode('all_time')}
                     className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                       ratingMode === 'all_time'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'text-slate-600 hover:bg-white'
+                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                        : 'text-muted-foreground hover:bg-card'
                     }`}
                   >
                     All-Time
@@ -224,7 +224,7 @@ export default function TeachersPage() {
             >
               Previous
             </Button>
-            <span className="text-sm text-slate-600">
+            <span className="text-sm text-muted-foreground">
               Page {page} of {totalPages}
             </span>
             <Button
@@ -242,6 +242,12 @@ export default function TeachersPage() {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 

@@ -51,25 +51,25 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
       case 1:
         return <Trophy className="h-5 w-5 text-yellow-500" />;
       case 2:
-        return <Medal className="h-5 w-5 text-slate-400" />;
+        return <Medal className="h-5 w-5 text-muted-foreground" />;
       case 3:
         return <Award className="h-5 w-5 text-amber-600" />;
       default:
-        return <span className="text-sm font-medium text-slate-500">#{rank}</span>;
+        return <span className="text-sm font-medium text-muted-foreground">#{rank}</span>;
     }
   };
 
   if (isLoading) {
     return (
-      <div className={cn('rounded-xl border border-slate-200 bg-white', className)}>
+      <div className={cn('rounded-xl border border-border bg-card', className)}>
         <div className="animate-pulse space-y-2 p-4">
           {Array.from({ length: 5 }, (_, i) => (
             <div key={i} className="flex items-center gap-4 py-3">
-              <div className="h-8 w-8 rounded bg-slate-200" />
-              <div className="h-10 w-10 rounded-full bg-slate-200" />
+              <div className="h-8 w-8 rounded bg-muted" />
+              <div className="h-10 w-10 rounded-full bg-muted" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 w-1/3 rounded bg-slate-200" />
-                <div className="h-3 w-1/4 rounded bg-slate-200" />
+                <div className="h-4 w-1/3 rounded bg-muted" />
+                <div className="h-3 w-1/4 rounded bg-muted" />
               </div>
             </div>
           ))}
@@ -80,31 +80,31 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
 
   if (displayEntries.length === 0) {
     return (
-      <div className={cn('rounded-xl border border-slate-200 bg-white p-8 text-center', className)}>
-        <TrendingUp className="mx-auto h-10 w-10 text-slate-300" />
-        <p className="mt-3 text-slate-500">No rankings available for this period</p>
+      <div className={cn('rounded-xl border border-border bg-card p-8 text-center', className)}>
+        <TrendingUp className="mx-auto h-10 w-10 text-muted-foreground" />
+        <p className="mt-3 text-muted-foreground">No rankings available for this period</p>
       </div>
     );
   }
 
   return (
-    <div className={cn('overflow-hidden rounded-xl border border-slate-200 bg-white', className)}>
+    <div className={cn('overflow-hidden rounded-xl border border-border bg-card', className)}>
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-slate-50">
+          <thead className="bg-muted">
             <tr>
               {showRank && (
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Rank
                 </th>
               )}
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Teacher
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {ratingHeader}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {countHeader}
               </th>
             </tr>
@@ -123,7 +123,7 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
               return (
                 <tr
                   key={entry.id}
-                  className="transition-colors hover:bg-slate-50"
+                  className="transition-colors hover:bg-muted"
                 >
                   {showRank && (
                     <td className="whitespace-nowrap px-4 py-4">
@@ -137,7 +137,7 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                       href={`/teachers/${entry.id}`}
                       className="flex items-center gap-3 group"
                     >
-                      <div className="relative h-10 w-10 overflow-hidden rounded-full bg-slate-100">
+                      <div className="relative h-10 w-10 overflow-hidden rounded-full bg-muted">
                         {entry.image_url ? (
                           <Image
                             src={entry.image_url}
@@ -146,17 +146,17 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                             className="object-cover"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-emerald-100">
-                            <User className="h-5 w-5 text-emerald-600" />
+                          <div className="flex h-full w-full items-center justify-center bg-emerald-500/15">
+                            <User className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
                           </div>
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-slate-900 group-hover:text-emerald-700 transition-colors">
+                        <p className="font-medium text-foreground group-hover:text-emerald-700 dark:text-emerald-200 transition-colors">
                           {entry.name}
                         </p>
                         {entry.subject && (
-                          <p className="text-xs text-slate-500">{entry.subject}</p>
+                          <p className="text-xs text-muted-foreground">{entry.subject}</p>
                         )}
                         {entry.department && (
                           <span
@@ -171,7 +171,7 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                   </td>
                   <td className="px-4 py-4">
                     {isWeekly && displayRating === null ? (
-                      <p className="text-xs text-slate-500">Not enough data</p>
+                      <p className="text-xs text-muted-foreground">Not enough data</p>
                     ) : (
                       <StarRatingDisplay
                         rating={displayRating ?? 0}
@@ -181,7 +181,7 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                     )}
                   </td>
                   <td className="px-4 py-4">
-                    <div className="text-xs text-slate-600">
+                    <div className="text-xs text-muted-foreground">
                       {displayCount} rating{displayCount !== 1 ? 's' : ''}
                     </div>
                   </td>
@@ -196,4 +196,10 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
 };
 
 export { LeaderboardTable };
+
+
+
+
+
+
 

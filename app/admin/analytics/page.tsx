@@ -108,8 +108,8 @@ export default function AnalyticsPage() {
     <div className="mx-auto max-w-7xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Analytics</h1>
-        <p className="text-slate-600">Platform performance and insights</p>
+        <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+        <p className="text-muted-foreground">Platform performance and insights</p>
       </div>
 
       {/* Overview Cards */}
@@ -158,22 +158,22 @@ export default function AnalyticsPage() {
                 {data.topTeachers.map((teacher, index) => (
                   <div
                     key={teacher.id}
-                    className="flex items-center justify-between rounded-lg bg-slate-50 p-3"
+                    className="flex items-center justify-between rounded-lg bg-muted p-3"
                   >
                     <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-sm font-medium text-emerald-600">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15 text-sm font-medium text-emerald-600 dark:text-emerald-300">
                       {index + 1}
                     </span>
                       <div>
-                        <p className="font-medium text-slate-900">{teacher.name}</p>
-                        <p className="text-xs text-slate-500">
+                        <p className="font-medium text-foreground">{teacher.name}</p>
+                        <p className="text-xs text-muted-foreground">
                           {teacher.total_ratings} ratings
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                      <span className="font-medium text-slate-700">
+                      <span className="font-medium text-foreground">
                         {teacher.overall_rating?.toFixed(1)}
                       </span>
                     </div>
@@ -181,7 +181,7 @@ export default function AnalyticsPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-slate-500">No data available</p>
+              <p className="text-center text-muted-foreground">No data available</p>
             )}
           </CardContent>
         </Card>
@@ -200,24 +200,24 @@ export default function AnalyticsPage() {
                 {data.recentActivity.slice(0, 10).map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex items-center justify-between rounded-lg bg-slate-50 p-3"
+                    className="flex items-center justify-between rounded-lg bg-muted p-3"
                   >
                     <div>
-                      <p className="font-medium text-slate-900">
+                      <p className="font-medium text-foreground">
                         {activity.teacher?.name}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted-foreground">
                         Rated {activity.stars} stars
                       </p>
                     </div>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-muted-foreground">
                       {new Date(activity.created_at).toLocaleDateString()}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-slate-500">No recent activity</p>
+              <p className="text-center text-muted-foreground">No recent activity</p>
             )}
           </CardContent>
         </Card>
@@ -229,7 +229,7 @@ export default function AnalyticsPage() {
           <CardTitle>Platform Growth</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg bg-slate-50 p-4">
+          <div className="rounded-lg bg-muted p-4">
             {isGrowthLoading ? (
               <div className="flex h-64 items-center justify-center">
                 <LoadingSpinner />
@@ -238,14 +238,14 @@ export default function AnalyticsPage() {
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-medium text-slate-700">
+                    <p className="text-sm font-medium text-foreground">
                       Last 30 days
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-muted-foreground">
                       Ratings and comments submitted
                     </p>
                   </div>
-                  <div className="flex items-center gap-4 text-xs font-medium text-slate-600">
+                  <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground">
                     <span className="inline-flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                       Ratings: {growthTotals.ratings}
@@ -264,9 +264,9 @@ export default function AnalyticsPage() {
             ) : (
               <div className="flex h-64 items-center justify-center text-center">
                 <div>
-                  <BarChart3 className="mx-auto h-12 w-12 text-slate-300" />
-                  <p className="mt-2 text-slate-500">No activity yet</p>
-                  <p className="text-sm text-slate-400">
+                  <BarChart3 className="mx-auto h-12 w-12 text-muted-foreground" />
+                  <p className="mt-2 text-muted-foreground">No activity yet</p>
+                  <p className="text-sm text-muted-foreground">
                     Growth charts will appear once ratings or comments are created
                   </p>
                 </div>
@@ -278,3 +278,7 @@ export default function AnalyticsPage() {
     </div>
   );
 }
+
+
+
+

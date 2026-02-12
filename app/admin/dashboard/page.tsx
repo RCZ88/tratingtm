@@ -96,8 +96,8 @@ export default function AdminDashboardPage() {
     <div className="mx-auto max-w-7xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-slate-600">Welcome back! Here&apos;s what&apos;s happening.</p>
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground">Welcome back! Here&apos;s what&apos;s happening.</p>
       </div>
 
       {/* Stats Overview */}
@@ -114,7 +114,7 @@ export default function AdminDashboardPage() {
 
       {/* Quick Actions */}
       <div className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900">Quick Actions</h2>
+        <h2 className="mb-4 text-lg font-semibold text-foreground">Quick Actions</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {quickActions.map((action) => (
             <Link key={action.label} href={action.href}>
@@ -147,24 +147,24 @@ export default function AdminDashboardPage() {
                 {stats.recentActivity.slice(0, 5).map((activity: any) => (
                   <div
                     key={activity.id}
-                    className="flex items-center justify-between rounded-lg bg-slate-50 p-3"
+                    className="flex items-center justify-between rounded-lg bg-muted p-3"
                   >
                     <div>
-                      <p className="font-medium text-slate-900">
+                      <p className="font-medium text-foreground">
                         {activity.teacher?.name}
                       </p>
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-muted-foreground">
                         Rated {activity.stars} stars
                       </p>
                     </div>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-muted-foreground">
                       {new Date(activity.created_at).toLocaleDateString()}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-slate-500">No recent activity</p>
+              <p className="text-center text-muted-foreground">No recent activity</p>
             )}
           </CardContent>
         </Card>
@@ -184,13 +184,13 @@ export default function AdminDashboardPage() {
                 {stats.topTeachers.slice(0, 5).map((teacher: any, index: number) => (
                   <div
                     key={teacher.id}
-                    className="flex items-center justify-between rounded-lg bg-slate-50 p-3"
+                    className="flex items-center justify-between rounded-lg bg-muted p-3"
                   >
                     <div className="flex items-center gap-3">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-medium text-emerald-600">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/15 text-xs font-medium text-emerald-600 dark:text-emerald-300">
                       {index + 1}
                     </span>
-                      <p className="font-medium text-slate-900">{teacher.name}</p>
+                      <p className="font-medium text-foreground">{teacher.name}</p>
                     </div>
                     <span className="text-sm font-medium text-amber-500">
                       {teacher.overall_rating?.toFixed(1) || 'N/A'} ★
@@ -199,7 +199,7 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-slate-500">No data available</p>
+              <p className="text-center text-muted-foreground">No data available</p>
             )}
           </CardContent>
         </Card>
@@ -207,4 +207,8 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+
+
+
 

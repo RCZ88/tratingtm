@@ -84,7 +84,7 @@ const StarRating: React.FC<StarRatingProps> = ({
                   'transition-colors duration-150',
                   isFilled || isHalfFilled
                     ? 'fill-amber-400 text-amber-400'
-                    : 'fill-transparent text-slate-300',
+                    : 'fill-transparent text-muted-foreground',
                   !readOnly && 'hover:text-amber-400'
                 )}
               />
@@ -93,7 +93,7 @@ const StarRating: React.FC<StarRatingProps> = ({
         })}
       </div>
       {showValue && (
-        <span className="ml-2 text-sm font-medium text-slate-600">
+        <span className="ml-2 text-sm font-medium text-muted-foreground">
           {value.toFixed(1)}
         </span>
       )}
@@ -137,20 +137,21 @@ export const StarRatingDisplay: React.FC<StarRatingDisplayProps> = ({
               key={index}
               className={cn(
                 sizes[size],
-                isFilled ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'
+                isFilled ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-muted-foreground'
               )}
             />
           );
         })}
       </div>
-      <span className="text-sm font-medium text-slate-700">
+      <span className="text-sm font-medium text-foreground">
         {rating.toFixed(1)}
       </span>
       {showCount && count !== undefined && (
-        <span className="text-sm text-slate-500">({count})</span>
+        <span className="text-sm text-muted-foreground">({count})</span>
       )}
     </div>
   );
 };
 
 export { StarRating };
+

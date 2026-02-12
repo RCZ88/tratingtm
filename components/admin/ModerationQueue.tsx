@@ -55,13 +55,13 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
     return (
       <div className={cn('space-y-4', className)}>
         {Array.from({ length: 3 }, (_, i) => (
-          <div key={i} className="animate-pulse rounded-lg border border-slate-200 bg-white p-4">
+          <div key={i} className="animate-pulse rounded-lg border border-border bg-card p-4">
             <div className="flex items-center gap-4">
-              <div className="h-4 w-4 rounded bg-slate-200" />
-              <div className="h-10 w-10 rounded-full bg-slate-200" />
+              <div className="h-4 w-4 rounded bg-muted" />
+              <div className="h-10 w-10 rounded-full bg-muted" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 w-1/4 rounded bg-slate-200" />
-                <div className="h-16 rounded bg-slate-200" />
+                <div className="h-4 w-1/4 rounded bg-muted" />
+                <div className="h-16 rounded bg-muted" />
               </div>
             </div>
           </div>
@@ -72,10 +72,10 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
 
   if (comments.length === 0) {
     return (
-      <div className={cn('rounded-xl border border-slate-200 bg-white p-12 text-center', className)}>
-        <MessageSquare className="mx-auto h-12 w-12 text-slate-300" />
-        <h3 className="mt-4 text-lg font-medium text-slate-900">No pending comments</h3>
-        <p className="mt-1 text-slate-500">
+      <div className={cn('rounded-xl border border-border bg-card p-12 text-center', className)}>
+        <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground" />
+        <h3 className="mt-4 text-lg font-medium text-foreground">No pending comments</h3>
+        <p className="mt-1 text-muted-foreground">
           All comments have been moderated. Check back later!
         </p>
       </div>
@@ -86,8 +86,8 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
     <div className={cn('space-y-4', className)}>
       {/* Bulk Actions */}
       {selectedComments.size > 0 && (
-        <div className="flex items-center gap-3 rounded-lg bg-emerald-50 p-3">
-          <span className="text-sm font-medium text-emerald-700">
+        <div className="flex items-center gap-3 rounded-lg bg-emerald-500/10 p-3">
+          <span className="text-sm font-medium text-emerald-700 dark:text-emerald-200">
             {selectedComments.size} selected
           </span>
           <div className="flex-1" />
@@ -104,7 +104,7 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
           <Button
             size="sm"
             variant="ghost"
-            className="text-red-600 hover:text-red-700"
+            className="text-red-600 dark:text-red-300 hover:text-red-700 dark:text-red-300"
             onClick={() => {
               selectedComments.forEach((id) => onReject?.(id));
               setSelectedComments(new Set());
@@ -121,8 +121,8 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
           <div
             key={comment.id}
             className={cn(
-              'rounded-lg border border-slate-200 bg-white p-4 transition-shadow hover:shadow-sm',
-              selectedComments.has(comment.id) && 'border-emerald-300 bg-emerald-50/50'
+              'rounded-lg border border-border bg-card p-4 transition-shadow hover:shadow-sm',
+              selectedComments.has(comment.id) && 'border-emerald-300 bg-emerald-500/10'
             )}
           >
             <div className="flex items-start gap-4">
@@ -131,7 +131,7 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
                 type="checkbox"
                 checked={selectedComments.has(comment.id)}
                 onChange={() => toggleSelection(comment.id)}
-                className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                className="mt-1 h-4 w-4 rounded border-border text-emerald-600 dark:text-emerald-300 focus:ring-emerald-500"
               />
 
               {/* Content */}
@@ -139,16 +139,16 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
                 {/* Header */}
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
-                      <User className="h-4 w-4 text-emerald-600" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15">
+                      <User className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
                     </div>
                     <div>
                       {comment.teacher && (
-                        <p className="font-medium text-slate-900">
+                        <p className="font-medium text-foreground">
                           {comment.teacher.name}
                         </p>
                       )}
-                      <time className="text-xs text-slate-500">
+                      <time className="text-xs text-muted-foreground">
                         {formatRelativeTime(comment.created_at)}
                       </time>
                     </div>
@@ -156,7 +156,7 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
                 </div>
 
                 {/* Comment Text */}
-                <p className="mt-3 text-sm text-slate-700 whitespace-pre-wrap">
+                <p className="mt-3 text-sm text-foreground whitespace-pre-wrap">
                   {comment.comment_text}
                 </p>
 
@@ -197,3 +197,11 @@ const ModerationQueue: React.FC<ModerationQueueProps> = ({
 };
 
 export { ModerationQueue };
+
+
+
+
+
+
+
+

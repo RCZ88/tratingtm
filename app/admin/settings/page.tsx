@@ -67,8 +67,8 @@ export default function AdminSettingsPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        <p className="text-slate-600">Control moderation and other app settings</p>
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+        <p className="text-muted-foreground">Control moderation and other app settings</p>
       </div>
 
       <Card>
@@ -80,19 +80,19 @@ export default function AdminSettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
-            <p className="text-sm text-slate-500">Loading...</p>
+            <p className="text-sm text-muted-foreground">Loading...</p>
           ) : (
             <>
-              <label className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4">
+              <label className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
                 <div>
-                  <p className="font-medium text-slate-900">Require approval for new comments</p>
-                  <p className="text-sm text-slate-500">
+                  <p className="font-medium text-foreground">Require approval for new comments</p>
+                  <p className="text-sm text-muted-foreground">
                     When enabled, new comments are hidden until approved by an admin.
                   </p>
                 </div>
                 <input
                   type="checkbox"
-                  className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-5 w-5 rounded border-border text-emerald-600 dark:text-emerald-300 focus:ring-emerald-500"
                   checked={settings?.comments_require_approval ?? true}
                   onChange={(e) =>
                     setSettings((prev) => ({
@@ -103,16 +103,16 @@ export default function AdminSettingsPage() {
                 />
               </label>
 
-              <label className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4">
+              <label className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
                 <div>
-                  <p className="font-medium text-slate-900">Require approval for new replies</p>
-                  <p className="text-sm text-slate-500">
+                  <p className="font-medium text-foreground">Require approval for new replies</p>
+                  <p className="text-sm text-muted-foreground">
                     When enabled, replies are hidden until approved by an admin.
                   </p>
                 </div>
                 <input
                   type="checkbox"
-                  className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-5 w-5 rounded border-border text-emerald-600 dark:text-emerald-300 focus:ring-emerald-500"
                   checked={settings?.replies_require_approval ?? true}
                   onChange={(e) =>
                     setSettings((prev) => ({
@@ -125,8 +125,8 @@ export default function AdminSettingsPage() {
             </>
           )}
 
-          {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>}
-          {success && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700">{success}</div>}
+          {error && <div className="rounded-lg bg-red-500/10 dark:bg-red-500/20 p-3 text-sm text-red-600 dark:text-red-300">{error}</div>}
+          {success && <div className="rounded-lg bg-green-500/10 dark:bg-green-500/20 p-3 text-sm text-green-700 dark:text-green-300">{success}</div>}
 
           <div>
             <Button onClick={saveSettings} isLoading={isSaving} disabled={!settings}>
@@ -138,3 +138,8 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
+
+
+
+
+

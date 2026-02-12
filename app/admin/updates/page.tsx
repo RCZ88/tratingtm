@@ -185,8 +185,8 @@ export default function AdminUpdatesPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-6 flex flex-col gap-2">
-        <h1 className="text-2xl font-bold text-slate-900">Public Updates</h1>
-        <p className="text-slate-600">
+        <h1 className="text-2xl font-bold text-foreground">Public Updates</h1>
+        <p className="text-muted-foreground">
           Post announcements that show on the public banner and changelog.
         </p>
       </div>
@@ -197,7 +197,7 @@ export default function AdminUpdatesPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">Template</label>
+            <label className="mb-2 block text-sm font-medium text-foreground">Template</label>
             <div className="flex flex-wrap gap-2">
               {(['new_teacher', 'feature', 'custom'] as TemplateType[]).map((option) => (
                 <button
@@ -206,8 +206,8 @@ export default function AdminUpdatesPage() {
                   onClick={() => setTemplate(option)}
                   className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
                     template === option
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                      : 'bg-muted text-muted-foreground hover:bg-muted'
                   }`}
                 >
                   {option === 'new_teacher'
@@ -222,11 +222,11 @@ export default function AdminUpdatesPage() {
 
           {template === 'new_teacher' && (
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">Teacher</label>
+              <label className="mb-2 block text-sm font-medium text-foreground">Teacher</label>
               <select
                 value={teacherId}
                 onChange={(e) => setTeacherId(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
               >
                 <option value="">Select teacher</option>
                 {isLoadingTeachers && <option>Loading...</option>}
@@ -270,13 +270,13 @@ export default function AdminUpdatesPage() {
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
             />
-            <label htmlFor="is_active" className="text-sm text-slate-700">
+            <label htmlFor="is_active" className="text-sm text-foreground">
               Active (visible in banner)
             </label>
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          {message && <p className="text-sm text-emerald-600">{message}</p>}
+          {error && <p className="text-sm text-red-600 dark:text-red-300">{error}</p>}
+          {message && <p className="text-sm text-emerald-600 dark:text-emerald-300">{message}</p>}
 
           <div className="flex flex-wrap gap-2">
             <Button onClick={handleSubmit} isLoading={isSaving} leftIcon={<Plus className="h-4 w-4" />}>
@@ -299,18 +299,18 @@ export default function AdminUpdatesPage() {
           {isLoading ? (
             <LoadingSpinner />
           ) : updates.length === 0 ? (
-            <p className="text-sm text-slate-500">No updates yet.</p>
+            <p className="text-sm text-muted-foreground">No updates yet.</p>
           ) : (
             <div className="space-y-4">
               {updates.map((item) => (
-                <div key={item.id} className="rounded-lg border border-slate-200 bg-white p-4">
+                <div key={item.id} className="rounded-lg border border-border bg-card p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-                      <p className="text-xs text-slate-500">{formatRelativeTime(item.created_at)}</p>
-                      <p className="mt-2 text-sm text-slate-600">{item.body}</p>
+                      <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                      <p className="text-xs text-muted-foreground">{formatRelativeTime(item.created_at)}</p>
+                      <p className="mt-2 text-sm text-muted-foreground">{item.body}</p>
                       {item.link_url && (
-                        <Link href={item.link_url} className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
+                        <Link href={item.link_url} className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-200">
                           Open link
                           <ExternalLink className="h-3 w-3" />
                         </Link>
@@ -344,4 +344,11 @@ export default function AdminUpdatesPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 

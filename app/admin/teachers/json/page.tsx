@@ -77,8 +77,8 @@ export default function TeachersJsonPage() {
     <div className="mx-auto max-w-5xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Edit Teachers JSON</h1>
-          <p className="text-slate-600">Load, edit, and save teacher data as JSON</p>
+          <h1 className="text-2xl font-bold text-foreground">Edit Teachers JSON</h1>
+          <p className="text-muted-foreground">Load, edit, and save teacher data as JSON</p>
         </div>
         <Link href="/admin/teachers">
           <Button variant="outline" leftIcon={<ArrowLeft className="h-4 w-4" />}>
@@ -91,7 +91,7 @@ export default function TeachersJsonPage() {
         <CardHeader>
           <CardTitle>Notes</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-slate-600">
+        <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>Required fields: <strong>name</strong> (min 3 chars).</p>
           <p>Optional: department_id, subject_ids, levels, year_levels, bio, image_url, is_active, id.</p>
           <p>Updates are matched by <strong>id</strong>. If no id is present, a new teacher is inserted.</p>
@@ -113,12 +113,12 @@ export default function TeachersJsonPage() {
           />
 
           {error && (
-            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+            <div className="rounded-lg bg-red-500/10 dark:bg-red-500/20 p-3 text-sm text-red-600 dark:text-red-300">
               {error}
             </div>
           )}
           {success && (
-            <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700">
+            <div className="rounded-lg bg-green-500/10 dark:bg-green-500/20 p-3 text-sm text-green-700 dark:text-green-300">
               {success}
             </div>
           )}
@@ -146,3 +146,5 @@ export default function TeachersJsonPage() {
     </div>
   );
 }
+
+

@@ -77,8 +77,8 @@ export default function ImportTeachersPage() {
     <div className="mx-auto max-w-3xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Import Teachers</h1>
-          <p className="text-slate-600">Upload or paste JSON to bulk add teachers</p>
+          <h1 className="text-2xl font-bold text-foreground">Import Teachers</h1>
+          <p className="text-muted-foreground">Upload or paste JSON to bulk add teachers</p>
         </div>
         <Link href="/admin/teachers">
           <Button variant="outline" leftIcon={<ArrowLeft className="h-4 w-4" />}>
@@ -92,7 +92,7 @@ export default function ImportTeachersPage() {
           <CardTitle>JSON Format</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-3 text-sm text-slate-600">
+          <p className="mb-3 text-sm text-muted-foreground">
             You can send either an array of teacher objects, or an array of strings
             (names only). Optional fields: department, subjects, department_id, subject_ids,
             levels, year_levels, bio, image_url, is_active.
@@ -109,14 +109,14 @@ export default function ImportTeachersPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Upload JSON File
             </label>
             <input
               type="file"
               accept="application/json,.json"
               onChange={handleFileChange}
-              className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200"
+              className="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-lg file:border-0 file:bg-muted file:px-4 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted"
             />
           </div>
 
@@ -129,12 +129,12 @@ export default function ImportTeachersPage() {
           />
 
           {error && (
-            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+            <div className="rounded-lg bg-red-500/10 dark:bg-red-500/20 p-3 text-sm text-red-600 dark:text-red-300">
               {error}
             </div>
           )}
           {success && (
-            <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700">
+            <div className="rounded-lg bg-green-500/10 dark:bg-green-500/20 p-3 text-sm text-green-700 dark:text-green-300">
               {success}
             </div>
           )}
@@ -160,3 +160,6 @@ export default function ImportTeachersPage() {
     </div>
   );
 }
+
+
+

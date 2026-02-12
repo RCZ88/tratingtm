@@ -55,7 +55,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="mb-2 block text-sm font-medium text-slate-700"
+            className="mb-2 block text-sm font-medium text-foreground"
           >
             {label}
             {props.required && <span className="ml-1 text-red-500">*</span>}
@@ -64,7 +64,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           id={textareaId}
           className={cn(
-            'flex min-h-[100px] w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 resize-y',
+            'flex min-h-[100px] w-full rounded-lg border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground resize-y',
             error && 'border-red-500 focus:border-red-500 focus:ring-red-500/20',
             autoResize && 'resize-none overflow-hidden',
             className
@@ -78,7 +78,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           {error ? (
             <p className="text-sm text-red-500">{error}</p>
           ) : helperText ? (
-            <p className="text-sm text-slate-500">{helperText}</p>
+            <p className="text-sm text-muted-foreground">{helperText}</p>
           ) : (
             <span />
           )}
@@ -86,7 +86,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             <p
               className={cn(
                 'text-sm',
-                characterCount > maxLength * 0.9 ? 'text-amber-600' : 'text-slate-400'
+                characterCount > maxLength * 0.9 ? 'text-amber-600' : 'text-muted-foreground'
               )}
             >
               {characterCount}/{maxLength}
@@ -101,3 +101,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 Textarea.displayName = 'Textarea';
 
 export { Textarea };
+
+
+
+

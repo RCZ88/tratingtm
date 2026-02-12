@@ -50,18 +50,22 @@ export function WeeklyResetCountdown() {
   }, [nextReset]);
 
   return (
-    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm shadow-sm">
+    <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-200">
             Next weekly reset
           </p>
           <p className="text-sm text-emerald-900">Countdown to Monday reset</p>
         </div>
-        <div className="rounded-full bg-white px-4 py-2 text-base font-semibold text-emerald-700 shadow">
+        <div className="rounded-full bg-card px-4 py-2 text-base font-semibold text-emerald-700 dark:text-emerald-200 shadow">
           {remaining}
         </div>
       </div>
     </div>
   );
 }
+
+
+
+

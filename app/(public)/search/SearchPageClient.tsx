@@ -100,14 +100,14 @@ const handleSearch = (newQuery: string) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-muted py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8 text-center relative overflow-hidden rounded-2xl bg-white px-6 py-8 shadow-sm">
+        <div className="mb-8 text-center relative overflow-hidden rounded-2xl bg-card px-6 py-8 shadow-sm">
           <div className="absolute inset-0 leaf-pattern opacity-40" />
           <div className="relative">
-            <h1 className="text-3xl font-bold text-slate-900">Search Teachers</h1>
-            <p className="mt-2 text-slate-600">
+            <h1 className="text-3xl font-bold text-foreground">Search Teachers</h1>
+            <p className="mt-2 text-muted-foreground">
               Find teachers by name, subject, or department
             </p>
           </div>
@@ -131,7 +131,7 @@ const handleSearch = (newQuery: string) => {
         {hasSearched && (
           <div>
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-lg font-semibold text-foreground">
                 {isLoading ? (
                   'Searching...'
                 ) : (
@@ -153,33 +153,33 @@ const handleSearch = (newQuery: string) => {
         {/* Initial State */}
         {!hasSearched && (
           <div className="py-16 text-center">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
-              <Search className="h-10 w-10 text-emerald-600" />
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/15">
+              <Search className="h-10 w-10 text-emerald-600 dark:text-emerald-300" />
             </div>
-            <h2 className="mt-6 text-xl font-semibold text-slate-900">
+            <h2 className="mt-6 text-xl font-semibold text-foreground">
               Start Searching
             </h2>
-            <p className="mx-auto mt-2 max-w-md text-slate-600">
+            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
               Enter a teacher&apos;s name, subject, or department above to find them in our directory.
             </p>
 
             {/* Quick Categories */}
             <div className="mt-10">
-              <p className="mb-4 text-sm font-medium text-slate-500">
+              <p className="mb-4 text-sm font-medium text-muted-foreground">
                 Or browse by category:
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 {isLoadingDepartments && (
-                  <span className="text-sm text-slate-400">Loading categories...</span>
+                  <span className="text-sm text-muted-foreground">Loading categories...</span>
                 )}
                 {!isLoadingDepartments && departments.length === 0 && (
-                  <span className="text-sm text-slate-400">No categories available yet.</span>
+                  <span className="text-sm text-muted-foreground">No categories available yet.</span>
                 )}
                 {departments.map((dept) => (
                   <button
                     key={dept.id}
                     onClick={() => handleSearch(dept.name)}
-                    className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-emerald-500 hover:text-emerald-700"
+                    className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-emerald-500 hover:text-emerald-700 dark:text-emerald-200"
                   >
                     {dept.name}
                   </button>
@@ -192,6 +192,12 @@ const handleSearch = (newQuery: string) => {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 

@@ -52,18 +52,18 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-muted p-4">
       <Link href="/" className="mb-8 flex items-center gap-2">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Shield className="h-6 w-6" />
         </div>
-        <span className="text-xl font-bold text-slate-900">TM Ratings Admin</span>
+        <span className="text-xl font-bold text-foreground">TM Ratings Admin</span>
       </Link>
 
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle>Sign In</CardTitle>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             Enter your credentials to access the admin panel
           </p>
         </CardHeader>
@@ -90,7 +90,7 @@ export default function AdminLoginPage() {
             />
 
             {error && (
-              <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+              <div className="flex items-center gap-2 rounded-lg bg-red-500/10 dark:bg-red-500/20 p-3 text-sm text-red-600 dark:text-red-300">
                 <AlertCircle className="h-4 w-4" />
                 {error}
               </div>
@@ -109,7 +109,7 @@ export default function AdminLoginPage() {
           <div className="mt-6 text-center">
             <Link
               href="/"
-              className="text-sm text-slate-500 hover:text-emerald-700"
+              className="text-sm text-muted-foreground hover:text-emerald-700 dark:text-emerald-200"
             >
               ← Back to website
             </Link>
@@ -119,3 +119,7 @@ export default function AdminLoginPage() {
     </div>
   );
 }
+
+
+
+

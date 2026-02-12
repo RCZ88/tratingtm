@@ -311,10 +311,10 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
         required
       />
 
-      <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+      <div className="flex items-center justify-between rounded-lg border border-border bg-muted px-4 py-3">
         <div>
-          <p className="text-sm font-medium text-slate-900">Edit mode</p>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm font-medium text-foreground">Edit mode</p>
+          <p className="text-xs text-muted-foreground">
             {useManualInput ? 'Manual inputs' : 'Dropdown selections'}
           </p>
         </div>
@@ -324,8 +324,8 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
           className={cn(
             'inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
             useManualInput
-              ? 'border-amber-200 bg-amber-100 text-amber-700'
-              : 'border-emerald-200 bg-emerald-100 text-emerald-700'
+              ? 'border-amber-500/30 bg-amber-100 text-amber-700 dark:text-amber-200'
+              : 'border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
           )}
         >
           {useManualInput ? 'Manual' : 'Dropdowns'}
@@ -335,11 +335,11 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
       {useManualInput ? (
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Department
             </label>
             <select
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               value={state.department_id}
               onChange={(e) => handleChange('department_id', e.target.value)}
             >
@@ -366,11 +366,11 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
         <>
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Department
               </label>
               <select
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 value={state.department_id}
                 onChange={(e) => handleChange('department_id', e.target.value)}
               >
@@ -388,7 +388,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Subjects
             </label>
             <div className="flex flex-wrap gap-2">
@@ -400,26 +400,26 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
                   className={cn(
                     'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
                     state.subject_ids.includes(subject.id)
-                      ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
-                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                      : 'border-border bg-card text-muted-foreground hover:bg-muted'
                   )}
                 >
                   {subject.name}
                 </button>
               ))}
               {state.department_id && isLoadingSubjects && (
-                <p className="text-sm text-slate-500">Loading subjects...</p>
+                <p className="text-sm text-muted-foreground">Loading subjects...</p>
               )}
               {state.department_id &&
                 !isLoadingSubjects &&
                 (subjectsByDepartment[state.department_id] || []).length === 0 && (
-                  <p className="text-sm text-slate-500">No subjects listed for this department.</p>
+                  <p className="text-sm text-muted-foreground">No subjects listed for this department.</p>
                 )}
               {!state.department_id && !isLoadingDepartments && (
-                <p className="text-sm text-slate-500">Select a department to choose subjects.</p>
+                <p className="text-sm text-muted-foreground">Select a department to choose subjects.</p>
               )}
               {!state.department_id && isLoadingDepartments && (
-                <p className="text-sm text-slate-500">Loading departments...</p>
+                <p className="text-sm text-muted-foreground">Loading departments...</p>
               )}
             </div>
             {state.errors.subject_ids && (
@@ -431,7 +431,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
 
       <div className="grid gap-6 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">
+          <label className="mb-2 block text-sm font-medium text-foreground">
             Levels
           </label>
           <div className="flex flex-wrap gap-2">
@@ -444,9 +444,9 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
                   'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
                   state.levels.includes(level)
                     ? level === 'HL'
-                      ? 'border-red-200 bg-red-100 text-red-700'
+                      ? 'border-red-500/30 bg-red-100 text-red-700 dark:text-red-300'
                       : 'border-blue-200 bg-blue-100 text-blue-700'
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    : 'border-border bg-card text-muted-foreground hover:bg-muted'
                 )}
               >
                 {level}
@@ -456,7 +456,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">
+          <label className="mb-2 block text-sm font-medium text-foreground">
             Year Levels
           </label>
           <div className="flex flex-wrap gap-2">
@@ -468,8 +468,8 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
                 className={cn(
                   'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
                   state.year_levels.includes(year)
-                    ? 'border-slate-300 bg-slate-100 text-slate-700'
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    ? 'border-border bg-muted text-foreground'
+                    : 'border-border bg-card text-muted-foreground hover:bg-muted'
                 )}
               >
                 Year {year}
@@ -507,9 +507,9 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
           id="is_active"
           checked={state.is_active}
           onChange={(e) => handleChange('is_active', e.target.checked)}
-          className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+          className="h-4 w-4 rounded border-border text-emerald-600 dark:text-emerald-300 focus:ring-emerald-500"
         />
-        <label htmlFor="is_active" className="text-sm text-slate-700">
+        <label htmlFor="is_active" className="text-sm text-foreground">
           Active (visible to public)
         </label>
       </div>
@@ -521,16 +521,16 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
             id="post_update"
             checked={postUpdate}
             onChange={(e) => setPostUpdate(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+            className="h-4 w-4 rounded border-border text-emerald-600 dark:text-emerald-300 focus:ring-emerald-500"
           />
-          <label htmlFor="post_update" className="text-sm text-slate-700">
+          <label htmlFor="post_update" className="text-sm text-foreground">
             Post update banner for this teacher
           </label>
         </div>
       )}
 
       {state.errors.submit && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+        <div className="rounded-lg bg-red-500/10 dark:bg-red-500/20 p-3 text-sm text-red-600 dark:text-red-300">
           {state.errors.submit}
         </div>
       )}
@@ -556,6 +556,14 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ teacher, onSuccess, className
 };
 
 export { TeacherForm };
+
+
+
+
+
+
+
+
 
 
 

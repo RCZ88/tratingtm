@@ -35,7 +35,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   const colors = {
     primary: 'text-primary',
     white: 'text-white',
-    slate: 'text-slate-400',
+    slate: 'text-muted-foreground',
   };
 
   const spinner = (
@@ -64,10 +64,10 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   if (fullPage) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
         {spinner}
         {text && (
-          <p className="mt-4 text-sm font-medium text-slate-600">{text}</p>
+          <p className="mt-4 text-sm font-medium text-muted-foreground">{text}</p>
         )}
       </div>
     );
@@ -76,7 +76,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   return (
     <div className="flex flex-col items-center justify-center">
       {spinner}
-      {text && <p className="mt-2 text-sm text-slate-600">{text}</p>}
+      {text && <p className="mt-2 text-sm text-muted-foreground">{text}</p>}
     </div>
   );
 };
@@ -96,7 +96,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({ className, count = 1 }) => {
         <div
           key={i}
           className={cn(
-            'animate-pulse rounded-lg bg-slate-200',
+            'animate-pulse rounded-lg bg-muted',
             className
           )}
         />
@@ -110,7 +110,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({ className, count = 1 }) => {
  */
 export const CardSkeleton: React.FC = () => {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
       <div className="flex items-center gap-4">
         <Skeleton className="h-16 w-16 rounded-full" />
         <div className="flex-1 space-y-2">
@@ -127,3 +127,8 @@ export const CardSkeleton: React.FC = () => {
 };
 
 export { LoadingSpinner };
+
+
+
+
+

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -75,8 +75,8 @@ export default function AdminCompletedSuggestionsPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Completed Suggestions</h1>
-        <p className="text-slate-600">
+        <h1 className="text-2xl font-bold text-foreground">Completed Suggestions</h1>
+        <p className="text-muted-foreground">
           A history of suggestions that have been completed.
         </p>
       </div>
@@ -88,9 +88,9 @@ export default function AdminCompletedSuggestionsPage() {
         <CardContent>
           <div className="flex flex-wrap gap-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Type</label>
+              <label className="mb-1 block text-sm font-medium text-foreground">Type</label>
               <select
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 value={typeFilter}
                 onChange={(event) => setTypeFilter(event.target.value)}
               >
@@ -115,7 +115,7 @@ export default function AdminCompletedSuggestionsPage() {
           <LoadingSpinner text="Loading completed suggestions..." />
         </div>
       ) : items.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center text-sm text-slate-500">
+        <div className="rounded-xl border border-dashed border-border bg-muted p-8 text-center text-sm text-muted-foreground">
           No completed suggestions yet.
         </div>
       ) : (
@@ -125,36 +125,36 @@ export default function AdminCompletedSuggestionsPage() {
               <CardContent className="space-y-3 p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold uppercase text-emerald-700">{item.type.replace('_', ' ')}</p>
-                    <h3 className="text-lg font-semibold text-slate-900">
+                    <p className="text-sm font-semibold uppercase text-emerald-700 dark:text-emerald-200">{item.type.replace('_', ' ')}</p>
+                    <h3 className="text-lg font-semibold text-foreground">
                       {item.title || 'Untitled suggestion'}
                     </h3>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-slate-500">
-                    <span className="rounded-full bg-slate-100 px-2 py-1">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="rounded-full bg-muted px-2 py-1">
                       Up {item.upvotes}
                     </span>
-                    <span className="rounded-full bg-slate-100 px-2 py-1">
+                    <span className="rounded-full bg-muted px-2 py-1">
                       Down {item.downvotes}
                     </span>
                   </div>
                 </div>
-                <p className="text-sm text-slate-600 whitespace-pre-wrap">
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                   {item.description}
                 </p>
                 {(item.teacher_name || item.subject) && (
-                  <p className="text-xs text-slate-500">
-                    {item.teacher_name ? `${item.teacher_name} â€¢ ` : ''}
-                    {item.department ? `${item.department} â€¢ ` : ''}
+                  <p className="text-xs text-muted-foreground">
+                    {item.teacher_name ? `${item.teacher_name} • ` : ''}
+                    {item.department ? `${item.department} • ` : ''}
                     {item.subject ? `${item.subject}` : ''}
-                    {item.level ? ` â€¢ ${item.level}` : ''}
-                    {item.year_level ? ` â€¢ ${item.year_level}` : ''}
+                    {item.level ? ` • ${item.level}` : ''}
+                    {item.year_level ? ` • ${item.year_level}` : ''}
                   </p>
                 )}
                 <div className="flex flex-wrap items-center gap-3">
-                  <label className="text-xs font-medium text-slate-600">Status</label>
+                  <label className="text-xs font-medium text-muted-foreground">Status</label>
                   <select
-                    className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="rounded-lg border border-border bg-card px-2 py-1 text-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     value={item.status}
                     onChange={(event) => updateStatus(item.id, event.target.value)}
                   >
@@ -173,3 +173,8 @@ export default function AdminCompletedSuggestionsPage() {
     </div>
   );
 }
+
+
+
+
+

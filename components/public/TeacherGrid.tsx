@@ -49,9 +49,9 @@ const TeacherGrid: React.FC<TeacherGridProps> = ({
   if (teachers.length === 0) {
     return (
       <div className={cn('flex flex-col items-center justify-center py-16', className)}>
-        <div className="rounded-full bg-slate-100 p-6">
+        <div className="rounded-full bg-muted p-6">
           <svg
-            className="h-12 w-12 text-slate-400"
+            className="h-12 w-12 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -64,8 +64,8 @@ const TeacherGrid: React.FC<TeacherGridProps> = ({
             />
           </svg>
         </div>
-        <h3 className="mt-4 text-lg font-medium text-slate-900">{emptyMessage}</h3>
-        <p className="mt-1 text-sm text-slate-500">
+        <h3 className="mt-4 text-lg font-medium text-foreground">{emptyMessage}</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
           Try adjusting your search or filters
         </p>
       </div>
@@ -82,3 +82,5 @@ const TeacherGrid: React.FC<TeacherGridProps> = ({
 };
 
 export { TeacherGrid };
+
+

@@ -29,9 +29,9 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, isLoading = false,
     return (
       <div className={cn('grid gap-6 sm:grid-cols-2 lg:grid-cols-4', className)}>
         {Array.from({ length: 4 }, (_, i) => (
-          <div key={i} className="animate-pulse rounded-xl bg-slate-100 p-6">
-            <div className="h-4 w-24 rounded bg-slate-200" />
-            <div className="mt-2 h-8 w-16 rounded bg-slate-200" />
+          <div key={i} className="animate-pulse rounded-xl bg-muted p-6">
+            <div className="h-4 w-24 rounded bg-muted" />
+            <div className="mt-2 h-8 w-16 rounded bg-muted" />
           </div>
         ))}
       </div>
@@ -88,3 +88,4 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, isLoading = false,
 };
 
 export { StatsOverview };
+

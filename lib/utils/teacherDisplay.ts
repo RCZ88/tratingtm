@@ -20,12 +20,12 @@ export function formatYearLevels(levels?: number[] | null): string | null {
 export function getAvatarStyle(name?: string | null): string {
   const normalized = (name || '').trim().toLowerCase();
   if (normalized.startsWith('mr ') || normalized.startsWith('mr.')) {
-    return 'bg-sky-100 text-sky-700';
+    return 'bg-sky-100 text-sky-700 dark:text-sky-200';
   }
   if (normalized.startsWith('ms ') || normalized.startsWith('ms.')) {
     return 'bg-rose-100 text-rose-700';
   }
-  return 'bg-emerald-100 text-emerald-700';
+  return 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200';
 }
 
 function normalizeHex(hex?: string | null): string | null {
@@ -47,7 +47,7 @@ export function getDepartmentBadgeStyle(colorHex?: string | null) {
   const normalized = normalizeHex(colorHex);
   if (!normalized) {
     return {
-      className: 'border border-slate-200 bg-slate-100 text-slate-600',
+      className: 'border border-border bg-muted text-muted-foreground',
       style: undefined as CSSProperties | undefined,
     };
   }
@@ -63,3 +63,9 @@ export function getDepartmentBadgeStyle(colorHex?: string | null) {
   };
 }
 import type { CSSProperties } from 'react';
+
+
+
+
+
+

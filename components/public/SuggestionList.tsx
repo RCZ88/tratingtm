@@ -34,27 +34,27 @@ const statusStyles: Record<string, { label: string; icon: React.ReactNode; class
   new: {
     label: 'New',
     icon: <Clock className="h-3.5 w-3.5" />,
-    className: 'bg-slate-100 text-slate-700',
+    className: 'bg-muted text-foreground',
   },
   working: {
     label: 'Working',
     icon: <Wrench className="h-3.5 w-3.5" />,
-    className: 'bg-amber-100 text-amber-700',
+    className: 'bg-amber-100 text-amber-700 dark:text-amber-200',
   },
   approved: {
     label: 'Approved',
     icon: <CheckCircle className="h-3.5 w-3.5" />,
-    className: 'bg-emerald-100 text-emerald-700',
+    className: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200',
   },
   declined: {
     label: 'Declined',
     icon: <XCircle className="h-3.5 w-3.5" />,
-    className: 'bg-red-100 text-red-700',
+    className: 'bg-red-100 text-red-700 dark:text-red-300',
   },
   completed: {
     label: 'Completed',
     icon: <CheckCircle className="h-3.5 w-3.5" />,
-    className: 'bg-emerald-100 text-emerald-700',
+    className: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200',
   },
 };
 
@@ -134,12 +134,12 @@ const SuggestionList: React.FC<SuggestionListProps> = ({  type,  status,  emptyM
   };
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Loading suggestions...</p>;
+    return <p className="text-sm text-muted-foreground">Loading suggestions...</p>;
   }
 
   if (items.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+      <div className="rounded-lg border border-dashed border-border bg-muted p-6 text-center text-sm text-muted-foreground">
         {emptyMessage || 'No suggestions yet. Be the first to share one.'}
       </div>
     );
@@ -150,17 +150,17 @@ const SuggestionList: React.FC<SuggestionListProps> = ({  type,  status,  emptyM
       {items.map((item) => {
         const statusMeta = statusStyles[item.status] || statusStyles.new;
         return (
-          <div key={item.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div key={item.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-base font-semibold text-slate-900">
+                <h3 className="text-base font-semibold text-foreground">
                   {item.title || 'Untitled suggestion'}
                 </h3>
-                <p className="mt-2 text-sm text-slate-600 whitespace-pre-wrap">
+                <p className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">
                   {item.description}
                 </p>
                 {(item.teacher_name || item.subject) && (
-                  <p className="mt-3 text-xs text-slate-500">
+                  <p className="mt-3 text-xs text-muted-foreground">
                     {item.teacher_name ? `${item.teacher_name} â€¢ ` : ''}
                     {item.department ? `${item.department} â€¢ ` : ''}
                     {item.subject ? `${item.subject}` : ''}
@@ -175,15 +175,15 @@ const SuggestionList: React.FC<SuggestionListProps> = ({  type,  status,  emptyM
               </span>
             </div>
             {showVoting && (
-              <div className="mt-4 flex items-center gap-3 text-xs text-slate-500">
+              <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
                 <button
                   type="button"
                   onClick={() => handleVote(item.id, 'up')}
                   className={cn(
                     'inline-flex items-center gap-1 rounded-full px-2 py-1 transition-colors',
                     item.viewer_vote === 'up'
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                      : 'bg-muted text-muted-foreground hover:bg-muted'
                   )}
                 >
                   <ThumbsUp className="h-3.5 w-3.5" />
@@ -195,8 +195,8 @@ const SuggestionList: React.FC<SuggestionListProps> = ({  type,  status,  emptyM
                   className={cn(
                     'inline-flex items-center gap-1 rounded-full px-2 py-1 transition-colors',
                     item.viewer_vote === 'down'
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-red-100 text-red-700 dark:text-red-300'
+                      : 'bg-muted text-muted-foreground hover:bg-muted'
                   )}
                 >
                   <ThumbsDown className="h-3.5 w-3.5" />
@@ -212,6 +212,13 @@ const SuggestionList: React.FC<SuggestionListProps> = ({  type,  status,  emptyM
 };
 
 export { SuggestionList };
+
+
+
+
+
+
+
 
 
 

@@ -30,24 +30,24 @@ export default function CompletedSuggestionsPage() {
   const [activeTab, setActiveTab] = React.useState('general');
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-muted py-12">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Completed Suggestions</h1>
-            <p className="mt-2 text-slate-600">
+            <h1 className="text-3xl font-bold text-foreground">Completed Suggestions</h1>
+            <p className="mt-2 text-muted-foreground">
               See the ideas and requests we have already completed.
             </p>
           </div>
           <Link
             href="/suggestions"
-            className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm hover:border-emerald-300"
+            className="rounded-full border border-emerald-500/30 bg-card px-4 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-200 shadow-sm hover:border-emerald-300"
           >
             Back to suggestions
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
           <div className="flex flex-wrap gap-3">
             {tabs.map((tab) => (
               <button
@@ -56,8 +56,8 @@ export default function CompletedSuggestionsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === tab.id
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                    : 'bg-muted text-muted-foreground hover:bg-muted'
                 }`}
               >
                 {tab.icon}
@@ -67,7 +67,7 @@ export default function CompletedSuggestionsPage() {
           </div>
 
           <div className="mt-6">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-muted-foreground">
               {tabs.find((tab) => tab.id === activeTab)?.description}
             </p>
           </div>
@@ -84,3 +84,9 @@ export default function CompletedSuggestionsPage() {
     </div>
   );
 }
+
+
+
+
+
+

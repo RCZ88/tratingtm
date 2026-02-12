@@ -105,8 +105,8 @@ export default function AdminTeachersPage() {
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Teachers</h1>
-          <p className="text-slate-600">Manage teacher profiles</p>
+          <h1 className="text-2xl font-bold text-foreground">Teachers</h1>
+          <p className="text-muted-foreground">Manage teacher profiles</p>
         </div>
         <div className="flex flex-wrap gap-3">
           <Link href="/admin/teachers/json">
@@ -130,7 +130,7 @@ export default function AdminTeachersPage() {
       {/* Search */}
       <div className="mb-6">
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search teachers..."
@@ -139,7 +139,7 @@ export default function AdminTeachersPage() {
               setSearchQuery(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-lg border border-slate-300 py-2 pl-10 pr-4 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded-lg border border-border py-2 pl-10 pr-4 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
       </div>
@@ -149,21 +149,21 @@ export default function AdminTeachersPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-50">
+              <thead className="bg-muted">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Name
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Subject
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Department
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Actions
                   </th>
                 </tr>
@@ -177,33 +177,33 @@ export default function AdminTeachersPage() {
                   </tr>
                 ) : teachers.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-slate-500">
+                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
                       No teachers found
                     </td>
                   </tr>
                 ) : (
                   teachers.map((teacher) => (
-                    <tr key={teacher.id} className="hover:bg-slate-50">
+                    <tr key={teacher.id} className="hover:bg-muted">
                       <td className="px-4 py-3">
                         <Link
                           href={`/admin/teachers/${teacher.id}`}
-                          className="font-medium text-slate-900 hover:text-emerald-700"
+                          className="font-medium text-foreground hover:text-emerald-700 dark:text-emerald-200"
                         >
                           {teacher.name}
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600">
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
                         {teacher.primary_subject || teacher.subjects?.[0]?.name || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600">
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
                         {teacher.department?.name || '-'}
                       </td>
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
                             teacher.is_active
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-slate-100 text-slate-600'
+                              ? 'bg-green-100 text-green-700 dark:text-green-300'
+                              : 'bg-muted text-muted-foreground'
                           }`}
                         >
                           {teacher.is_active ? 'Active' : 'Inactive'}
@@ -213,7 +213,7 @@ export default function AdminTeachersPage() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => toggleActive(teacher)}
-                            className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                            className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
                             title={teacher.is_active ? 'Deactivate' : 'Activate'}
                           >
                             {teacher.is_active ? (
@@ -224,7 +224,7 @@ export default function AdminTeachersPage() {
                           </button>
                           <Link href={`/admin/teachers/${teacher.id}/edit`}>
                             <button
-                              className="rounded-lg p-2 text-slate-400 hover:bg-emerald-50 hover:text-emerald-700"
+                              className="rounded-lg p-2 text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-700 dark:text-emerald-200"
                               title="Edit"
                             >
                               <Edit2 className="h-4 w-4" />
@@ -235,7 +235,7 @@ export default function AdminTeachersPage() {
                               setTeacherToDelete(teacher);
                               setDeleteModalOpen(true);
                             }}
-                            className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                            className="rounded-lg p-2 text-muted-foreground hover:bg-red-500/10 dark:bg-red-500/20 hover:text-red-600 dark:text-red-300"
                             title="Delete"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -263,7 +263,7 @@ export default function AdminTeachersPage() {
           >
             Previous
           </Button>
-          <span className="text-sm text-slate-600">
+          <span className="text-sm text-muted-foreground">
             Page {page} of {totalPages}
           </span>
           <Button
@@ -290,9 +290,9 @@ export default function AdminTeachersPage() {
       >
         <div className="text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-            <AlertTriangle className="h-6 w-6 text-red-600" />
+            <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-300" />
           </div>
-          <p className="mt-4 text-slate-600">
+          <p className="mt-4 text-muted-foreground">
             Are you sure you want to delete <strong>{teacherToDelete?.name}</strong>?
             This action cannot be undone.
           </p>
@@ -316,4 +316,10 @@ export default function AdminTeachersPage() {
     </div>
   );
 }
+
+
+
+
+
+
 

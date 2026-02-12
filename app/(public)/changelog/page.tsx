@@ -49,11 +49,11 @@ export default function ChangelogPage() {
   }, [loadUpdates]);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-muted py-12">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-slate-900">Changelog</h1>
-          <p className="mt-2 text-slate-600">Past updates and announcements</p>
+          <h1 className="text-3xl font-bold text-foreground">Changelog</h1>
+          <p className="mt-2 text-muted-foreground">Past updates and announcements</p>
         </div>
 
         <Card>
@@ -66,21 +66,21 @@ export default function ChangelogPage() {
                 <LoadingSpinner size="md" text="Loading updates..." />
               </div>
             ) : items.length === 0 ? (
-              <p className="text-center text-slate-500">No updates yet.</p>
+              <p className="text-center text-muted-foreground">No updates yet.</p>
             ) : (
               <div className="space-y-4">
                 {items.map((item) => {
                   const linkUrl = item.link_url || (item.teacher_id ? `/teachers/${item.teacher_id}` : null);
                   return (
-                    <div key={item.id} className="rounded-xl border border-slate-200 bg-white p-4">
+                    <div key={item.id} className="rounded-xl border border-border bg-card p-4">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-between gap-2">
-                          <h3 className="text-base font-semibold text-slate-900">{item.title}</h3>
-                          <span className="text-xs text-slate-500">{formatRelativeTime(item.created_at)}</span>
+                          <h3 className="text-base font-semibold text-foreground">{item.title}</h3>
+                          <span className="text-xs text-muted-foreground">{formatRelativeTime(item.created_at)}</span>
                         </div>
-                        <p className="text-sm text-slate-600">{item.body}</p>
+                        <p className="text-sm text-muted-foreground">{item.body}</p>
                         {linkUrl && (
-                          <Link href={linkUrl} className="text-sm font-medium text-emerald-700 hover:text-emerald-800">
+                          <Link href={linkUrl} className="text-sm font-medium text-emerald-700 dark:text-emerald-200 hover:text-emerald-800">
                             View details
                           </Link>
                         )}
@@ -111,3 +111,8 @@ export default function ChangelogPage() {
     </div>
   );
 }
+
+
+
+
+

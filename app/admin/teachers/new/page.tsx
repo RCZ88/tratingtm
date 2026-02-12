@@ -20,13 +20,13 @@ export default function NewTeacherPage() {
       <div className="mb-8">
         <Link
           href="/admin/teachers"
-          className="mb-4 inline-flex items-center text-sm text-slate-600 hover:text-emerald-700"
+          className="mb-4 inline-flex items-center text-sm text-muted-foreground hover:text-emerald-700 dark:text-emerald-200"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Teachers
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">Add New Teacher</h1>
-        <p className="text-slate-600">Create a new teacher profile</p>
+        <h1 className="text-2xl font-bold text-foreground">Add New Teacher</h1>
+        <p className="text-muted-foreground">Create a new teacher profile</p>
       </div>
 
       {/* Form */}
@@ -38,3 +38,5 @@ export default function NewTeacherPage() {
     </div>
   );
 }
+
+

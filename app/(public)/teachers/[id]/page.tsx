@@ -101,8 +101,8 @@ export default function TeacherDetailPage() {
   if (!teacher) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold text-slate-900">Teacher Not Found</h1>
-        <p className="mt-2 text-slate-600">
+        <h1 className="text-2xl font-bold text-foreground">Teacher Not Found</h1>
+        <p className="mt-2 text-muted-foreground">
           The teacher you are looking for does not exist.
         </p>
         <Link href="/teachers" className="mt-6">
@@ -119,12 +119,12 @@ export default function TeacherDetailPage() {
   const departmentStyle = getDepartmentBadgeStyle(teacher.department?.color_hex || null);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-muted py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Back Link */}
         <Link
           href="/teachers"
-          className="mb-6 inline-flex items-center text-sm text-slate-600 hover:text-emerald-600"
+          className="mb-6 inline-flex items-center text-sm text-muted-foreground hover:text-emerald-600 dark:text-emerald-300"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Teachers
@@ -138,7 +138,7 @@ export default function TeacherDetailPage() {
               <CardContent className="p-6">
                 <div className="flex flex-col gap-6 sm:flex-row">
                   {/* Image */}
-                  <div className="relative mx-auto h-32 w-32 flex-shrink-0 overflow-hidden rounded-full bg-slate-100 sm:mx-0">
+                  <div className="relative mx-auto h-32 w-32 flex-shrink-0 overflow-hidden rounded-full bg-muted sm:mx-0">
                     {teacher.image_url ? (
                       <Image
                         src={teacher.image_url}
@@ -155,7 +155,7 @@ export default function TeacherDetailPage() {
 
                   {/* Info */}
                   <div className="flex-1 text-center sm:text-left">
-                    <h1 className="text-2xl font-bold text-slate-900">
+                    <h1 className="text-2xl font-bold text-foreground">
                       {teacher.name}
                     </h1>
 
@@ -173,7 +173,7 @@ export default function TeacherDetailPage() {
                         {subjectList.map((subject) => (
                           <span
                             key={subject}
-                            className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700"
+                            className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground"
                           >
                             <BookOpen className="h-3.5 w-3.5" />
                             {subject}
@@ -190,12 +190,12 @@ export default function TeacherDetailPage() {
                           </span>
                         )}
                         {levels.includes('HL') && (
-                          <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                          <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 dark:text-red-300">
                             HL
                           </span>
                         )}
                         {yearLabel && (
-                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                          <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-foreground">
                             Years {yearLabel}
                           </span>
                         )}
@@ -204,17 +204,17 @@ export default function TeacherDetailPage() {
 
                     <div className="mt-4 grid gap-3 sm:max-w-md">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                           Rating View
                         </p>
-                        <div className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-sm">
+                        <div className="mt-2 inline-flex rounded-full border border-border bg-muted p-1 text-sm">
                           <button
                             type="button"
                             onClick={() => setRatingMode('weekly')}
                             className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                               ratingMode === 'weekly'
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'text-slate-600 hover:bg-white'
+                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                                : 'text-muted-foreground hover:bg-card'
                             }`}
                           >
                             Weekly
@@ -224,8 +224,8 @@ export default function TeacherDetailPage() {
                             onClick={() => setRatingMode('all_time')}
                             className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                               ratingMode === 'all_time'
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'text-slate-600 hover:bg-white'
+                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                                : 'text-muted-foreground hover:bg-card'
                             }`}
                           >
                             All-Time
@@ -235,7 +235,7 @@ export default function TeacherDetailPage() {
 
                       {ratingMode === 'weekly' ? (
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                             Weekly (Unique)
                           </p>
                           {teacher.weekly_average_rating !== null &&
@@ -246,12 +246,12 @@ export default function TeacherDetailPage() {
                               size="md"
                             />
                           ) : (
-                            <p className="text-sm text-slate-500">Not enough data yet</p>
+                            <p className="text-sm text-muted-foreground">Not enough data yet</p>
                           )}
                         </div>
                       ) : (
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                             All-Time (Total)
                           </p>
                           <StarRatingDisplay
@@ -261,7 +261,7 @@ export default function TeacherDetailPage() {
                           />
                         </div>
                       )}
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted-foreground">
                         {ratingMode === 'weekly'
                           ? 'You can rate each teacher once per week. Weekly ratings reset every Monday.'
                           : 'All-time ratings reflect every rating submitted.'}
@@ -271,9 +271,9 @@ export default function TeacherDetailPage() {
                 </div>
 
                 {teacher.bio && (
-                  <div className="mt-6 border-t border-slate-100 pt-6">
-                    <h2 className="text-lg font-semibold text-slate-900">About</h2>
-                    <p className="mt-2 whitespace-pre-wrap text-slate-600">
+                  <div className="mt-6 border-t border-border pt-6">
+                    <h2 className="text-lg font-semibold text-foreground">About</h2>
+                    <p className="mt-2 whitespace-pre-wrap text-muted-foreground">
                       {teacher.bio}
                     </p>
                   </div>
@@ -299,18 +299,18 @@ export default function TeacherDetailPage() {
 
                     return (
                       <div key={stars} className="flex items-center gap-3">
-                        <span className="w-8 text-sm font-medium text-slate-600">
+                        <span className="w-8 text-sm font-medium text-muted-foreground">
                           {stars}★
                         </span>
                         <div className="flex-1">
-                          <div className="h-3 rounded-full bg-slate-100">
+                          <div className="h-3 rounded-full bg-muted">
                             <div
                               className="h-full rounded-full bg-amber-400 transition-all"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
                         </div>
-                        <span className="w-12 text-right text-sm text-slate-500">
+                        <span className="w-12 text-right text-sm text-muted-foreground">
                           {count}
                         </span>
                       </div>
@@ -366,6 +366,13 @@ export default function TeacherDetailPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 
 
 

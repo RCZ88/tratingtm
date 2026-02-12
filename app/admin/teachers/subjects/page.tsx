@@ -147,8 +147,8 @@ export default function AdminSubjectsPage() {
     <div>
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Subjects</h1>
-          <p className="text-slate-600">
+          <h1 className="text-2xl font-bold text-foreground">Subjects</h1>
+          <p className="text-muted-foreground">
             Manage subject options used across teacher forms and suggestions.
           </p>
         </div>
@@ -158,11 +158,11 @@ export default function AdminSubjectsPage() {
         <CardContent className="space-y-4 p-6">
           <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Department
               </label>
               <select
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 value={departmentId}
                 onChange={(event) => setDepartmentId(event.target.value)}
               >
@@ -185,7 +185,7 @@ export default function AdminSubjectsPage() {
             </Button>
           </div>
           {error && (
-            <div className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">
+            <div className="rounded-lg bg-red-500/10 dark:bg-red-500/20 px-4 py-2 text-sm text-red-600 dark:text-red-300">
               {error}
             </div>
           )}
@@ -193,9 +193,9 @@ export default function AdminSubjectsPage() {
       </Card>
 
       <div className="mb-4 flex items-center gap-3">
-        <label className="text-sm font-medium text-slate-600">Filter by department</label>
+        <label className="text-sm font-medium text-muted-foreground">Filter by department</label>
         <select
-          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className="rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           value={filterDepartment}
           onChange={(event) => setFilterDepartment(event.target.value)}
         >
@@ -212,15 +212,15 @@ export default function AdminSubjectsPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-50">
+              <thead className="bg-muted">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Subject
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Department
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Actions
                   </th>
                 </tr>
@@ -234,14 +234,14 @@ export default function AdminSubjectsPage() {
                   </tr>
                 ) : filteredSubjects.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="py-8 text-center text-slate-500">
+                    <td colSpan={3} className="py-8 text-center text-muted-foreground">
                       No subjects found.
                     </td>
                   </tr>
                 ) : (
                   filteredSubjects.map((subject) => (
-                    <tr key={subject.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 text-sm font-medium text-slate-900">
+                    <tr key={subject.id} className="hover:bg-muted">
+                      <td className="px-4 py-3 text-sm font-medium text-foreground">
                         {editingId === subject.id ? (
                           <Input
                             value={editingName}
@@ -251,10 +251,10 @@ export default function AdminSubjectsPage() {
                           subject.name
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600">
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
                         {editingId === subject.id ? (
                           <select
-                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                             value={editingDepartmentId}
                             onChange={(event) => setEditingDepartmentId(event.target.value)}
                           >
@@ -275,14 +275,14 @@ export default function AdminSubjectsPage() {
                             <>
                               <button
                                 onClick={() => handleUpdate(subject.id)}
-                                className="rounded-lg p-2 text-emerald-600 hover:bg-emerald-50"
+                                className="rounded-lg p-2 text-emerald-600 dark:text-emerald-300 hover:bg-emerald-500/10"
                                 title="Save"
                               >
                                 <Check className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={cancelEdit}
-                                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100"
+                                className="rounded-lg p-2 text-muted-foreground hover:bg-muted"
                                 title="Cancel"
                               >
                                 <X className="h-4 w-4" />
@@ -291,7 +291,7 @@ export default function AdminSubjectsPage() {
                           ) : (
                             <button
                               onClick={() => startEdit(subject)}
-                              className="rounded-lg p-2 text-slate-400 hover:bg-emerald-50 hover:text-emerald-700"
+                              className="rounded-lg p-2 text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-700 dark:text-emerald-200"
                               title="Edit"
                             >
                               <Pencil className="h-4 w-4" />
@@ -299,7 +299,7 @@ export default function AdminSubjectsPage() {
                           )}
                           <button
                             onClick={() => handleDelete(subject.id)}
-                            className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                            className="rounded-lg p-2 text-muted-foreground hover:bg-red-500/10 dark:bg-red-500/20 hover:text-red-600 dark:text-red-300"
                             title="Delete"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -317,3 +317,10 @@ export default function AdminSubjectsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+

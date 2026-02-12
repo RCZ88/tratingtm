@@ -217,8 +217,8 @@ export default function AdminTeacherDetailPage() {
   if (!teacher) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold text-slate-900">Teacher Not Found</h1>
-        <p className="mt-2 text-slate-600">The teacher you are looking for does not exist.</p>
+        <h1 className="text-2xl font-bold text-foreground">Teacher Not Found</h1>
+        <p className="mt-2 text-muted-foreground">The teacher you are looking for does not exist.</p>
         <Link href="/admin/teachers" className="mt-6">
           <Button>Back to Teachers</Button>
         </Link>
@@ -236,17 +236,17 @@ export default function AdminTeacherDetailPage() {
   const ratingTable = ratingTab === 'all_time' ? 'ratings' : 'weekly_ratings';
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-muted py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <Link
             href="/admin/teachers"
-            className="inline-flex items-center text-sm text-slate-600 hover:text-emerald-600"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-emerald-600 dark:text-emerald-300"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Teachers
           </Link>
-          <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+          <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-200">
             <ShieldCheck className="h-4 w-4" />
             Admin Mode
           </span>
@@ -257,7 +257,7 @@ export default function AdminTeacherDetailPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex flex-col gap-6 sm:flex-row">
-                  <div className="relative mx-auto h-32 w-32 flex-shrink-0 overflow-hidden rounded-full bg-slate-100 sm:mx-0">
+                  <div className="relative mx-auto h-32 w-32 flex-shrink-0 overflow-hidden rounded-full bg-muted sm:mx-0">
                     {teacher.image_url ? (
                       <Image src={teacher.image_url} alt={teacher.name} fill className="object-cover" />
                     ) : (
@@ -268,7 +268,7 @@ export default function AdminTeacherDetailPage() {
                   </div>
 
                   <div className="flex-1 text-center sm:text-left">
-                    <h1 className="text-2xl font-bold text-slate-900">{teacher.name}</h1>
+                    <h1 className="text-2xl font-bold text-foreground">{teacher.name}</h1>
 
                     {(subjectList.length > 0 || teacher.department) && (
                       <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
@@ -284,7 +284,7 @@ export default function AdminTeacherDetailPage() {
                         {subjectList.map((subject) => (
                           <span
                             key={subject}
-                            className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700"
+                            className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground"
                           >
                             <BookOpen className="h-3.5 w-3.5" />
                             {subject}
@@ -299,10 +299,10 @@ export default function AdminTeacherDetailPage() {
                           <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700">SL</span>
                         )}
                         {levels.includes('HL') && (
-                          <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">HL</span>
+                          <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 dark:text-red-300">HL</span>
                         )}
                         {yearLabel && (
-                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                          <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-foreground">
                             Years {yearLabel}
                           </span>
                         )}
@@ -311,15 +311,15 @@ export default function AdminTeacherDetailPage() {
 
                     <div className="mt-4 grid gap-3 sm:max-w-md">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Rating View</p>
-                        <div className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-sm">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Rating View</p>
+                        <div className="mt-2 inline-flex rounded-full border border-border bg-muted p-1 text-sm">
                           <button
                             type="button"
                             onClick={() => setRatingMode('weekly')}
                             className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                               ratingMode === 'weekly'
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'text-slate-600 hover:bg-white'
+                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                                : 'text-muted-foreground hover:bg-card'
                             }`}
                           >
                             Weekly
@@ -329,8 +329,8 @@ export default function AdminTeacherDetailPage() {
                             onClick={() => setRatingMode('all_time')}
                             className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                               ratingMode === 'all_time'
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'text-slate-600 hover:bg-white'
+                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                                : 'text-muted-foreground hover:bg-card'
                             }`}
                           >
                             All-Time
@@ -340,7 +340,7 @@ export default function AdminTeacherDetailPage() {
 
                       {ratingMode === 'weekly' ? (
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Weekly (Unique)</p>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Weekly (Unique)</p>
                           {teacher.weekly_average_rating !== null && teacher.weekly_average_rating !== undefined ? (
                             <StarRatingDisplay
                               rating={teacher.weekly_average_rating}
@@ -348,12 +348,12 @@ export default function AdminTeacherDetailPage() {
                               size="md"
                             />
                           ) : (
-                            <p className="text-sm text-slate-500">Not enough data yet</p>
+                            <p className="text-sm text-muted-foreground">Not enough data yet</p>
                           )}
                         </div>
                       ) : (
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">All-Time (Total)</p>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">All-Time (Total)</p>
                           <StarRatingDisplay rating={teacher.average_rating} count={teacher.total_ratings} size="md" />
                         </div>
                       )}
@@ -362,9 +362,9 @@ export default function AdminTeacherDetailPage() {
                 </div>
 
                 {teacher.bio && (
-                  <div className="mt-6 border-t border-slate-100 pt-6">
-                    <h2 className="text-lg font-semibold text-slate-900">About</h2>
-                    <p className="mt-2 whitespace-pre-wrap text-slate-600">{teacher.bio}</p>
+                  <div className="mt-6 border-t border-border pt-6">
+                    <h2 className="text-lg font-semibold text-foreground">About</h2>
+                    <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{teacher.bio}</p>
                   </div>
                 )}
               </CardContent>
@@ -387,16 +387,16 @@ export default function AdminTeacherDetailPage() {
 
                     return (
                       <div key={stars} className="flex items-center gap-3">
-                        <span className="w-8 text-sm font-medium text-slate-600">{stars}*</span>
+                        <span className="w-8 text-sm font-medium text-muted-foreground">{stars}*</span>
                         <div className="flex-1">
-                          <div className="h-3 rounded-full bg-slate-100">
+                          <div className="h-3 rounded-full bg-muted">
                             <div
                               className="h-full rounded-full bg-amber-400 transition-all"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
                         </div>
-                        <span className="w-12 text-right text-sm text-slate-500">{count}</span>
+                        <span className="w-12 text-right text-sm text-muted-foreground">{count}</span>
                       </div>
                     );
                   })}
@@ -424,7 +424,7 @@ export default function AdminTeacherDetailPage() {
                   <select
                     value={commentStatus}
                     onChange={(e) => setCommentStatus(e.target.value as CommentStatus)}
-                    className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700"
+                    className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground"
                   >
                     <option value="all">All</option>
                     <option value="approved">Approved</option>
@@ -439,18 +439,18 @@ export default function AdminTeacherDetailPage() {
                 {commentsLoading ? (
                   <LoadingSpinner />
                 ) : adminComments.length === 0 ? (
-                  <p className="text-sm text-slate-500">No comments for this filter.</p>
+                  <p className="text-sm text-muted-foreground">No comments for this filter.</p>
                 ) : (
                   <div className="space-y-3">
                     {adminComments.map((comment) => {
                       const statusLabel = comment.is_flagged ? 'Hidden' : comment.is_approved ? 'Approved' : 'Pending';
                       return (
-                        <div key={comment.id} className="rounded-lg border border-slate-200 bg-white p-3">
-                          <div className="flex items-center justify-between text-xs text-slate-500">
+                        <div key={comment.id} className="rounded-lg border border-border bg-card p-3">
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
                             <span>{statusLabel}</span>
                             <span>{formatRelativeTime(comment.created_at)}</span>
                           </div>
-                          <p className="mt-2 text-sm text-slate-700">{comment.comment_text}</p>
+                          <p className="mt-2 text-sm text-foreground">{comment.comment_text}</p>
                           <div className="mt-3 flex flex-wrap items-center gap-2">
                             {!comment.is_approved && !comment.is_flagged && (
                               <Button size="sm" onClick={() => updateComment(comment.id, { is_approved: true, is_flagged: false })}>
@@ -487,14 +487,14 @@ export default function AdminTeacherDetailPage() {
                 <CardTitle>Rating Management</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-sm">
+                <div className="inline-flex rounded-full border border-border bg-muted p-1 text-sm">
                   <button
                     type="button"
                     onClick={() => setRatingTab('all_time')}
                     className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                       ratingTab === 'all_time'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'text-slate-600 hover:bg-white'
+                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                        : 'text-muted-foreground hover:bg-card'
                     }`}
                   >
                     All-time ratings
@@ -504,8 +504,8 @@ export default function AdminTeacherDetailPage() {
                     onClick={() => setRatingTab('weekly')}
                     className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                       ratingTab === 'weekly'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'text-slate-600 hover:bg-white'
+                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                        : 'text-muted-foreground hover:bg-card'
                     }`}
                   >
                     Weekly ratings
@@ -515,19 +515,19 @@ export default function AdminTeacherDetailPage() {
                 {ratingsLoading ? (
                   <LoadingSpinner />
                 ) : ratingsForTab.length === 0 ? (
-                  <p className="text-sm text-slate-500">No ratings yet.</p>
+                  <p className="text-sm text-muted-foreground">No ratings yet.</p>
                 ) : (
                   <div className="space-y-3">
                     {ratingsForTab.map((rating) => {
                       const currentStars = ratingEdits[rating.id] || rating.stars;
                       return (
-                        <div key={rating.id} className="rounded-lg border border-slate-200 bg-white p-3">
-                          <div className="flex items-center justify-between text-xs text-slate-500">
+                        <div key={rating.id} className="rounded-lg border border-border bg-card p-3">
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
                             <span>{maskAnonymousId(rating.anonymous_id)}</span>
                             <span>{formatRelativeTime(rating.created_at)}</span>
                           </div>
                           {rating.week_start && (
-                            <p className="mt-1 text-xs text-slate-500">Week of {rating.week_start}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">Week of {rating.week_start}</p>
                           )}
                           <div className="mt-3 flex flex-wrap items-center gap-2">
                             <select
@@ -535,7 +535,7 @@ export default function AdminTeacherDetailPage() {
                               onChange={(e) =>
                                 setRatingEdits((prev) => ({ ...prev, [rating.id]: Number(e.target.value) }))
                               }
-                              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+                              className="rounded-lg border border-border bg-card px-3 py-2 text-sm"
                             >
                               {[1, 2, 3, 4, 5].map((value) => (
                                 <option key={value} value={value}>
@@ -572,3 +572,9 @@ export default function AdminTeacherDetailPage() {
     </div>
   );
 }
+
+
+
+
+
+
