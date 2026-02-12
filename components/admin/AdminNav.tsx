@@ -7,11 +7,11 @@ import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { 
-  LayoutDashboard, 
-  Users, 
-  MessageSquare, 
-  BarChart3, 
+import {
+  LayoutDashboard,
+  Users,
+  MessageSquare,
+  BarChart3,
   LogOut,
   Shield,
   Settings,
@@ -21,13 +21,14 @@ import {
   Bell,
   ArrowUpRight,
   Eye,
-  EyeOff
+  EyeOff,
+  ChevronDown,
 } from 'lucide-react';
 import { STORAGE_KEY } from '@/components/AppChrome';
 
 /**
  * AdminNav Component
- * 
+ *
  * Navigation bar for the admin panel with user info and logout.
  */
 
@@ -43,10 +44,13 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [hidePublicNav, setHidePublicNav] = React.useState(false);
 
-  const navItems = [
+  const primaryItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/teachers', label: 'Academics', icon: Users },
     { href: '/admin/comments', label: 'Comments', icon: MessageSquare },
+  ];
+
+  const secondaryItems = [
     { href: '/admin/suggestions', label: 'Suggestions', icon: Lightbulb },
     { href: '/admin/updates', label: 'Updates', icon: Bell },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
@@ -85,7 +89,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex md:items-center md:gap-1">
-          {navItems.map((item) => (
+          {primaryItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -100,35 +104,70 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
               {item.label}
             </Link>
           ))}
+
+          <details className="relative group">
+            <summary className="list-none flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
+              More
+              <ChevronDown className="h-4 w-4" />
+            </summary>
+            <div className="absolute left-0 mt-2 w-52 rounded-lg border border-border bg-card p-2 shadow-lg">
+              {secondaryItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
+                    isActive(item.href)
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
+                      : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </details>
         </nav>
 
-        {/* User & Logout */}
-        <div className="hidden md:flex md:items-center md:gap-4">
+        {/* Actions */}
+        <div className="hidden md:flex md:items-center md:gap-3">
           <ThemeToggle />
-          {user?.email && (
-            <span className="text-sm text-muted-foreground">{user.email}</span>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={togglePublicNav}
-            leftIcon={hidePublicNav ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-          >
-            {hidePublicNav ? 'Show Public Nav' : 'Hide Public Nav'}
-          </Button>
-          <Link href="/" className="inline-flex">
-            <Button variant="outline" size="sm" leftIcon={<ArrowUpRight className="h-4 w-4" />}>
-              View Site
-            </Button>
-          </Link>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => signOut({ callbackUrl: '/admin/login' })}
-            leftIcon={<LogOut className="h-4 w-4" />}
-          >
-            Logout
-          </Button>
+
+          <details className="relative group">
+            <summary className="list-none flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
+              Account
+              <ChevronDown className="h-4 w-4" />
+            </summary>
+            <div className="absolute right-0 mt-2 w-56 rounded-lg border border-border bg-card p-2 shadow-lg">
+              {user?.email && (
+                <div className="px-3 py-2 text-xs text-muted-foreground">
+                  {user.email}
+                </div>
+              )}
+              <button
+                onClick={togglePublicNav}
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent"
+              >
+                {hidePublicNav ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                {hidePublicNav ? 'Show Public Nav' : 'Hide Public Nav'}
+              </button>
+              <Link
+                href="/"
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent"
+              >
+                <ArrowUpRight className="h-4 w-4" />
+                View Site
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: '/admin/login' })}
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-500 hover:bg-red-500/10"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
+          </details>
         </div>
 
         {/* Mobile Theme Toggle */}
@@ -153,7 +192,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
       {isMobileMenuOpen && (
         <div className="border-t border-border bg-background md:hidden">
           <nav className="space-y-1 p-4">
-            {navItems.map((item) => (
+            {[...primaryItems, ...secondaryItems].map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -207,7 +246,3 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
 };
 
 export { AdminNav };
-
-
-
-

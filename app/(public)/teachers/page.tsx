@@ -140,7 +140,7 @@ export default function TeachersPage() {
                 <select
                   value={departmentId}
                   onChange={handleDepartmentChange}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="">All Departments</option>
                   {isLoadingDepartments && (
@@ -162,7 +162,7 @@ export default function TeachersPage() {
                 <select
                   value={sortBy}
                   onChange={handleSortChange}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="name">Name</option>
                   <option value="created_at">Newest</option>
@@ -242,6 +242,7 @@ export default function TeachersPage() {
     </div>
   );
 }
+
 
 
 
