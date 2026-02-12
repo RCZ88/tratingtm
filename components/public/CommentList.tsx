@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { cn } from '@/lib/utils/cn';
@@ -550,10 +550,37 @@ const CommentList: React.FC<CommentListProps> = ({
                     </button>
                   );
                 })}
-                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                  <Smile className="h-3.5 w-3.5" />
-                  Tap an emoji to react
-                </span>
+                {availableEmojis.length > 0 && (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => toggleEmojiPicker(comment.id)}
+                      className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-card"
+                    >
+                      <Smile className="h-3.5 w-3.5" />
+                      Tap an emoji to react
+                    </button>
+                    {emojiPickerOpenId === comment.id && (
+                      <div className="absolute left-0 top-full z-20 mt-2 w-max rounded-xl border border-border bg-card p-2 shadow-lg">
+                        <div className="flex flex-wrap gap-1.5">
+                          {availableEmojis.map((emoji) => (
+                            <button
+                              key={`${comment.id}-picker-${emoji}`}
+                              type="button"
+                              onClick={() => {
+                                updateReaction(comment.id, emoji);
+                                setEmojiPickerOpenId(null);
+                              }}
+                              className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-muted text-base transition-colors hover:bg-card"
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center gap-3">

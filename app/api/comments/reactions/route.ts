@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { normalizeReaction, THUMBS_DOWN, THUMBS_UP } from '@/lib/utils/commentReactions';
@@ -36,17 +36,32 @@ export async function POST(request: NextRequest) {
 
     const supabase = createClient();
 
-    const { data: allowedRows, error: allowedError } = await supabase
+    let allowedRows: Array<{ emoji: string }> | null = null;
+    const enabledQuery = await supabase
       .from('comment_reaction_emojis')
       .select('emoji')
       .eq('enabled', true);
 
-    if (allowedError) {
-      console.error('Error loading enabled reaction emojis:', allowedError);
+    if (enabledQuery.error && enabledQuery.error.code === '42703') {
+      const fallbackQuery = await supabase
+        .from('comment_reaction_emojis')
+        .select('emoji');
+
+      if (fallbackQuery.error) {
+        console.error('Error loading reaction emojis (fallback):', fallbackQuery.error);
+        return NextResponse.json({ error: 'Failed to update reaction' }, { status: 500 });
+      }
+
+      allowedRows = fallbackQuery.data || [];
+    } else if (enabledQuery.error) {
+      console.error('Error loading enabled reaction emojis:', enabledQuery.error);
       return NextResponse.json({ error: 'Failed to update reaction' }, { status: 500 });
+    } else {
+      allowedRows = enabledQuery.data || [];
     }
 
-    const allowed = new Set((allowedRows || []).map((row) => row.emoji));    if (!allowed.has(reaction) && reaction !== THUMBS_UP && reaction !== THUMBS_DOWN) {
+    const allowed = new Set((allowedRows || []).map((row) => row.emoji));
+    if (!allowed.has(reaction) && reaction !== THUMBS_UP && reaction !== THUMBS_DOWN) {
       return NextResponse.json({ error: 'Reaction emoji is not enabled' }, { status: 400 });
     }
 
@@ -92,5 +107,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
