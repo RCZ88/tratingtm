@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
+import { renderUpdateMarkup } from '@/lib/utils/updateMarkup';
 
 interface UpdateItem {
   id: string;
@@ -78,7 +79,10 @@ export default function ChangelogPage() {
                           <h3 className="text-base font-semibold text-foreground">{item.title}</h3>
                           <span className="text-xs text-muted-foreground">{formatRelativeTime(item.created_at)}</span>
                         </div>
-                        <p className="text-sm text-muted-foreground">{item.body}</p>
+                        <p
+                          className="text-sm text-muted-foreground"
+                          dangerouslySetInnerHTML={{ __html: renderUpdateMarkup(item.body) }}
+                        />
                         {linkUrl && (
                           <Link href={linkUrl} className="text-sm font-medium text-emerald-700 dark:text-emerald-200 hover:text-emerald-800">
                             View details

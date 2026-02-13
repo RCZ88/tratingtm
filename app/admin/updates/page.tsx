@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
+import { renderUpdateMarkup } from '@/lib/utils/updateMarkup';
 import { Teacher } from '@/lib/types/database';
-import { Plus, Edit2, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import { Plus, Edit2, Eye, EyeOff, ExternalLink, Bold, Italic, Underline } from 'lucide-react';
 
 interface UpdateItem {
   id: string;
@@ -40,6 +41,7 @@ export default function AdminUpdatesPage() {
   const [teacherId, setTeacherId] = React.useState('');
   const [isActive, setIsActive] = React.useState(true);
   const [editingId, setEditingId] = React.useState<string | null>(null);
+  const contentRef = React.useRef<HTMLTextAreaElement | null>(null);
 
   const [teachers, setTeachers] = React.useState<Teacher[]>([]);
   const [isLoadingTeachers, setIsLoadingTeachers] = React.useState(false);
@@ -120,14 +122,14 @@ export default function AdminUpdatesPage() {
     try {
       const payload = {
         title: title.trim(),
-        body: body.trim(),
+        body,
         type: template,
         teacher_id: teacherId || null,
         link_url: linkUrl.trim() || null,
         is_active: isActive,
       };
 
-      if (!payload.title || !payload.body) {
+      if (!payload.title || !payload.body.trim()) {
         setError('Title and content are required.');
         setIsSaving(false);
         return;
@@ -180,6 +182,27 @@ export default function AdminUpdatesPage() {
     } catch (err) {
       console.error('Error updating status:', err);
     }
+  };
+
+  const wrapSelectionWithTag = (tag: 'b' | 'i' | 'u') => {
+    const textarea = contentRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
+    const selection = body.slice(start, end);
+    const openTag = `<${tag}>`;
+    const closeTag = `</${tag}>`;
+    const wrapped = `${openTag}${selection}${closeTag}`;
+    const next = `${body.slice(0, start)}${wrapped}${body.slice(end)}`;
+
+    setBody(next);
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      const cursor = selection.length > 0 ? start + wrapped.length : start + openTag.length;
+      textarea.setSelectionRange(cursor, cursor);
+    });
   };
 
   return (
@@ -253,7 +276,20 @@ export default function AdminUpdatesPage() {
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={4}
+            ref={contentRef}
+            helperText="Line breaks are preserved. Use toolbar for bold, italic, and underline."
           />
+          <div className="-mt-2 flex flex-wrap gap-2">
+            <Button type="button" size="sm" variant="outline" leftIcon={<Bold className="h-3.5 w-3.5" />} onClick={() => wrapSelectionWithTag('b')}>
+              Bold
+            </Button>
+            <Button type="button" size="sm" variant="outline" leftIcon={<Italic className="h-3.5 w-3.5" />} onClick={() => wrapSelectionWithTag('i')}>
+              Italic
+            </Button>
+            <Button type="button" size="sm" variant="outline" leftIcon={<Underline className="h-3.5 w-3.5" />} onClick={() => wrapSelectionWithTag('u')}>
+              Underline
+            </Button>
+          </div>
 
           <Input
             label="Optional Link"
@@ -308,7 +344,10 @@ export default function AdminUpdatesPage() {
                     <div>
                       <p className="text-sm font-semibold text-foreground">{item.title}</p>
                       <p className="text-xs text-muted-foreground">{formatRelativeTime(item.created_at)}</p>
-                      <p className="mt-2 text-sm text-muted-foreground">{item.body}</p>
+                      <p
+                        className="mt-2 text-sm text-muted-foreground"
+                        dangerouslySetInnerHTML={{ __html: renderUpdateMarkup(item.body) }}
+                      />
                       {item.link_url && (
                         <Link href={item.link_url} className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-200">
                           Open link

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Bell, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
+import { renderUpdateMarkup } from '@/lib/utils/updateMarkup';
 
 export type PublicUpdateItem = {
   id: string;
@@ -89,7 +90,10 @@ export const UpdateBannerCarousel: React.FC<UpdateBannerCarouselProps> = ({ clas
               Latest Updates
             </div>
             <h3 className="mt-3 text-xl font-semibold text-foreground">{current.title}</h3>
-            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{current.body}</p>
+            <p
+              className="mt-2 max-w-2xl text-sm text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: renderUpdateMarkup(current.body) }}
+            />
             <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
               <span>{formatRelativeTime(current.created_at)}</span>
               <Link
