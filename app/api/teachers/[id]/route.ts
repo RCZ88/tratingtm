@@ -108,6 +108,10 @@ export async function GET(
     const weeklySum = (weeklyRatings || []).reduce((sum, row) => sum + row.stars, 0);
     const weeklyAverage =
       weeklyCount >= 3 ? Number((weeklySum / weeklyCount).toFixed(2)) : null;
+    const weeklyDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    weeklyRatings?.forEach((r) => {
+      weeklyDistribution[r.stars as keyof typeof weeklyDistribution]++;
+    });
 
     return NextResponse.json({
       data: {
@@ -122,6 +126,7 @@ export async function GET(
         weekly_rating_count: weeklyCount,
         weekly_average_rating: weeklyAverage,
         rating_distribution: distribution,
+        weekly_rating_distribution: weeklyDistribution,
         comments: commentsWithReactions,
         available_reaction_emojis: reactionAggregate.availableEmojis,
       },

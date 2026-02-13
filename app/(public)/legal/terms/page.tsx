@@ -78,7 +78,7 @@ export default function TermsOfServicePage() {
           <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-foreground">Limitation of Liability</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              To the extent permitted by law, TM Ratings is provided �as is� and without
+              To the extent permitted by law, TM Ratings is provided "as is" and without
               warranties. We are not liable for indirect or consequential damages.
             </p>
           </section>

@@ -24,19 +24,19 @@ const RatingExplainer: React.FC<RatingExplainerProps> = ({
         <li className="flex items-start gap-2">
           <CalendarDays className="mt-0.5 h-4 w-4 text-emerald-600 dark:text-emerald-300" />
           <span>
-            <strong className="text-foreground">Weekly</strong> � shows ratings from this week only; resets every Monday.
+            <strong className="text-foreground">Weekly</strong> - shows ratings from this week only; resets every Monday.
           </span>
         </li>
         <li className="flex items-start gap-2">
           <History className="mt-0.5 h-4 w-4 text-muted-foreground" />
           <span>
-            <strong className="text-foreground">All-Time</strong> � combines every rating ever submitted.
+            <strong className="text-foreground">All-Time</strong> - combines every rating ever submitted.
           </span>
         </li>
         <li className="flex items-start gap-2">
           <ShieldCheck className="mt-0.5 h-4 w-4 text-amber-600" />
           <span>
-            <strong className="text-foreground">Not enough data</strong> � appears when a teacher has fewer than 3 weekly ratings.
+            <strong className="text-foreground">Not enough data</strong> - appears when a teacher has fewer than 3 weekly ratings.
           </span>
         </li>
       </ul>

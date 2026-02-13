@@ -38,6 +38,7 @@ const YEAR_LEVELS = [7, 8, 9, 10, 11, 12];
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = React.useState<LeaderboardData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [showAllTeachers, setShowAllTeachers] = React.useState(false);
   const [period, setPeriod] = React.useState<'weekly_unique' | 'all_time'>('all_time');
   const [type, setType] = React.useState<'overall' | 'department' | 'year_level'>('overall');
   const [sortDirection, setSortDirection] = React.useState<'desc' | 'asc'>('desc');
@@ -118,6 +119,12 @@ export default function LeaderboardPage() {
   React.useEffect(() => {
     fetchLeaderboard();
   }, [fetchLeaderboard]);
+
+  React.useEffect(() => {
+    setShowAllTeachers(false);
+  }, [period, type, sortDirection, selectedWeek, departmentId, yearLevel]);
+
+  const hasMoreThanDefault = (leaderboard?.items?.length || 0) > 50;
 
   return (
     <div className="min-h-screen bg-muted py-12">
@@ -302,9 +309,22 @@ export default function LeaderboardPage() {
               <LeaderboardTable
                 entries={leaderboard?.items || []}
                 isLoading={false}
-                limit={50}
+                limit={showAllTeachers ? undefined : 50}
                 ratingMode={ratingMode}
               />
+            )}
+            {!isLoading && hasMoreThanDefault && (
+              <div className="mt-4 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setShowAllTeachers((prev) => !prev)}
+                  className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-emerald-300 hover:text-foreground"
+                >
+                  {showAllTeachers
+                    ? 'Show Top 50'
+                    : `Show All Teachers (${leaderboard?.items.length || 0})`}
+                </button>
+              </div>
             )}
           </CardContent>
         </Card>

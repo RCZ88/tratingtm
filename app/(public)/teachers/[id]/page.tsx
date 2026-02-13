@@ -41,6 +41,7 @@ interface TeacherData {
   weekly_average_rating?: number | null;
   total_comments: number;
   rating_distribution: { 1: number; 2: number; 3: number; 4: number; 5: number };
+  weekly_rating_distribution?: { 1: number; 2: number; 3: number; 4: number; 5: number };
   comments: Array<{
     id: string;
     comment_text: string;
@@ -115,7 +116,12 @@ export default function TeacherDetailPage() {
     );
   }
 
-  const maxDistribution = Math.max(...Object.values(teacher.rating_distribution));
+  const distributionForMode = ratingMode === 'weekly'
+    ? (teacher.weekly_rating_distribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 })
+    : teacher.rating_distribution;
+  const distributionTotal = ratingMode === 'weekly'
+    ? (teacher.weekly_rating_count || 0)
+    : teacher.total_ratings;
   const yearLabel = formatYearLevels(teacher.year_levels);
   const subjectList = teacher.subjects?.map((subject) => subject.name) || [];
   const levels = teacher.levels || [];
@@ -295,9 +301,9 @@ export default function TeacherDetailPage() {
               <CardContent>
                 <div className="space-y-2">
                   {[5, 4, 3, 2, 1].map((stars) => {
-                    const count = teacher.rating_distribution[stars as keyof typeof teacher.rating_distribution];
-                    const percentage = teacher.total_ratings > 0
-                      ? (count / teacher.total_ratings) * 100
+                    const count = distributionForMode[stars as keyof typeof distributionForMode];
+                    const percentage = distributionTotal > 0
+                      ? (count / distributionTotal) * 100
                       : 0;
 
                     return (
