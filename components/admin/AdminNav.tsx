@@ -19,6 +19,7 @@ import {
   X,
   Lightbulb,
   Bell,
+  Megaphone,
   ArrowUpRight,
   Eye,
   EyeOff,
@@ -51,7 +52,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
   ];
 
   const secondaryItems = [
-    { href: '/admin/forum', label: 'Forum', icon: MessageSquare },
+    { href: '/admin/forum', label: 'Forum', icon: Megaphone },
     { href: '/admin/suggestions', label: 'Suggestions', icon: Lightbulb },
     { href: '/admin/updates', label: 'Updates', icon: Bell },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },

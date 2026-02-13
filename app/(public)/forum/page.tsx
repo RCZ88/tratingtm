@@ -13,7 +13,7 @@ import { SuggestionList } from '@/components/public/SuggestionList';
 import { getAnonymousId } from '@/lib/utils/anonymousId';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
 import { normalizeReaction, THUMBS_DOWN, THUMBS_UP } from '@/lib/utils/commentReactions';
-import { MessageSquare, ShieldCheck, Pin, ImagePlus, Reply, AlertCircle } from 'lucide-react';
+import { MessageSquare, ShieldCheck, Pin, Reply, AlertCircle } from 'lucide-react';
 
 type ForumTab = 'forum' | 'suggestions' | 'complaints';
 
@@ -76,12 +76,6 @@ function ForumPageClient() {
   const [isLoadingPosts, setIsLoadingPosts] = React.useState(true);
   const [postSort, setPostSort] = React.useState<'newest' | 'top'>('newest');
   const [reactionEmojis, setReactionEmojis] = React.useState<string[]>([]);
-
-  const [title, setTitle] = React.useState('');
-  const [body, setBody] = React.useState('');
-  const [postImagePath, setPostImagePath] = React.useState<string | null>(null);
-  const [postImagePreview, setPostImagePreview] = React.useState<string | null>(null);
-  const [isSubmittingPost, setIsSubmittingPost] = React.useState(false);
 
   const [replyInputs, setReplyInputs] = React.useState<Record<string, string>>({});
   const [replyImagePath, setReplyImagePath] = React.useState<Record<string, string | null>>({});
@@ -146,48 +140,6 @@ function ForumPageClient() {
       fetchPosts();
     }
   }, [activeTab, fetchPosts]);
-
-  const handlePostImageSelect = async (file: File | null) => {
-    if (!file) return;
-    try {
-      const uploaded = await uploadImage(file, anonymousId);
-      setPostImagePath(uploaded.path);
-      setPostImagePreview(uploaded.signed_preview_url);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      alert(error instanceof Error ? error.message : 'Failed to upload image');
-    }
-  };
-
-  const submitPost = async () => {
-    setIsSubmittingPost(true);
-    try {
-      const response = await fetch('/api/forum/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          body,
-          anonymous_id: anonymousId,
-          image_path: postImagePath,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit post');
-      }
-
-      setTitle('');
-      setBody('');
-      setPostImagePath(null);
-      setPostImagePreview(null);
-      alert('Post submitted for moderation.');
-    } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to submit post');
-    } finally {
-      setIsSubmittingPost(false);
-    }
-  };
 
   const loadReplies = async (postId: string) => {
     setLoadingRepliesFor((prev) => ({ ...prev, [postId]: true }));
@@ -432,50 +384,31 @@ function ForumPageClient() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Create a Forum Post</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Input label="Title (optional)" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Short title" />
-                <Textarea label="Post" value={body} onChange={(e) => setBody(e.target.value)} placeholder="Share your thoughts..." rows={4} />
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">Attach Image (optional)</label>
-                  <div>
-                    <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => handlePostImageSelect(e.target.files?.[0] || null)} />
-                  </div>
-                  {postImagePreview && (
-                    <img src={postImagePreview} alt="Post upload preview" className="h-44 rounded-md border border-border object-cover" />
-                  )}
-                </div>
-
-                <Button onClick={submitPost} isLoading={isSubmittingPost} leftIcon={<ImagePlus className="h-4 w-4" />}>
-                  Submit for Moderation
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
                 <div className="flex items-center justify-between gap-3">
                   <CardTitle className="flex items-center gap-2">
                     <MessageSquare className="h-5 w-5" />
                     Forum Feed
                   </CardTitle>
-                  <div className="inline-flex rounded-full border border-border bg-muted p-1 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setPostSort('newest')}
-                      className={`rounded-full px-3 py-1 ${postSort === 'newest' ? 'bg-card text-foreground' : 'text-muted-foreground'}`}
-                    >
-                      Newest
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPostSort('top')}
-                      className={`rounded-full px-3 py-1 ${postSort === 'top' ? 'bg-card text-foreground' : 'text-muted-foreground'}`}
-                    >
-                      Top
-                    </button>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" onClick={() => router.push('/forum/compose')}>
+                      Compose Post
+                    </Button>
+                    <div className="inline-flex rounded-full border border-border bg-muted p-1 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setPostSort('newest')}
+                        className={`rounded-full px-3 py-1 ${postSort === 'newest' ? 'bg-card text-foreground' : 'text-muted-foreground'}`}
+                      >
+                        Newest
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPostSort('top')}
+                        className={`rounded-full px-3 py-1 ${postSort === 'top' ? 'bg-card text-foreground' : 'text-muted-foreground'}`}
+                      >
+                        Top
+                      </button>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
