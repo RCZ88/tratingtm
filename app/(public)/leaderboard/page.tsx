@@ -309,7 +309,7 @@ export default function LeaderboardPage() {
               <LeaderboardTable
                 entries={leaderboard?.items || []}
                 isLoading={false}
-                limit={showAllTeachers ? undefined : 50}
+                limit={showAllTeachers ? (leaderboard?.items.length || 50) : 50}
                 ratingMode={ratingMode}
               />
             )}
