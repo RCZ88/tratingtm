@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -62,7 +63,7 @@ async function uploadImage(file: File, anonymousId: string): Promise<{ path: str
   return data.data;
 }
 
-export default function ForumPage() {
+function ForumPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -730,5 +731,21 @@ export default function ForumPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ForumPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-muted py-12">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <LoadingSpinner text="Loading forum..." />
+          </div>
+        </div>
+      }
+    >
+      <ForumPageClient />
+    </Suspense>
   );
 }
