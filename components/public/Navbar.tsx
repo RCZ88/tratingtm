@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { cn } from '@/lib/utils/cn';
-import { Menu, X, GraduationCap, Trophy, Search, Users, Shield, Lightbulb } from 'lucide-react';
+import { Menu, X, Trophy, Search, Users, Shield, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
     { href: '/teachers', label: 'Teachers', icon: Users },
     { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
     { href: '/search', label: 'Search', icon: Search },
-    { href: '/suggestions', label: 'Suggestions', icon: Lightbulb },
+    { href: '/forum', label: 'Forum', icon: MessageSquare },
   ];
 
   const isActive = (href: string) => {

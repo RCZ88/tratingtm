@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { DEPARTMENTS, LEVELS, SUBJECTS_BY_DEPARTMENT } from '@/lib/constants/suggestions';
 import type { Department, Subject } from '@/lib/types/database';
+import { getAnonymousId } from '@/lib/utils/anonymousId';
 
 export type SuggestionType = 'general' | 'teacher_add' | 'teacher_modify';
 
@@ -36,6 +37,8 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
   const [yearLevel, setYearLevel] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [message, setMessage] = React.useState<string | null>(null);
+  const [imagePath, setImagePath] = React.useState<string | null>(null);
+  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
   const [departments, setDepartments] = React.useState<Department[]>(fallbackDepartments);
   const [subjectsByDepartment, setSubjectsByDepartment] = React.useState<Record<string, Subject[]>>(
     Object.fromEntries(
@@ -153,6 +156,30 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
     setSubjectId('');
     setLevel('');
     setYearLevel('');
+    setImagePath(null);
+    setImagePreview(null);
+  };
+
+  const handleImageUpload = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const anonymousId = getAnonymousId();
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('anonymous_id', anonymousId);
+      const response = await fetch('/api/forum/uploads', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to upload image');
+      }
+      setImagePath(data.data?.path || null);
+      setImagePreview(data.data?.signed_preview_url || null);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Failed to upload image');
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -173,6 +200,7 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
       subject: selectedSubject?.name || null,
       level: level || null,
       year_level: yearLevel.trim() || null,
+      image_path: imagePath,
     };
 
     try {
@@ -360,6 +388,18 @@ const SuggestionForm: React.FC<SuggestionFormProps> = ({ type, onSubmitted }) =>
           />
         </div>
       )}
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-foreground">Attach image (optional)</label>
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={(event) => handleImageUpload(event.target.files?.[0] || null)}
+        />
+        {imagePreview && (
+          <img src={imagePreview} alt="Suggestion upload preview" className="h-28 rounded border border-border object-cover" />
+        )}
+      </div>
 
       {message && (
         <p className="text-sm text-muted-foreground">{message}</p>

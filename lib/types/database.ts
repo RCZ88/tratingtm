@@ -701,6 +701,62 @@ export interface RatingStats {
   };
 }
 
+export interface ForumPostWithMeta {
+  id: string;
+  category: 'forum';
+  title: string | null;
+  body: string;
+  author_role: 'user' | 'admin';
+  anonymous_id: string | null;
+  is_approved: boolean;
+  is_flagged: boolean;
+  is_pinned: boolean;
+  pinned_at: string | null;
+  image_path: string | null;
+  image_url?: string | null;
+  created_at: string;
+  updated_at: string;
+  emoji_counts: Record<string, number>;
+  viewer_emojis: string[];
+  like_count: number;
+  dislike_count: number;
+  total_reactions?: number;
+  reply_count: number;
+  is_owner: boolean;
+}
+
+export interface ForumReplyWithMeta {
+  id: string;
+  post_id: string;
+  parent_reply_id: string | null;
+  body: string;
+  author_role: 'user' | 'admin';
+  anonymous_id: string | null;
+  is_approved: boolean;
+  is_flagged: boolean;
+  image_path: string | null;
+  image_url?: string | null;
+  created_at: string;
+  updated_at: string;
+  emoji_counts: Record<string, number>;
+  viewer_emojis: string[];
+  like_count: number;
+  dislike_count: number;
+  is_owner: boolean;
+}
+
+export interface ComplaintItem {
+  id: string;
+  title: string | null;
+  description: string;
+  anonymous_id: string;
+  status: 'new' | 'on_hold' | 'resolved' | 'declined';
+  image_path: string | null;
+  admin_notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // API Response types
 export interface ApiResponse<T> {
   data?: T;

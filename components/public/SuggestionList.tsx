@@ -20,6 +20,7 @@ export interface SuggestionItem {
   upvotes: number;
   downvotes: number;
   viewer_vote: 'up' | 'down' | null;
+  image_url?: string | null;
 }
 
 interface SuggestionListProps {
@@ -171,6 +172,13 @@ const SuggestionList: React.FC<SuggestionListProps> = ({
                 <p className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">
                   {item.description}
                 </p>
+                {item.image_url && (
+                  <img
+                    src={item.image_url}
+                    alt="Suggestion attachment"
+                    className="mt-3 h-36 rounded-md border border-border object-cover"
+                  />
+                )}
                 {(item.teacher_name || item.subject) && (
                   <p className="mt-3 text-xs text-muted-foreground">
                     {item.teacher_name ? `${item.teacher_name} ? ` : ''}

@@ -65,13 +65,27 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const enriched = suggestions.map((suggestion) => {
+    const signedImageUrlMap = new Map<string, string | null>();
+    const serviceSupabase: any = createServiceClient();
+    await Promise.all(
+      (suggestions || [])
+        .filter((row: any) => row.image_path)
+        .map(async (row: any) => {
+          const { data: signed } = await serviceSupabase.storage
+            .from('forum-images')
+            .createSignedUrl(row.image_path, 60 * 60);
+          signedImageUrlMap.set(row.id, signed?.signedUrl || null);
+        })
+    );
+
+    const enriched = suggestions.map((suggestion: any) => {
       const counts = voteMap.get(suggestion.id) || { up: 0, down: 0, viewer_vote: null };
       return {
         ...suggestion,
         upvotes: counts.up,
         downvotes: counts.down,
         viewer_vote: counts.viewer_vote,
+        image_url: signedImageUrlMap.get(suggestion.id) || null,
       };
     });
 
@@ -99,6 +113,10 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createClient();
+    const imagePath = typeof (body as any)?.image_path === 'string'
+      ? (body as any).image_path.trim()
+      : null;
+
     const { data: suggestion, error } = await supabase
       .from('suggestions')
       .insert({
@@ -111,6 +129,7 @@ export async function POST(request: NextRequest) {
         subject: validation.data.subject,
         level: validation.data.level,
         year_level: validation.data.year_level,
+        image_path: imagePath || null,
       })
       .select()
       .single();

@@ -51,6 +51,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ user }) => {
   ];
 
   const secondaryItems = [
+    { href: '/admin/forum', label: 'Forum', icon: MessageSquare },
     { href: '/admin/suggestions', label: 'Suggestions', icon: Lightbulb },
     { href: '/admin/updates', label: 'Updates', icon: Bell },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
