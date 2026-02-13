@@ -181,7 +181,7 @@ const SuggestionList: React.FC<SuggestionListProps> = ({
                   </p>
                 )}
               </div>
-              <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium', statusMeta.className)}>
+              <span className={cn('inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2 py-1 text-xs font-medium', statusMeta.className)}>
                 {statusMeta.icon}
                 {statusMeta.label}
               </span>

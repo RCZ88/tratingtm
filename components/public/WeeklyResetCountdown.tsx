@@ -56,7 +56,7 @@ export function WeeklyResetCountdown() {
           <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-200">
             Next weekly reset
           </p>
-          <p className="text-sm text-emerald-900">Countdown to Monday reset</p>
+          <p className="text-sm text-emerald-700 dark:text-emerald-200">Countdown to Monday reset</p>
         </div>
         <div className="rounded-full bg-card px-4 py-2 text-base font-semibold text-emerald-700 dark:text-emerald-200 shadow">
           {remaining}
