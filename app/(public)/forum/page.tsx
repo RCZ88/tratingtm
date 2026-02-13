@@ -13,7 +13,7 @@ import { SuggestionList } from '@/components/public/SuggestionList';
 import { getAnonymousId } from '@/lib/utils/anonymousId';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
 import { normalizeReaction, THUMBS_DOWN, THUMBS_UP } from '@/lib/utils/commentReactions';
-import { MessageSquare, ShieldCheck, Pin, Reply, AlertCircle } from 'lucide-react';
+import { MessageSquare, ShieldCheck, Pin, Reply, AlertCircle, Smile } from 'lucide-react';
 
 type ForumTab = 'forum' | 'suggestions' | 'complaints';
 
@@ -76,6 +76,7 @@ function ForumPageClient() {
   const [isLoadingPosts, setIsLoadingPosts] = React.useState(true);
   const [postSort, setPostSort] = React.useState<'newest' | 'top'>('newest');
   const [reactionEmojis, setReactionEmojis] = React.useState<string[]>([]);
+  const [emojiPickerOpenId, setEmojiPickerOpenId] = React.useState<string | null>(null);
 
   const [replyInputs, setReplyInputs] = React.useState<Record<string, string>>({});
   const [replyImagePath, setReplyImagePath] = React.useState<Record<string, string | null>>({});
@@ -339,6 +340,28 @@ function ForumPageClient() {
     }
   };
 
+  const getEmojiSequence = (item: { emoji_counts: Record<string, number>; viewer_emojis: string[] }) => {
+    const used = Array.from(
+      new Set(
+        [...Object.keys(item.emoji_counts || {}), ...(item.viewer_emojis || [])].filter(
+          (emoji) => emoji && emoji !== THUMBS_UP && emoji !== THUMBS_DOWN
+        )
+      )
+    );
+    const ordered = reactionEmojis.filter((emoji) => used.includes(emoji));
+    const extras = used.filter((emoji) => !reactionEmojis.includes(emoji));
+    return [...ordered, ...extras];
+  };
+
+  const getAvailableEmojis = (item: { emoji_counts: Record<string, number>; viewer_emojis: string[] }) => {
+    const used = new Set(
+      [...Object.keys(item.emoji_counts || {}), ...(item.viewer_emojis || [])].filter(
+        (emoji) => emoji && emoji !== THUMBS_UP && emoji !== THUMBS_DOWN
+      )
+    );
+    return reactionEmojis.filter((emoji) => !used.has(emoji));
+  };
+
   return (
     <div className="min-h-screen bg-muted py-12">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -449,7 +472,7 @@ function ForumPageClient() {
                           )}
 
                           <div className="mt-3 flex flex-wrap items-center gap-2">
-                            {[THUMBS_UP, THUMBS_DOWN, ...reactionEmojis].filter((value, index, arr) => arr.indexOf(value) === index).map((emoji) => (
+                            {[THUMBS_UP, THUMBS_DOWN].map((emoji) => (
                               <button
                                 key={`${post.id}-${emoji}`}
                                 type="button"
@@ -464,6 +487,52 @@ function ForumPageClient() {
                                 <span>{post.emoji_counts?.[emoji] || 0}</span>
                               </button>
                             ))}
+                            {getEmojiSequence(post).map((emoji) => (
+                              <button
+                                key={`${post.id}-${emoji}`}
+                                type="button"
+                                onClick={() => reactToItem('post', post.id, emoji)}
+                                className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs ${
+                                  post.viewer_emojis.includes(emoji)
+                                    ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                                    : 'border-border bg-muted text-muted-foreground hover:bg-card'
+                                }`}
+                              >
+                                <span>{emoji}</span>
+                                <span>{post.emoji_counts?.[emoji] || 0}</span>
+                              </button>
+                            ))}
+                            {getAvailableEmojis(post).length > 0 && (
+                              <div className="relative">
+                                <button
+                                  type="button"
+                                  onClick={() => setEmojiPickerOpenId((prev) => (prev === `post-${post.id}` ? null : `post-${post.id}`))}
+                                  className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-card"
+                                >
+                                  <Smile className="h-3.5 w-3.5" />
+                                  Tap an emoji to react
+                                </button>
+                                {emojiPickerOpenId === `post-${post.id}` && (
+                                  <div className="absolute left-0 top-full z-20 mt-2 w-max rounded-xl border border-border bg-card p-2 shadow-lg">
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {getAvailableEmojis(post).map((emoji) => (
+                                        <button
+                                          key={`${post.id}-picker-${emoji}`}
+                                          type="button"
+                                          onClick={() => {
+                                            reactToItem('post', post.id, emoji);
+                                            setEmojiPickerOpenId(null);
+                                          }}
+                                          className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-muted text-base transition-colors hover:bg-card"
+                                        >
+                                          {emoji}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
 
                           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -527,7 +596,7 @@ function ForumPageClient() {
                                     </div>
                                   )}
                                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                                    {[THUMBS_UP, THUMBS_DOWN, ...reactionEmojis].filter((value, index, arr) => arr.indexOf(value) === index).map((emoji) => (
+                                    {[THUMBS_UP, THUMBS_DOWN].map((emoji) => (
                                       <button
                                         key={`${reply.id}-${emoji}`}
                                         type="button"
@@ -542,6 +611,52 @@ function ForumPageClient() {
                                         <span>{reply.emoji_counts?.[emoji] || 0}</span>
                                       </button>
                                     ))}
+                                    {getEmojiSequence(reply).map((emoji) => (
+                                      <button
+                                        key={`${reply.id}-${emoji}`}
+                                        type="button"
+                                        onClick={() => reactToItem('reply', reply.id, emoji)}
+                                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs ${
+                                          reply.viewer_emojis.includes(emoji)
+                                            ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
+                                            : 'border-border bg-card text-muted-foreground hover:bg-muted'
+                                        }`}
+                                      >
+                                        <span>{emoji}</span>
+                                        <span>{reply.emoji_counts?.[emoji] || 0}</span>
+                                      </button>
+                                    ))}
+                                    {getAvailableEmojis(reply).length > 0 && (
+                                      <div className="relative">
+                                        <button
+                                          type="button"
+                                          onClick={() => setEmojiPickerOpenId((prev) => (prev === `reply-${reply.id}` ? null : `reply-${reply.id}`))}
+                                          className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-card"
+                                        >
+                                          <Smile className="h-3.5 w-3.5" />
+                                          Tap an emoji to react
+                                        </button>
+                                        {emojiPickerOpenId === `reply-${reply.id}` && (
+                                          <div className="absolute left-0 top-full z-20 mt-2 w-max rounded-xl border border-border bg-card p-2 shadow-lg">
+                                            <div className="flex flex-wrap gap-1.5">
+                                              {getAvailableEmojis(reply).map((emoji) => (
+                                                <button
+                                                  key={`${reply.id}-picker-${emoji}`}
+                                                  type="button"
+                                                  onClick={() => {
+                                                    reactToItem('reply', reply.id, emoji);
+                                                    setEmojiPickerOpenId(null);
+                                                  }}
+                                                  className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-muted text-base transition-colors hover:bg-card"
+                                                >
+                                                  {emoji}
+                                                </button>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
                                     {reply.is_owner && (
                                       <>
                                         <Button size="sm" variant="outline" onClick={() => editReply(post.id, reply)}>Edit</Button>
