@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'anonymous_id is required' }, { status: 400 });
     }
 
-    const supabase: any = createClient();
+    const supabase: any = createServiceClient();
 
     const { data: bannedRows } = await supabase
       .from('banned_words')

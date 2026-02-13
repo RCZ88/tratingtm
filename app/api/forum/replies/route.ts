@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { scanForProfanity } from '@/lib/utils/profanityServer';
 import { normalizeReaction, THUMBS_DOWN, THUMBS_UP } from '@/lib/utils/commentReactions';
 
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'post_id is required' }, { status: 400 });
     }
 
-    const supabase: any = createClient();
+    const supabase: any = createServiceClient();
     const { data: rows, error } = await supabase
       .from('forum_replies')
       .select('*')
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'post_id, body, and anonymous_id are required' }, { status: 400 });
     }
 
-    const supabase: any = createClient();
+    const supabase: any = createServiceClient();
 
     const { data: post } = await supabase
       .from('forum_posts')

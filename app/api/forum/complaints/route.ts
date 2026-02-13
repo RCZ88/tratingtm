@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { scanForProfanity } from '@/lib/utils/profanityServer';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'description and anonymous_id are required' }, { status: 400 });
     }
 
-    const supabase: any = createClient();
+    const supabase: any = createServiceClient();
     const { data: bannedRows } = await supabase
       .from('banned_words')
       .select('word')

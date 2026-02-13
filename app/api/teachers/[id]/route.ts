@@ -87,14 +87,20 @@ export async function GET(
     // Fetch recent approved comments
     const { data: comments } = await supabase
       .from('comments')
-      .select('id, comment_text, created_at')
+      .select('id, comment_text, anonymous_id, created_at')
       .eq('teacher_id', id)
       .eq('is_approved', true)
       .eq('is_flagged', false)
       .order('created_at', { ascending: false })
       .limit(10);
     const reactionAggregate = await aggregateCommentReactions(supabase, comments || [], { anonymousId });
-    const commentsWithReactions = reactionAggregate.comments;
+    const commentsWithReactions = reactionAggregate.comments.map((comment: any) => {
+      const { anonymous_id, ...rest } = comment;
+      return {
+        ...rest,
+        is_owner: !!anonymousId && anonymous_id === anonymousId,
+      };
+    });
 
 
     const weekStart = toISODate(getCurrentWeekStart());

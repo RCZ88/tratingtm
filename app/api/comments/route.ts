@@ -43,9 +43,16 @@ export async function GET(request: NextRequest) {
     }
 
     const aggregated = await aggregateCommentReactions(supabase, comments || [], { anonymousId });
+    const enrichedComments = aggregated.comments.map((comment: any) => {
+      const { anonymous_id, ...rest } = comment;
+      return {
+        ...rest,
+        is_owner: !!anonymousId && anonymous_id === anonymousId,
+      };
+    });
 
     return NextResponse.json({
-      data: aggregated.comments,
+      data: enrichedComments,
       meta: {
         available_reaction_emojis: aggregated.availableEmojis,
       },

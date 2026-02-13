@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/Button';
 import { getAnonymousId } from '@/lib/utils/anonymousId';
 import { formatRelativeTime } from '@/lib/utils/dateHelpers';
-import { MessageSquare, User, CornerDownRight, Smile } from 'lucide-react';
+import { MessageSquare, User, CornerDownRight, Smile, Pencil, Trash2 } from 'lucide-react';
 import {
   defaultReactionEmojis,
   THUMBS_DOWN,
@@ -17,6 +17,7 @@ export interface CommentListProps {
     id: string;
     comment_text: string;
     created_at: string;
+    is_owner?: boolean;
     like_count?: number;
     dislike_count?: number;
     viewer_reaction?: 'like' | 'dislike' | null;
@@ -73,6 +74,12 @@ const CommentList: React.FC<CommentListProps> = ({
   const [replyError, setReplyError] = React.useState<string | null>(null);
   const [replySuccess, setReplySuccess] = React.useState<string | null>(null);
   const [isSubmittingReply, setIsSubmittingReply] = React.useState(false);
+  const [editCommentId, setEditCommentId] = React.useState<string | null>(null);
+  const [editCommentText, setEditCommentText] = React.useState('');
+  const [isSavingEdit, setIsSavingEdit] = React.useState(false);
+  const [isDeletingCommentId, setIsDeletingCommentId] = React.useState<string | null>(null);
+  const [ownerActionError, setOwnerActionError] = React.useState<string | null>(null);
+  const anonymousId = React.useMemo(() => getAnonymousId(), []);
 
   React.useEffect(() => {
     setLocalComments(comments);
@@ -122,7 +129,6 @@ const CommentList: React.FC<CommentListProps> = ({
     if (!teacherId) return;
     setIsLoadingMore(true);
     try {
-      const anonymousId = getAnonymousId();
       const params = new URLSearchParams();
       params.set('teacher_id', teacherId);
       params.set('anonymous_id', anonymousId);
@@ -258,6 +264,101 @@ const CommentList: React.FC<CommentListProps> = ({
         next.delete(commentId);
         return next;
       });
+    }
+  };
+
+  const beginEditComment = (commentId: string, currentText: string) => {
+    setOwnerActionError(null);
+    setEditCommentId(commentId);
+    setEditCommentText(currentText);
+  };
+
+  const cancelEditComment = () => {
+    setEditCommentId(null);
+    setEditCommentText('');
+    setOwnerActionError(null);
+  };
+
+  const saveEditComment = async () => {
+    if (!editCommentId) return;
+    const trimmed = editCommentText.trim();
+    if (trimmed.length < 10) {
+      setOwnerActionError('Comment must be at least 10 characters.');
+      return;
+    }
+    if (trimmed.length > 500) {
+      setOwnerActionError('Comment cannot exceed 500 characters.');
+      return;
+    }
+
+    setIsSavingEdit(true);
+    setOwnerActionError(null);
+    try {
+      const response = await fetch(`/api/comments/${editCommentId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          anonymous_id: anonymousId,
+          comment_text: trimmed,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to edit comment');
+      }
+
+      if (data.requires_approval) {
+        setLocalComments((prev) => prev.filter((comment) => comment.id !== editCommentId));
+        setReplySuccess('Comment updated and sent for moderation.');
+      } else {
+        setLocalComments((prev) =>
+          prev.map((comment) =>
+            comment.id === editCommentId
+              ? {
+                  ...comment,
+                  comment_text: data?.data?.comment_text || trimmed,
+                }
+              : comment
+          )
+        );
+        setReplySuccess('Comment updated.');
+      }
+
+      setEditCommentId(null);
+      setEditCommentText('');
+    } catch (error) {
+      setOwnerActionError(error instanceof Error ? error.message : 'Failed to edit comment');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
+  const deleteOwnComment = async (commentId: string) => {
+    setOwnerActionError(null);
+    setIsDeletingCommentId(commentId);
+    try {
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          anonymous_id: anonymousId,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete comment');
+      }
+
+      setLocalComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      if (editCommentId === commentId) {
+        setEditCommentId(null);
+        setEditCommentText('');
+      }
+      setReplySuccess('Comment deleted.');
+    } catch (error) {
+      setOwnerActionError(error instanceof Error ? error.message : 'Failed to delete comment');
+    } finally {
+      setIsDeletingCommentId(null);
     }
   };
 
@@ -473,6 +574,7 @@ const CommentList: React.FC<CommentListProps> = ({
 
       {replyError && <div className="rounded-md bg-red-500/10 dark:bg-red-500/20 p-2 text-xs text-red-600 dark:text-red-300">{replyError}</div>}
       {replySuccess && <div className="rounded-md bg-emerald-500/10 p-2 text-xs text-emerald-700 dark:text-emerald-200">{replySuccess}</div>}
+      {ownerActionError && <div className="rounded-md bg-red-500/10 dark:bg-red-500/20 p-2 text-xs text-red-600 dark:text-red-300">{ownerActionError}</div>}
 
       {sortedComments.map((comment) => {
         const viewerEmojis = comment.viewer_emojis || [];
@@ -496,7 +598,27 @@ const CommentList: React.FC<CommentListProps> = ({
               <time className="text-xs text-muted-foreground">{formatRelativeTime(comment.created_at)}</time>
             </div>
 
-            <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{comment.comment_text}</p>
+            {editCommentId === comment.id ? (
+              <div className="mt-3 space-y-2">
+                <textarea
+                  value={editCommentText}
+                  onChange={(e) => setEditCommentText(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+                  maxLength={500}
+                />
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button size="sm" onClick={saveEditComment} isLoading={isSavingEdit}>
+                    Save
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={cancelEditComment}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{comment.comment_text}</p>
+            )}
 
             <div className="mt-4 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
@@ -594,6 +716,27 @@ const CommentList: React.FC<CommentListProps> = ({
                 </button>
 
                 <span className="text-xs text-muted-foreground">{replyCount} repl{replyCount === 1 ? 'y' : 'ies'}</span>
+                {comment.is_owner && editCommentId !== comment.id && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => beginEditComment(comment.id, comment.comment_text)}
+                      className="inline-flex items-center gap-1 rounded-lg bg-muted px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-card"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isDeletingCommentId === comment.id}
+                      onClick={() => deleteOwnComment(comment.id)}
+                      className="inline-flex items-center gap-1 rounded-lg bg-muted px-2 py-1 text-xs font-medium text-rose-600 hover:bg-card disabled:opacity-60"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      {isDeletingCommentId === comment.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 

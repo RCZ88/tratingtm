@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +30,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Post content is required' }, { status: 400 });
     }
 
-    const supabase: any = createClient();
+    const supabase: any = createServiceClient();
     const { data: existing } = await supabase
       .from('forum_posts')
       .select('id, anonymous_id, author_role')
@@ -81,7 +81,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'anonymous_id is required' }, { status: 400 });
     }
 
-    const supabase: any = createClient();
+    const supabase: any = createServiceClient();
     const { data: existing } = await supabase
       .from('forum_posts')
       .select('id, anonymous_id, author_role')

@@ -46,6 +46,7 @@ interface TeacherData {
     id: string;
     comment_text: string;
     created_at: string;
+    is_owner?: boolean;
     like_count: number;
     dislike_count: number;
     viewer_reaction: 'like' | 'dislike' | null;

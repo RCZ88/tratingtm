@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { normalizeReaction, THUMBS_DOWN, THUMBS_UP } from '@/lib/utils/commentReactions';
 
 export const dynamic = 'force-dynamic';
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Emoji is required' }, { status: 400 });
     }
 
-    const supabase: any = createClient();
+    const supabase: any = createServiceClient();
     const { data: allowedRows } = await supabase
       .from('comment_reaction_emojis')
       .select('emoji')
